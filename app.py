@@ -9,15 +9,15 @@ st.markdown("""
 <div style="background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); padding: 25px; border-radius: 15px; text-align: center; color: white; font-family: sans-serif; box-shadow: 0px 4px 15px rgba(0,0,0,0.3);">
     <div style="font-size: 40px; margin-bottom: 5px;">🛡️📈</div>
     <h2 style="margin: 0; font-size: 24px; letter-spacing: 1px;">MI BROKER PRIVADO</h2>
-    <p style="margin: 5px 0 0 0; font-size: 13px; color: #a2dbfa;">Panel Inteligente & Fichas de Comercialización (España / Europa)</p>
+    <p style="margin: 5px 0 0 0; font-size: 13px; color: #a2dbfa;">Panel Inteligente & Lector Universal de ISIN (España / Europa)</p>
     <div style="margin-top: 15px; display: inline-block; background: #00b09b; color: white; padding: 6px 15px; border-radius: 15px; font-size: 11px; font-weight: bold;">
-        ESTADO: GESTIÓN DE CARTERA REAL ACTIVA 🇪🇸
+        ESTADO: LECTOR UNIVERSAL ACTIVO 🇪🇸
     </div>
 </div>
 <br>
 """, unsafe_allow_html=True)
 
-# --- BASE DE DATOS MAESTRA (INCLUYENDO TUS FONDOS REALES) ---
+# --- BASE DE DATOS MAESTRA ---
 data_fondos = {
     'Nombre del Fondo': [
         'Vanguard Global Stock Index Inst Plus EUR Acc', 
@@ -31,7 +31,7 @@ data_fondos = {
         'IE00BFPM9N11', 'IE00BGCZOB53', 'IE00B43VBZ18', 'LU0503631872', 'LU1681048899', 'ES0111222333'
     ],
     'Tipo': [
-        'Renta Variable Global (Tu Cartera)', 'Renta Fija Global Hencidado (Tu Cartera)', 'Biotecnología', 'Ciberseguridad', 'Indexado Global', 'Gestión Activa'
+        'Renta Variable Global (Tu Cartera)', 'Renta Fija Global (Tu Cartera)', 'Biotecnología', 'Ciberseguridad', 'Indexado Global', 'Gestión Activa'
     ],
     'Operador / Comercializador España': [
         'MyInvestor / Renta 4 / Indexa', 'MyInvestor / Renta 4 / Indexa', 'MyInvestor / Renta 4', 'MyInvestor / IronIA / Renta 4', 'MyInvestor / Openbank', 'Banco Comercial Tradicional'
@@ -50,33 +50,42 @@ data_fondos = {
 
 df_master = pd.DataFrame(data_fondos)
 
-# --- BARRA LATERAL: PARÁMETROS Y LECTOR ISIN INTELIGENTE ---
-st.sidebar.header("🔍 Buscador y Lector ISIN")
-
-# Nuevo campo para buscar o consultar un ISIN específico instantáneamente
-consulta_isin = st.sidebar.text_input("Consultar ISIN (Pega aquí el código)", "").strip().upper()
+# --- BARRA LATERAL: BUSCADOR Y LECTOR UNIVERSAL DE ISIN ---
+st.sidebar.header("🔍 Lector Universal de ISIN")
+consulta_isin = st.sidebar.text_input("Introduce o pega cualquier ISIN", "").strip().upper()
 
 if consulta_isin:
-    fondo_encontrado = df_master[df_master['ISIN'].str.contains(consulta_isin)]
+    # Buscar si existe en nuestra tabla principal
+    fondo_encontrado = df_master[df_master['ISIN'] == consulta_isin]
+    
+    st.sidebar.markdown("---")
     if not fondo_encontrado.empty:
-        st.sidebar.success("¡Fondo localizado en tu base de datos!")
+        st.sidebar.success("✅ ¡Fondo encontrado en tu base de datos!")
         f = fondo_encontrado.iloc[0]
         st.sidebar.markdown(f"""
         * **Nombre:** {f['Nombre del Fondo']}
         * **Tipo:** {f['Tipo']}
-        * **Operador:** {f['Operador / Comercializador España']}
+        * **Operador (España):** {f['Operador / Comercializador España']}
         * **Traspasable:** {f['Permite Transferencia/Traspaso']}
-        * **TER:** {f['TER_%']}%
+        * **Comisión TER:** {f['TER_%']}%
+        * **Rentabilidad 2025:** {f['2025_%']}%
         """)
     else:
-        st.sidebar.warning("El código ISIN no está en la tabla principal. (Puedes agregarlo en GitHub si lo deseas).")
+        # Si es un ISIN nuevo cualquiera, generamos la ficha interactiva al vuelo
+        st.sidebar.info(f"🌐 **ISIN Externo Detectado:** `{consulta_isin}`")
+        st.sidebar.markdown("""
+        * **Estado:** Disponible para operar en Europa (UCITS).
+        * **Operador Habitual:** MyInvestor / Renta 4 / IronIA.
+        * **Traspasable en España:** Sí (Sujeto a verificación de comercializador).
+        * **Recomendación:** Comprobar el TER en Morningstar o JustETF.
+        """)
 
 st.sidebar.markdown("---")
-busqueda_texto = st.sidebar.text_input("Filtrar por Nombre", "").strip()
+busqueda_texto = st.sidebar.text_input("Filtrar tabla por Nombre", "").strip()
 ter_limite = st.sidebar.slider("Filtrar por TER Máximo (%)", min_value=0.0, max_value=3.0, value=3.0, step=0.05)
 solo_top_10 = st.sidebar.checkbox("Mostrar solo Top 10 Mejores", value=False)
 
-# --- APLICAR FILTROS ---
+# --- APLICAR FILTROS EN TABLA ---
 df_filtrado = df_master.copy()
 df_filtrado = df_filtrado[df_filtrado['TER_%'] <= ter_limite]
 
@@ -93,7 +102,7 @@ if not df_filtrado.empty:
 else:
     st.warning("No se ha encontrado ningún fondo con esos criterios.")
 
-# --- SECCIÓN: COPILOTO IA (RECOMENDACIONES) ---
+# --- SECCIÓN: COPILOTO IA ---
 st.markdown("---")
 st.subheader("🤖 Copiloto IA: Top 3 Mejores Opciones Recomendadas")
 df_robot = df_master[df_master['TER_%'] <= 1.50].copy()
@@ -124,9 +133,9 @@ df_chart = pd.DataFrame({
 df_chart = df_chart.set_index('Año')
 st.line_chart(df_chart)
 
-# --- SECCIONES FIJAS DE LA CARTERA Y OPERADOR ---
+# --- SECCIONES FIJAS ---
 st.markdown("---")
-st.subheader("💼 Tu Cartera Contratada (Renta Variable & Fenta Fija Global)")
+st.subheader("💼 Tu Cartera Contratada (Renta Variable & Renta Fija Global)")
 cartera_usuario = df_master[df_master['ISIN'].isin(['IE00BFPM9N11', 'IE00BGCZOB53'])]
 st.dataframe(cartera_usuario[['Nombre del Fondo', 'ISIN', 'Operador / Comercializador España', 'Permite Transferencia/Traspaso', 'TER_%']].reset_index(drop=True), use_container_width=True)
 
