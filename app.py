@@ -38,11 +38,36 @@ data_fondos = {
 
 df_master = pd.DataFrame(data_fondos)
 
-# --- VISUALIZACIÓN DE FILTROS ---
-st.subheader("📊 Tus Fondos Seleccionados (Bajos Costes / Estilo Indexa)")
+# --- BARRA LATERAL: PARÁMETROS DE BÚSQUEDA ---
+st.sidebar.header("🔍 Parámetros de Búsqueda")
+busqueda_texto = st.sidebar.text_input("Buscar por Nombre o ISIN", "").strip()
+ter_limite = st.sidebar.slider("Filtrar por TER Máximo (%)", min_value=0.0, max_value=3.0, value=3.0, step=0.05)
+
+# --- APLICAR FILTROS ---
+df_filtrado = df_master.copy()
+
+# Filtro por deslizador de TER
+df_filtrado = df_filtrado[df_filtrado['TER_Anual_%'] <= ter_limite]
+
+# Filtro por caja de texto (Nombre o ISIN)
+if busqueda_texto:
+    mask = df_filtrado['Nombre del Fondo'].str.contains(busqueda_texto, case=False, na=False) | \
+           df_filtrado['ISIN'].str.contains(busqueda_texto, case=False, na=False)
+    df_filtrado = df_filtrado[mask]
+
+# --- VISUALIZACIÓN DE RESULTADOS ---
+st.subheader("📊 Resultados de la Búsqueda")
+if not df_filtrado.empty:
+    st.dataframe(df_filtrado.reset_index(drop=True), use_container_width=True)
+else:
+    st.warning("No se ha encontrado ningún fondo con esos criterios de búsqueda.")
+
+# --- SECCIONES FIJAS DE CONTROL ---
+st.markdown("---")
+st.subheader("✅ Cartera Optimizada (Bajos Costes / TER ≤ 0.50%)")
 cartera_optimizada = df_master[df_master['TER_Anual_%'] <= 0.50]
 st.dataframe(cartera_optimizada.reset_index(drop=True), use_container_width=True)
 
-st.subheader("❌ Fondos Descartados (Banca Tradicional)")
+st.subheader("❌ Fondos Descartados (Banca Tradicional / TER > 0.50%)")
 fondos_descartados = df_master[df_master['TER_Anual_%'] > 0.50]
 st.dataframe(fondos_descartados[['Nombre del Fondo', 'Tipo', 'TER_Anual_%']].reset_index(drop=True), use_container_width=True)
