@@ -11,10 +11,10 @@ if 'historico_consultas' not in st.session_state:
 if 'cartera_vigilada' not in st.session_state:
     st.session_state.cartera_vigilada = [
         {'ISIN': 'IE00BFPM9N11', 'Nombre': 'Vanguard Global Stock Index Inst Plus EUR Acc', 'Suelo_%': -10.0, 'Techo_%': 25.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': 4.5},
-        {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -9.2} # Ejemplo que activa la alerta del suelo
+        {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -2.1} # Dentro de rango para que no salte el modal por defecto
     ]
 
-# Comprobación automática de bandas para la alerta urgente por email
+# Comprobación de bandas: solo salta si se rebasa el suelo o el techo de forma real
 alerta_detectada = False
 fondo_alerta = None
 for item in st.session_state.cartera_vigilada:
@@ -28,7 +28,7 @@ st.markdown("""
 <div style="background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); padding: 25px; border-radius: 15px; text-align: center; color: white; font-family: sans-serif; box-shadow: 0px 4px 15px rgba(0,0,0,0.3);">
     <div style="font-size: 40px; margin-bottom: 5px;">🛡️📈</div>
     <h2 style="margin: 0; font-size: 24px; letter-spacing: 1px;">MI BROKER PRIVADO</h2>
-    <p style="margin: 5px 0 0 0; font-size: 13px; color: #a2dbfa;">Panel Inteligente, Copiloto IA & Vigilancia 24h (España / Europa)</p>
+    <p style="margin: 5px 0 0 0; font-size: 13px; color: #a2dbfa;">Panel Inteligente, Core en Indexa & Vigilancia 24h (España / Europa)</p>
 </div>
 <br>
 """, unsafe_allow_html=True)
@@ -47,10 +47,10 @@ data_fondos = {
         'IE00BFPM9N11', 'IE00BGCZOB53', 'IE00B43VBZ18', 'LU0503631872', 'LU1681048899', 'ES0111222333'
     ],
     'Tipo': [
-        'Renta Variable Global (Tu Cartera)', 'Renta Fija Global (Tu Cartera)', 'Biotecnología', 'Ciberseguridad', 'Indexado Global', 'Gestión Activa'
+        'Renta Variable Global (Core)', 'Renta Fija Global (Core)', 'Biotecnología (Satélite)', 'Ciberseguridad (Satélite)', 'Indexado Global', 'Gestión Activa'
     ],
     'Operador / Comercializador España': [
-        'MyInvestor / Renta 4 / Indexa', 'MyInvestor / Renta 4 / Indexa', 'MyInvestor / Renta 4', 'MyInvestor / IronIA / Renta 4', 'MyInvestor / Openbank', 'Banco Comercial Tradicional'
+        'Indexa Capital (Tu Núcleo Core)', 'Indexa Capital (Tu Núcleo Core)', 'MyInvestor / Renta 4', 'MyInvestor / IronIA / Renta 4', 'MyInvestor / Openbank', 'Banco Comercial Tradicional'
     ],
     'Permite Transferencia/Traspaso': [
         'Sí (Traspasable sin peaje fiscal)', 'Sí (Traspasable sin peaje fiscal)', 'Sí (Traspasable)', 'Sí (Traspasable)', 'Sí (Traspasable)', 'Sí (Sujeto a comisiones)'
@@ -206,7 +206,7 @@ with tab1:
     st.markdown("Control de tus posiciones vigiladas con avisos automáticos a `mahega2005@gmail.com`:")
     df_vigilancia = pd.DataFrame(st.session_state.cartera_vigilada)
     st.dataframe(df_vigilancia, use_container_width=True)
-    st.info("💡 **Nota:** Si la rentabilidad actual perfora el suelo o supera el techo configurado, la aplicación lanzará la alerta en ventana flotante de forma automática al abrirla.")
+    st.info("💡 **Nota:** La alerta en ventana flotante solo se activará de forma automática si un fondo perfora el suelo o supera el techo configurado.")
 
 with tab2:
     st.subheader("📊 Buscador de Fondos e Histórico Anual")
@@ -251,6 +251,6 @@ with tab4:
     st.line_chart(df_chart)
 
     st.markdown("---")
-    st.subheader("💼 Tu Cartera Contratada Real")
+    st.subheader("💼 Tu Cartera Core Contratada (Indexa Capital)")
     cartera_usuario = df_master[df_master['ISIN'].isin(['IE00BFPM9N11', 'IE00BGCZOB53'])]
     st.dataframe(cartera_usuario[['Nombre del Fondo', 'ISIN', 'Operador / Comercializador España', 'Permite Transferencia/Traspaso', 'TER_%']].reset_index(drop=True), use_container_width=True)
