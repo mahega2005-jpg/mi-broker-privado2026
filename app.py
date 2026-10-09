@@ -4,7 +4,7 @@ import pandas as pd
 # Configuración de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- ESTILOS CSS DEFINITIVOS: CABECERA Y BARRA IGUALES, AVISO IGUAL A PESTAÑA ACTIVA ---
+# --- ESTILOS CSS DEFINITIVOS: SIMETRÍA Y ARMONÍA VISUAL ---
 st.markdown("""
 <style>
     /* Fondo general de la aplicación en tono gris/azulado suave estilo Gemini */
@@ -41,7 +41,7 @@ st.markdown("""
         font-size: 14px;
         border: 1px solid #cbd5e1;
     }
-    /* Pestaña seleccionada (activa): Tono sombreado sutil que ahora comparte la caja de aviso) */
+    /* Pestaña seleccionada (activa) */
     .stTabs [aria-selected="true"] {
         background-color: #cbd5e1 !important;
         color: #0f172a !important;
@@ -87,7 +87,7 @@ for item in st.session_state.cartera_vigilada:
         fondo_alerta = item
         break
 
-# --- CABECERA Y LOGOTIPO (MISMO TONO QUE LA BARRA LATERAL) ---
+# --- CABECERA Y LOGOTIPO ---
 st.markdown("""
 <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 25px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 2px solid #3b82f6; box-shadow: 0px 4px 15px rgba(0,0,0,0.08);">
     <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
@@ -234,7 +234,7 @@ with st.sidebar.expander("➕ Añadir ISIN a Vigilancia (Suelo/Techo)", expanded
 
 st.sidebar.markdown("---")
 st.sidebar.header("🔍 Lector Universal de ISIN")
-consulta_isin = st.sidebar.text_input("Consultar cualquier ISIN", "").strip().upper()
+consulta_isin = st.sidebar.text_input("Consultar cualquier ISIN (Ej: LU1121307729)", "").strip().upper()
 
 if consulta_isin:
     if consulta_isin not in [item['ISIN'] for item in st.session_state.historico_consultas]:
@@ -256,10 +256,11 @@ if consulta_isin:
         st.session_state.historico_consultas.insert(0, info_reg)
 
     st.sidebar.markdown("---")
-    st.sidebar.success(f"✅ ISIN listo: `{consulta_isin}`")
+    st.sidebar.success(f"✅ ISIN detectado: `{consulta_isin}`")
     reg_actual = next((item for item in st.session_state.historico_consultas if item['ISIN'] == consulta_isin), None)
     
-    if reg_actual and st.sidebar.button("📂 Ver Ficha y Portales", type="primary", use_container_width=True):
+    # Botón exclusivo y directo para abrir la ficha del ISIN consultado
+    if reg_actual and st.sidebar.button(f"📂 Abrir Ficha de {consulta_isin}", type="primary", use_container_width=True):
         abrir_modal_detalle(
             reg_actual['Nombre'], reg_actual['ISIN'], reg_actual['Tipo'], 
             reg_actual['Operador'], reg_actual['Traspaso'], reg_actual['TER'], 
