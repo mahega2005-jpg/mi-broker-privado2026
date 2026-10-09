@@ -4,55 +4,57 @@ import pandas as pd
 # Configuración de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- ESTILOS CSS: MODO CLARO ELEGANTE Y LUMINOSO ---
+# --- ESTILOS CSS: INSPIRADOS EN EL LOGOTIPO (BRONCE, PLATA Y GRIS SUAVE) ---
 st.markdown("""
 <style>
-    /* Fondo general de la aplicación en blanco/gris muy suave */
+    /* Fondo general de la aplicación en gris suave y sofisticado */
     .stApp {
-        background-color: #f8fafc;
-        color: #0f172a;
+        background-color: #151922;
+        color: #e2e8f0;
     }
     
-    /* Contenedores y tarjetas */
+    /* Contenedores y tarjetas transparentes */
     div.stMarkdownContainer, div.stDataFrame {
         background-color: transparent;
     }
     
-    /* Pestañas superiores estilizadas en modo claro */
+    /* Pestañas superiores estilizadas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 6px;
-        background-color: #e2e8f0;
+        background-color: #1e2430;
         padding: 6px;
         border-radius: 12px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid #2d3748;
     }
     .stTabs [data-baseweb="tab"] {
-        background-color: #ffffff;
+        background-color: #1a202c;
         border-radius: 8px;
-        color: #475569 !important;
+        color: #a0aec0 !important;
         padding: 10px 16px;
         font-weight: 600;
         font-size: 14px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid #2d3748;
     }
-    /* Pestaña seleccionada: Azul corporativo vibrante y texto blanco */
+    /* Pestaña seleccionada: Sutil sombreado elegante inspirado en bronce/plata suave sin colores fuertes */
     .stTabs [aria-selected="true"] {
-        background-color: #2563eb !important;
-        color: #ffffff !important;
-        border-color: #1d4ed8 !important;
+        background: linear-gradient(135deg, #2d3748, #1a202c) !important;
+        color: #f7fafc !important;
+        border-color: #b7791f !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
     /* Botones principales y de la barra lateral */
     .stButton button {
-        background-color: #ffffff;
-        color: #0f172a;
-        border: 1px solid #cbd5e1;
+        background-color: #1a202c;
+        color: #e2e8f0;
+        border: 1px solid #2d3748;
         border-radius: 8px;
         font-weight: 500;
     }
     .stButton button:hover {
-        background-color: #f1f5f9;
-        border-color: #94a3b8;
+        background-color: #2d3748;
+        border-color: #b7791f;
+        color: #ffffff;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -79,12 +81,12 @@ for item in st.session_state.cartera_vigilada:
         fondo_alerta = item
         break
 
-# --- CABECERA Y LOGOTIPO (MODO CLARO) ---
+# --- CABECERA Y LOGOTIPO (ESTÉTICA BRONCE Y PLATA) ---
 st.markdown("""
-<div style="background: linear-gradient(135deg, #ffffff, #f1f5f9); padding: 25px; border-radius: 12px; text-align: center; color: #0f172a; border: 1px solid #cbd5e1; box-shadow: 0px 4px 15px rgba(0,0,0,0.05);">
+<div style="background: linear-gradient(135deg, #1a202c, #111827); padding: 25px; border-radius: 12px; text-align: center; color: white; border: 1px solid #2d3748; box-shadow: 0px 4px 20px rgba(0,0,0,0.5);">
     <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
-    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #2563eb;">MI BROKER PRIVADO</h2>
-    <p style="margin: 6px 0 0 0; font-size: 13px; color: #64748b;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
+    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #d69e2e;">MI BROKER PRIVADO</h2>
+    <p style="margin: 6px 0 0 0; font-size: 13px; color: #a0aec0;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
 </div>
 <br>
 """, unsafe_allow_html=True)
