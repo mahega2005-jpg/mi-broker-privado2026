@@ -4,7 +4,7 @@ import pandas as pd
 # Configuración de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- ESTILOS CSS: ESTILO GEMINI (FONDO LUMINOSO SUAVE Y PESTAÑAS SUTILMENTE SOMBREADAS) ---
+# --- ESTILOS CSS: FONDO LUMINOSO ESTILO GEMINI + CABECERA EN AZUL INTENSO ---
 st.markdown("""
 <style>
     /* Fondo general de la aplicación en tono gris/azulado suave estilo Gemini */
@@ -81,12 +81,12 @@ for item in st.session_state.cartera_vigilada:
         fondo_alerta = item
         break
 
-# --- CABECERA Y LOGOTIPO ---
+# --- CABECERA Y LOGOTIPO CON PANEL CENTRAL EN AZUL INTENSO ---
 st.markdown("""
-<div style="background: linear-gradient(135deg, #ffffff, #e2e8f0); padding: 25px; border-radius: 12px; text-align: center; color: #1f2328; border: 1px solid #cbd5e1; box-shadow: 0px 4px 15px rgba(0,0,0,0.05);">
+<div style="background: linear-gradient(135deg, #1d4ed8, #1e40af); padding: 25px; border-radius: 12px; text-align: center; color: white; border: 1px solid #3b82f6; box-shadow: 0px 4px 15px rgba(0,0,0,0.15);">
     <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
-    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #1a73e8;">MI BROKER PRIVADO</h2>
-    <p style="margin: 6px 0 0 0; font-size: 13px; color: #5f6368;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
+    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #ffffff;">MI BROKER PRIVADO</h2>
+    <p style="margin: 6px 0 0 0; font-size: 13px; color: #bfdbfe;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
 </div>
 <br>
 """, unsafe_allow_html=True)
