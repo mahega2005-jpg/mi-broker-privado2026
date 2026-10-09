@@ -4,7 +4,7 @@ import pandas as pd
 # Configuración de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- ESTILOS CSS DEFINITIVOS: ARMONÍA VISUAL GEMINI + BARRA LATERAL UNIFICADA ---
+# --- ESTILOS CSS DEFINITIVOS: ARMONÍA VISUAL TOTAL (CABECERA, BARRA Y AVISO UNIFICADOS) ---
 st.markdown("""
 <style>
     /* Fondo general de la aplicación en tono gris/azulado suave estilo Gemini */
@@ -13,10 +13,10 @@ st.markdown("""
         color: #1f2328;
     }
     
-    /* Barra lateral unificada con el mismo tono suave y limpio */
+    /* Barra lateral unificada con el mismo tono azul suave y marcado de la cabecera */
     section[data-testid="stSidebar"] {
-        background-color: #f0f4f9;
-        border-right: 1px solid #cbd5e1;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        border-right: 1px solid #93c5fd;
     }
     
     /* Contenedores y tarjetas transparentes */
@@ -87,7 +87,7 @@ for item in st.session_state.cartera_vigilada:
         fondo_alerta = item
         break
 
-# --- CABECERA Y LOGOTIPO CON PANEL CENTRAL SUAVE Y MARCADO ---
+# --- CABECERA Y LOGOTIPO CON EL TONO AZUL SUAVE Y MARCADO ---
 st.markdown("""
 <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 25px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 1px solid #93c5fd; box-shadow: 0px 4px 15px rgba(0,0,0,0.05);">
     <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
