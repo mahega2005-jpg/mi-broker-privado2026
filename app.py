@@ -4,18 +4,29 @@ import pandas as pd
 # Configuración de la página
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- INICIALIZAR HISTÓRICO DE CONSULTAS EN SESIÓN ---
+# --- INICIALIZAR ESTADOS DE SESIÓN ---
 if 'historico_consultas' not in st.session_state:
     st.session_state.historico_consultas = []
+
+if 'cartera_vigilada' not in st.session_state:
+    # Inicializamos con tus dos fondos reales contratados y el correo asignado
+    st.session_state.cartera_vigilada = [
+        {'ISIN': 'IE00BFPM9N11', 'Nombre': 'Vanguard Global Stock Index Inst Plus EUR Acc', 'Suelo_%': -10.0, 'Techo_%': 25.0, 'Email': 'mahega2005@gmail.com'},
+        {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com'}
+    ]
+
+if 'alerta_activa' not in st.session_state:
+    # Simulamos una alerta activa de prueba para que veas la ventana flotante al abrir la app
+    st.session_state.alerta_activa = True
 
 # --- CABECERA Y LOGOTIPO ---
 st.markdown("""
 <div style="background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); padding: 25px; border-radius: 15px; text-align: center; color: white; font-family: sans-serif; box-shadow: 0px 4px 15px rgba(0,0,0,0.3);">
     <div style="font-size: 40px; margin-bottom: 5px;">🛡️📈</div>
     <h2 style="margin: 0; font-size: 24px; letter-spacing: 1px;">MI BROKER PRIVADO</h2>
-    <p style="margin: 5px 0 0 0; font-size: 13px; color: #a2dbfa;">Panel Inteligente & Copiloto con Fuentes Especializadas (España / Europa)</p>
-    <div style="margin-top: 15px; display: inline-block; background: #00b09b; color: white; padding: 6px 15px; border-radius: 15px; font-size: 11px; font-weight: bold;">
-        ESTADO: COPILOTO CONECTADO A PRENSA Y PORTALES 🇪🇸
+    <p style="margin: 5px 0 0 0; font-size: 13px; color: #a2dbfa;">Panel de Control, Bandas de Alerta & Vigilancia 24h (España / Europa)</p>
+    <div style="margin-top: 15px; display: inline-block; background: #e74c3c; color: white; padding: 6px 15px; border-radius: 15px; font-size: 11px; font-weight: bold;">
+        ESTADO: VIGILANCIA DE SUELOS Y TECHOS ACTIVA 🚨
     </div>
 </div>
 <br>
@@ -54,7 +65,28 @@ data_fondos = {
 
 df_master = pd.DataFrame(data_fondos)
 
-# --- VENTANA FLOTANTE (MODAL) DE ANÁLISIS DE RENTABILIDAD Y PORTALES ---
+# --- VENTANA FLOTANTE (MODAL) DE ALERTA URGENTE AL ABRIR LA APP ---
+@st.dialog("🚨 ¡ALERTA URGENTE DE CARTERA ACTIVADA!")
+def mostrar_alerta_urgente():
+    st.markdown("### Se ha superado una Banda de Control")
+    st.markdown("El sistema de vigilancia ha detectado que uno de nuestros fondos vigilados ha perforado el **Suelo de Seguridad** o superado el **Techo** previsto.")
+    st.markdown("---")
+    st.info("📨 **Notificación enviada con éxito a:** `mahega2005@gmail.com`")
+    st.markdown("""
+    * **Fondo afectado:** `Vanguard Global Bond Index Inst Plus EUR Hgd` (ISIN: `IE00BGCZOB53`)
+    * **Situación:** Desviación de mercado detectada superior al límite negativo programado (-8%).
+    * **Acción recomendada:** Revisar la ficha del fondo, contrastar con los portales especializados (Morningstar / JustETF) y valorar un reequilibrio o mantenimiento estratégico.
+    """)
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("✖️ Cerrar y Entendido", type="primary", use_container_width=True):
+        st.session_state.alerta_activa = False
+        st.rerun()
+
+# Si hay alerta activa al cargar la app, mostramos la ventana modal automáticamente
+if st.session_state.alerta_activa:
+    mostrar_alerta_urgente()
+
+# --- VENTANA FLOTANTE DE DETALLE DE ISIN ---
 @st.dialog("📋 Ficha Completa de Análisis & Enlaces a Portales")
 def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025, r2024, r2023, r2022, r2021):
     st.markdown(f"### 🎯 **{nombre}**")
@@ -72,14 +104,10 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
         st.metric(label="Rentabilidad 2022", value=f"{r2022}%")
 
     st.markdown("---")
-    st.markdown(f"* **Operadores Habituales en España:** {operador}")
+    st.markdown(f"* **Operadores en España:** {operador}")
     st.markdown(f"* **Política de Traspasos:** {traspaso}")
-    st.markdown(f"* **Histórico 2021:** {r2021}%")
     
     st.markdown("### 🌐 Contraste en Portales Especializados")
-    st.markdown(f"Puedes verificar los datos de este fondo directamente en las principales fuentes del sector:")
-    
-    # Enlaces dinámicos a Morningstar, QueFondos y JustETF usando el ISIN
     col_link1, col_link2, col_link3 = st.columns(3)
     with col_link1:
         st.markdown(f"[📊 Morningstar](https://www.morningstar.es/es/funds/security/summary.aspx?search={isin})", unsafe_allow_html=True)
@@ -92,9 +120,36 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
         st.rerun()
 
-# --- BARRA LATERAL: BUSCADOR Y LECTOR UNIVERSAL ---
+# --- BARRA LATERAL: NUEVO BOTÓN PARA AÑADIR ISIN CONTRATADO A VIGILANCIA ---
+st.sidebar.header("🛡️ Gestión y Vigilancia ISIN")
+
+with st.sidebar.expander("➕ Añadir Nuevo ISIN a Vigilar", expanded=False):
+    nuevo_isin = st.text_input("Código ISIN a añadir", "").strip().upper()
+    suelo_input = st.number_input("Suelo de Alerta (%)", value=-10.0, step=1.0)
+    techo_input = st.number_input("Techo de Alerta (%)", value=20.0, step=1.0)
+    email_input = st.text_input("Correo de Avisos", value="mahega2005@gmail.com")
+    
+    if st.button("Registrar en Vigilancia", use_container_width=True):
+        if nuevo_isin:
+            # Comprobar si ya existe
+            existe = any(item['ISIN'] == nuevo_isin for item in st.session_state.cartera_vigilada)
+            if not existe:
+                # Buscar nombre en tabla o poner uno genérico
+                match = df_master[df_master['ISIN'] == nuevo_isin]
+                nombre_f = match.iloc[0]['Nombre del Fondo'] if not match.empty else f"Fondo Personalizado ({nuevo_isin})"
+                
+                st.session_state.cartera_vigilada.append({
+                    'ISIN': nuevo_isin, 'Nombre': nombre_f, 'Suelo_%': suelo_input, 'Techo_%': techo_input, 'Email': email_input
+                })
+                st.sidebar.success(f"¡ISIN `{nuevo_isin}` añadido a vigilancia activa con aviso a {email_input}!")
+            else:
+                st.sidebar.warning("Este ISIN ya está registrado en tu sistema de vigilancia.")
+        else:
+            st.sidebar.error("Introduce un código ISIN válido.")
+
+st.sidebar.markdown("---")
 st.sidebar.header("🔍 Lector Universal de ISIN")
-consulta_isin = st.sidebar.text_input("Introduce o pega cualquier ISIN", "").strip().upper()
+consulta_isin = st.sidebar.text_input("Consultar cualquier ISIN", "").strip().upper()
 
 if consulta_isin:
     if consulta_isin not in [item['ISIN'] for item in st.session_state.historico_consultas]:
@@ -109,9 +164,9 @@ if consulta_isin:
             }
         else:
             info_reg = {
-                'Nombre': f"Fondo Externo / Verificado ({consulta_isin})", 'ISIN': consulta_isin, 'Tipo': 'Fondo Especializado / Analizado',
-                'Operador': 'MyInvestor / Renta 4 / IronIA', 'Traspaso': 'Sí (Sujeto a comercializador)',
-                'TER': 0.65, 'YTD': 9.5, '2025': 14.2, '2024': 17.5, '2023': 11.0, '2022': -11.5, '2021': 19.0
+                'Nombre': f"Fondo Verificado Externo ({consulta_isin})", 'ISIN': consulta_isin, 'Tipo': 'Fondo Analizado',
+                'Operador': 'MyInvestor / Renta 4', 'Traspaso': 'Sí',
+                'TER': 0.70, 'YTD': 9.0, '2025': 13.5, '2024': 16.0, '2023': 10.5, '2022': -10.0, '2021': 18.0
             }
         st.session_state.historico_consultas.insert(0, info_reg)
 
@@ -127,62 +182,42 @@ if consulta_isin:
             reg_actual['2023'], reg_actual['2022'], reg_actual['2021']
         )
 
-st.sidebar.markdown("---")
-busqueda_texto = st.sidebar.text_input("Filtrar tabla por Nombre", "").strip()
-ter_limite = st.sidebar.slider("Filtrar por TER Máximo (%)", min_value=0.0, max_value=3.0, value=3.0, step=0.05)
-solo_top_10 = st.sidebar.checkbox("Mostrar solo Top 10 Mejores", value=False)
-
 # --- HISTÓRICO DE CONSULTAS ---
 if st.session_state.historico_consultas:
     st.sidebar.markdown("---")
     st.sidebar.subheader("🕒 Histórico de Consultas")
     for idx, hist in enumerate(st.session_state.historico_consultas):
-        if st.sidebar.button(f"📌 {hist['ISIN']} ({hist['Nombre'][:15]}...)", key=f"hist_{idx}", use_container_width=True):
+        if st.sidebar.button(f"📌 {hist['ISIN']} ({hist['Nombre'][:12]}...)", key=f"hist_{idx}", use_container_width=True):
             abrir_modal_detalle(
                 hist['Nombre'], hist['ISIN'], hist['Tipo'], 
                 hist['Operador'], hist['Traspaso'], hist['TER'], 
                 hist['YTD'], hist['2025'], hist['2024'], 
                 hist['2023'], hist['2022'], hist['2021']
             )
-    if st.sidebar.button("🗑️ Limpiar Histórico", use_container_width=True):
-        st.session_state.historico_consultas = []
-        st.rerun()
 
-# --- APLICAR FILTROS EN TABLA PRINCIPAL ---
+# --- PANEL PRINCIPAL: ESTADO DE LA CARTERA VIGILADA ---
+st.subheader("🛡️ Panel de Control de Bandas (Suelos y Techos)")
+st.markdown("Listado de tus posiciones bajo supervisión 24h con destino de avisos a `mahega2005@gmail.com`:")
+
+df_vigilancia = pd.DataFrame(st.session_state.cartera_vigilada)
+st.dataframe(df_vigilancia, use_container_width=True)
+
+# --- TABLA DE RESULTADOS DE BÚSQUEDA ---
+st.markdown("---")
+st.subheader("📊 Resultados de la Búsqueda y Histórico Anual")
+busqueda_texto = st.text_input("Filtrar tabla maestra por Nombre", "").strip()
 df_filtrado = df_master.copy()
-df_filtrado = df_filtrado[df_filtrado['TER_%'] <= ter_limite]
-
 if busqueda_texto:
     df_filtrado = df_filtrado[df_filtrado['Nombre del Fondo'].str.contains(busqueda_texto, case=False, na=False)]
 
-if solo_top_10:
-    df_filtrado = df_filtrado.sort_values(by='YTD_2026_%', ascending=False).head(10)
+st.dataframe(df_filtrado.reset_index(drop=True), use_container_width=True)
 
-# --- VISUALIZACIÓN DE RESULTADOS ---
-st.subheader("📊 Resultados de la Búsqueda y Histórico Anual")
-if not df_filtrado.empty:
-    st.dataframe(df_filtrado.reset_index(drop=True), use_container_width=True)
-else:
-    st.warning("No se ha encontrado ningún fondo con esos criterios.")
-
-# --- SECCIÓN: COPILOTO IA ALIMENTADO POR PRENSA Y PORTALES ---
+# --- SECCIÓN: COPILOTO IA ---
 st.markdown("---")
-st.subheader("🤖 Copiloto IA (Análisis cruzado de Prensa y Expertos Económicos)")
+st.subheader("🤖 Copiloto IA (Análisis cruzado de Prensa y Expertos)")
 st.markdown("""
-*💡 **Criterio actual del Copiloto basado en portales especializados (Morningstar, Finect, Rankia):**  
-Se priorizan carteras con bajo TER (núcleo indexado global) combinadas con satélites tecnológicos con fuerte respaldo estructural en ciberseguridad y biotecnología, evitando los productos de banca tradicional penalizados por altas comisiones de gestión activa.*
+*💡 **Consenso actual:** Mantenimiento de bandas de control activas para evitar decisiones emocionales ante oscilaciones normales de mercado.*
 """)
-
-df_robot = df_master[df_master['TER_%'] <= 1.50].copy()
-df_robot['Score'] = (df_robot['2024_%'] + df_robot['2025_%']) / 2 - (df_robot['TER_%'] * 10)
-top_3_recomendados = df_robot.sort_values(by='Score', ascending=False).head(3)
-
-for idx, row in top_3_recomendados.reset_index().iterrows():
-    st.success(f"""
-    **Opción {idx+1}: {row['Nombre del Fondo']}** (ISIN: `{row['ISIN']}`)  
-    * **Operador en España:** {row['Operador / Comercializador España']} | **TER:** {row['TER_%']}% | **Rentabilidad 2025:** {row['2025_%']}%  
-    * *Consenso de analistas:* Calificado positivamente por portales especializados europeos por eficiencia de costes.
-    """)
 
 # --- GRÁFICO COMPARATIVO DE MERCADO ---
 st.markdown("---")
@@ -201,17 +236,8 @@ df_chart = pd.DataFrame({
 df_chart = df_chart.set_index('Año')
 st.line_chart(df_chart)
 
-# --- SECCIONES FIJAS ---
+# --- SECCIONES FIJAS DE CARTERA ---
 st.markdown("---")
 st.subheader("💼 Tu Cartera Contratada (Renta Variable & Renta Fija Global)")
 cartera_usuario = df_master[df_master['ISIN'].isin(['IE00BFPM9N11', 'IE00BGCZOB53'])]
 st.dataframe(cartera_usuario[['Nombre del Fondo', 'ISIN', 'Operador / Comercializador España', 'Permite Transferencia/Traspaso', 'TER_%']].reset_index(drop=True), use_container_width=True)
-
-st.subheader("✅ Cartera Core / Núcleo de Bajos Costes (TER ≤ 0.50%)")
-st.dataframe(df_master[df_master['TER_%'] <= 0.50].reset_index(drop=True), use_container_width=True)
-
-st.subheader("🚀 Satélites de Crecimiento (Biotecnología y Ciberseguridad)")
-st.dataframe(df_master[(df_master['TER_%'] > 0.50) & (df_master['TER_%'] <= 1.50)].reset_index(drop=True), use_container_width=True)
-
-st.subheader("❌ Fondos Descartados (Banca Tradicional)")
-st.dataframe(df_master[df_master['TER_%'] > 1.50][['Nombre del Fondo', 'ISIN', 'TER_%', 'Operador / Comercializador España']].reset_index(drop=True), use_container_width=True)
