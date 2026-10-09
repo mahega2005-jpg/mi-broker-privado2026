@@ -78,6 +78,10 @@ if 'cartera_vigilada' not in st.session_state:
 if 'prueba_correo_enviada' not in st.session_state:
     st.session_state.prueba_correo_enviada = False
 
+# Estado para controlar si comprimimos los expanders de la barra lateral tras confirmar
+if 'expandir_todo' not in st.session_state:
+    st.session_state.expandir_todo = False
+
 # Comprobación automática de bandas
 alerta_detectada = False
 fondo_alerta = None
@@ -200,7 +204,7 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
         st.rerun()
 
-# --- BARRA LATERAL (ORGANIZADA EN EXPANDERS COMPRIMIDOS PARA VERSE DE UN GOLPE DE VISTA) ---
+# --- BARRA LATERAL ORGANIZADA EN EXPANDERS COMPRIMIBLES ---
 st.sidebar.header("🛡️ Panel Táctico")
 
 # 1. Test de Alertas
@@ -233,13 +237,14 @@ with st.sidebar.expander("➕ Añadir ISIN a Vigilancia", expanded=False):
         else:
             st.sidebar.error("ISIN no válido.")
 
-# 3. Lector Universal de ISIN (Con botón confirmar y soporte para Enter)
-with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
+# 3. Lector Universal de ISIN (El expander se mantiene abierto para la introducción, pero al confirmar comprime la vista general)
+with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=not st.session_state.expandir_todo):
     with st.form(key='form_lector_isin'):
         consulta_isin = st.text_input("Introduce ISIN (Ej: LU1121307729)", "").strip().upper()
         btn_confirmar = st.form_submit_button("✅ Confirmar y Ver Ficha", use_container_width=True)
 
     if btn_confirmar and consulta_isin:
+        st.session_state.expandir_todo = True
         if consulta_isin not in [item['ISIN'] for item in st.session_state.historico_consultas]:
             fondo_encontrado = df_master[df_master['ISIN'] == consulta_isin]
             if not fondo_encontrado.empty:
