@@ -4,56 +4,55 @@ import pandas as pd
 # Configuración de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- ESTILOS CSS: GRIS SUAVE AZULADO & PESTAÑAS DESTACADAS ---
+# --- ESTILOS CSS: ESTILO GEMINI (GRIS SUAVE Y AZULADO) ---
 st.markdown("""
 <style>
-    /* Fondo general de la aplicación en gris suave con matiz azulado profesional */
+    /* Fondo general de la aplicación en tono gris/azulado suave muy limpio */
     .stApp {
-        background-color: #121820;
-        color: #f0f6fc;
+        background-color: #f0f4f9;
+        color: #1f2328;
     }
     
-    /* Contenedores y tarjetas */
+    /* Contenedores y tarjetas con fondo blanco/gris claro para contraste perfecto */
     div.stMarkdownContainer, div.stDataFrame {
         background-color: transparent;
     }
     
     /* Pestañas superiores estilizadas */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: #1a2332;
-        padding: 8px;
+        gap: 6px;
+        background-color: #e2e8f0;
+        padding: 6px;
         border-radius: 12px;
-        border: 1px solid #2d3b50;
+        border: 1px solid #cbd5e1;
     }
     .stTabs [data-baseweb="tab"] {
-        background-color: #212e40;
+        background-color: #ffffff;
         border-radius: 8px;
-        color: #93a1b5 !important;
+        color: #475569 !important;
         padding: 10px 16px;
         font-weight: 600;
         font-size: 14px;
-        border: 1px solid #2d3b50;
+        border: 1px solid #cbd5e1;
     }
-    /* Pestaña seleccionada: Destacada con fondo azul oscuro corporativo y letra blanca */
+    /* Pestaña seleccionada: Destacada con azul limpio y texto blanco */
     .stTabs [aria-selected="true"] {
-        background-color: #1f6feb !important;
+        background-color: #1a73e8 !important;
         color: #ffffff !important;
-        border-color: #388bfd !important;
+        border-color: #1a73e8 !important;
     }
 
     /* Botones principales y de la barra lateral */
     .stButton button {
-        background-color: #1e293b;
-        color: #ffffff;
-        border: 1px solid #334155;
-        border-radius: 6px;
+        background-color: #ffffff;
+        color: #1f2328;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
         font-weight: 500;
     }
     .stButton button:hover {
-        background-color: #334155;
-        border-color: #64748b;
-        color: #ffffff;
+        background-color: #e2e8f0;
+        border-color: #94a3b8;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -82,10 +81,10 @@ for item in st.session_state.cartera_vigilada:
 
 # --- CABECERA Y LOGOTIPO ---
 st.markdown("""
-<div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 25px; border-radius: 12px; text-align: center; color: white; border: 1px solid #334155; box-shadow: 0px 4px 20px rgba(0,0,0,0.4);">
+<div style="background: linear-gradient(135deg, #ffffff, #e2e8f0); padding: 25px; border-radius: 12px; text-align: center; color: #1f2328; border: 1px solid #cbd5e1; box-shadow: 0px 4px 15px rgba(0,0,0,0.05);">
     <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
-    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #60a5fa;">MI BROKER PRIVADO</h2>
-    <p style="margin: 6px 0 0 0; font-size: 13px; color: #94a3b8;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
+    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #1a73e8;">MI BROKER PRIVADO</h2>
+    <p style="margin: 6px 0 0 0; font-size: 13px; color: #5f6368;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
 </div>
 <br>
 """, unsafe_allow_html=True)
