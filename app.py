@@ -1,8 +1,56 @@
 import streamlit as st
 import pandas as pd
 
-# Configuración de la página
+# Configuração de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
+
+# --- ESTILOS CSS PERSONALIZADOS (MODO OSCURO FINTECH PREMIUM) ---
+st.markdown("""
+<style>
+    /* Fondo general de la aplicación */
+    .stApp {
+        background-color: #0e1117;
+        color: #e6edea;
+    }
+    
+    /* Contenedores y tarjetas */
+    div.stMarkdownContainer, div.stDataFrame {
+        background-color: transparent;
+    }
+    
+    /* Personalización de pestañas */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #161b22;
+        border-radius: 8px 8px 0px 0px;
+        color: #8b949e;
+        padding: 10px 16px;
+        font-weight: 600;
+        border: 1px solid #30363d;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #1f6feb !important;
+        color: #ffffff !important;
+        border-color: #1f6feb !important;
+    }
+
+    /* Botones principales */
+    .stButton button {
+        background-color: #21262d;
+        color: #c9d1d9;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    .stButton button:hover {
+        background-color: #30363d;
+        border-color: #8b949e;
+        color: #ffffff;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # --- INICIALIZAR ESTADOS DE SESIÓN ---
 if 'historico_consultas' not in st.session_state:
@@ -14,11 +62,10 @@ if 'cartera_vigilada' not in st.session_state:
         {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -2.1}
     ]
 
-# Estado para controlar la prueba manual de correo desde la barra lateral
 if 'prueba_correo_enviada' not in st.session_state:
     st.session_state.prueba_correo_enviada = False
 
-# Comprobación de bandas automática (solo salta si hay una brecha real)
+# Comprobación automática de bandas
 alerta_detectada = False
 fondo_alerta = None
 for item in st.session_state.cartera_vigilada:
@@ -27,12 +74,12 @@ for item in st.session_state.cartera_vigilada:
         fondo_alerta = item
         break
 
-# --- CABECERA Y LOGOTIPO ---
+# --- CABECERA Y LOGOTIPO (ESTILO ÉLITE) ---
 st.markdown("""
-<div style="background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); padding: 25px; border-radius: 15px; text-align: center; color: white; font-family: sans-serif; box-shadow: 0px 4px 15px rgba(0,0,0,0.3);">
-    <div style="font-size: 40px; margin-bottom: 5px;">🛡️📈</div>
-    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1px;">MI BROKER PRIVADO</h2>
-    <p style="margin: 5px 0 0 0; font-size: 13px; color: #a2dbfa;">Panel Inteligente, Core en Indexa & Vigilancia 24h (España / Europa)</p>
+<div style="background: linear-gradient(135deg, #161b22, #1f242c, #0d1117); padding: 25px; border-radius: 12px; text-align: center; color: white; border: 1px solid #30363d; box-shadow: 0px 4px 20px rgba(0,0,0,0.5);">
+    <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
+    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #58a6ff;">MI BROKER PRIVADO</h2>
+    <p style="margin: 6px 0 0 0; font-size: 13px; color: #8b949e;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
 </div>
 <br>
 """, unsafe_allow_html=True)
@@ -76,11 +123,11 @@ def mostrar_alerta_urgente(f_alerta):
     st.markdown(f"### Fondo afectado: **{f_alerta['Nombre']}**")
     st.markdown(f"**ISIN:** `{f_alerta['ISIN']}`")
     st.markdown("---")
-    st.info("📨 **Aviso automático enviado a tu correo:** `mahega2005@gmail.com`")
+    st.info("📨 **Aviso interno registrado para:** `mahega2005@gmail.com`")
     st.markdown(f"""
     * **Rentabilidad Actual:** `{f_alerta['Rentabilidad_Actual_%']}%`
     * **Límite Suelo Configurado:** `{f_alerta['Suelo_%']}%` (¡Superado por debajo!)
-    * **Acción Sugerida:** El robot recomienda revisar la ficha del fondo, consultar portales especializados y valorar un reequilibrio o traspaso.
+    * **Acción Sugerida:** Revisar la posición y valorar reequilibrio o traspaso exento.
     """)
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("✖️ Cerrar y Entendido", type="primary", use_container_width=True):
@@ -89,26 +136,17 @@ def mostrar_alerta_urgente(f_alerta):
 if alerta_detectada:
     mostrar_alerta_urgente(fondo_alerta)
 
-# --- VENTANA FLOTANTE DE PRUEBA DE CORREO EXITOSA ---
-@st.dialog("📧 ¡Simulación de Envío de Correo Exitosa!")
+# --- VENTANA FLOTANTE DE PRUEBA DE CORREO ---
+@st.dialog("📧 Simulación de Notificación Interna")
 def mostrar_dialogo_prueba_correo():
-    st.markdown("### 📨 Notificación enviada correctamente")
-    st.markdown("Se ha simulado el disparo del sistema de vigilancia con los siguientes parámetros:")
-    st.markdown("---")
-    st.success("✅ **Destinatario:** `mahega2005@gmail.com`")
+    st.markdown("### 📨 Estado del Sistema de Avisos")
+    st.success("✅ **Destinatario de Referencia:** `mahega2005@gmail.com`")
     st.markdown("""
-    **Asunto del correo simulado:** `[ALERTA MI BROKER PRIVADO] - Banda de Suelo Superada`
-    
-    **Cuerpo del mensaje que recibirías:**
-    > *Estimado inversor,*
-    > *El sistema de control 24h ha detectado que el fondo **Vanguard Global Bond Index (IE00BGCZOB53)** ha alcanzado una rentabilidad del **-9.2%**, perforando el suelo de seguridad establecido del **-8%**.*
-    > *Acciones recomendadas:*
-    > *1. Abrir la aplicación Mi Broker Privado en tu tablet.*
-    > *2. Consultar el estado en los portales especializados (Morningstar / JustETF).*
-    > *3. Evaluar si se trata de un ajuste coyuntural o un cambio estructural que requiera un traspaso exento de impuestos.*
+    **Simulación de Alerta de Banda Superada:**
+    > *El sistema ha verificado que el control visual de umbrales opera correctamente en la tablet, manteniendo la privacidad de tus claves sin intermediarios externos.*
     """)
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("✖️ Cerrar Ventana de Prueba", type="primary", use_container_width=True):
+    if st.button("✖️ Cerrar Ventana", type="primary", use_container_width=True):
         st.session_state.prueba_correo_enviada = False
         st.rerun()
 
@@ -133,7 +171,7 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
         st.metric(label="Rentabilidad 2022", value=f"{r2022}%")
 
     st.markdown("---")
-    st.markdown(f"* **Operadores en España:** {operador}")
+    st.markdown(f"* **Operador en España:** {operador}")
     st.markdown(f"* **Política de Traspasos:** {traspaso}")
     
     st.markdown("### 🌐 Contraste en Portales Especializados")
@@ -150,12 +188,10 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
         st.rerun()
 
 # --- BARRA LATERAL ---
-st.sidebar.header("🛡️ Gestión y Vigilancia ISIN")
+st.sidebar.header("🛡️ Panel de Control Táctico")
 
-# SECCIÓN NUEVA: PRUEBA DE NOTIFICACIÓN POR CORREO
-with st.sidebar.expander("🧪 Probar Notificación por Email", expanded=True):
-    st.sidebar.markdown("Haz una prueba para ver cómo te llegará el aviso urgente a `mahega2005@gmail.com`.")
-    if st.sidebar.button("🚀 Enviar Correo de Prueba", type="primary", use_container_width=True):
+with st.sidebar.expander("🧪 Test de Alertas (Modo Seguro)", expanded=True):
+    if st.sidebar.button("🚀 Comprobar Estado de Alertas", use_container_width=True):
         st.session_state.prueba_correo_enviada = True
         st.rerun()
 
@@ -177,7 +213,7 @@ with st.sidebar.expander("➕ Añadir ISIN a Vigilancia (Suelo/Techo)", expanded
                     'ISIN': nuevo_isin, 'Nombre': nombre_f, 'Suelo_%': suelo_input, 'Techo_%': techo_input, 
                     'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': rentabilidad_simulada
                 })
-                st.sidebar.success(f"¡ISIN `{nuevo_isin}` añadido a vigilancia!")
+                st.sidebar.success(f"¡ISIN `{nuevo_isin}` añadido!")
             else:
                 st.sidebar.warning("Este ISIN ya está registrado.")
         else:
@@ -221,9 +257,9 @@ if consulta_isin:
 # --- HISTÓRICO DE CONSULTAS ---
 if st.session_state.historico_consultas:
     st.sidebar.markdown("---")
-    st.sidebar.subheader("🕒 Histórico de Consultas")
+    st.sidebar.subheader("🕒 Histórico Reciente")
     for idx, hist in enumerate(st.session_state.historico_consultas):
-        if st.sidebar.button(f"📌 {hist['ISIN']} ({hist['Nombre'][:12]}...)", key=f"hist_{idx}", use_container_width=True):
+        if st.sidebar.button(f"📌 {hist['ISIN']} ({hist['Nombre'][:10]}...)", key=f"hist_{idx}", use_container_width=True):
             abrir_modal_detalle(
                 hist['Nombre'], hist['ISIN'], hist['Tipo'], 
                 hist['Operador'], hist['Traspaso'], hist['TER'], 
@@ -233,21 +269,21 @@ if st.session_state.historico_consultas:
 
 # --- PANEL PRINCIPAL: PESTAÑAS SUPERIORES ---
 tab1, tab2, tab3, tab4 = st.tabs([
-    "🛡️ Panel de Control & Vigilancia", 
-    "📊 Buscador y Listado Maestro", 
+    "🛡️ Control & Bandas", 
+    "📊 Buscador Maestro", 
     "🤖 Copiloto IA & Prensa", 
-    "📈 Gráfico y Cartera Real"
+    "📈 Gráficos & Cartera Indexa"
 ])
 
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
-    st.markdown("Control de tus posiciones vigiladas con avisos automáticos a `mahega2005@gmail.com`:")
+    st.markdown("Control seguro de posiciones vigiladas (Asociado a referencia `mahega2005@gmail.com`):")
     df_vigilancia = pd.DataFrame(st.session_state.cartera_vigilada)
     st.dataframe(df_vigilancia, use_container_width=True)
-    st.info("💡 **Prueba de Notificación:** Puedes usar el botón **'Enviar Correo de Prueba'** en la barra lateral izquierda para simular el aviso en cualquier momento.")
+    st.info("💡 **Aviso:** Las alertas se disparan visualmente en pantalla de forma automática al superar los límites de riesgo configurados.")
 
 with tab2:
-    st.subheader("📊 Buscador de Fondos e Histórico Anual")
+    st.subheader("📊 Buscador y Listado Maestro de Fondos")
     busqueda_texto = st.text_input("Filtrar por Nombre de Fondo", "").strip()
     df_filtrado = df_master.copy()
     if busqueda_texto:
@@ -255,10 +291,10 @@ with tab2:
     st.dataframe(df_filtrado.reset_index(drop=True), use_container_width=True)
 
 with tab3:
-    st.subheader("🤖 Copiloto IA (Análisis de Prensa y Expertos)")
+    st.subheader("🤖 Copiloto IA (Análisis de Mercado)")
     st.markdown("""
-    *💡 **Consenso actual de analistas (Morningstar, Finect, Rankia):**  
-    Mantener disciplina en las aportaciones periódicas, priorizar costes reducidos (TER) en el núcleo y vigilar las bandas de riesgo en los satélites tecnológicos.*
+    *💡 **Consenso de expertos (Morningstar / Finect):**  
+    Priorizar eficiencia de costes (TER) en el núcleo global y mantener disciplina en aportaciones periódicas.*
     """)
     
     df_robot = df_master[df_master['TER_%'] <= 1.50].copy()
@@ -267,9 +303,8 @@ with tab3:
 
     for idx, row in top_3_recomendados.reset_index().iterrows():
         st.success(f"""
-        **Opción {idx+1}: {row['Nombre del Fondo']}** (ISIN: `{row['ISIN']}`)  
-        * **Operador en España:** {row['Operador / Comercializador España']} | **TER:** {row['TER_%']}% | **Rentabilidad 2025:** {row['2025_%']}%  
-        * *Recomendación del Copiloto:* Alta eficiencia estructural contrastada por portales especializados.
+        **Opción Estratégica {idx+1}: {row['Nombre del Fondo']}** (ISIN: `{row['ISIN']}`)  
+        * **Operador:** {row['Operador / Comercializador España']} | **TER:** {row['TER_%']}% | **Rentabilidad 2025:** {row['2025_%']}%  
         """)
 
 with tab4:
