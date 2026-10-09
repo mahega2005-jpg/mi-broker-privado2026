@@ -1,10 +1,10 @@
 import streamlit as st
 import pandas as pd
 
-# Configuração de la página y layout
+# Configuración de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- ESTILOS CSS PERSONALIZADOS (MODO OSCURO FINTECH PREMIUM) ---
+# --- ESTILOS CSS CORREGIDOS (MÁXIMA LEGIBILIDAD EN PESTAÑAS) ---
 st.markdown("""
 <style>
     /* Fondo general de la aplicación */
@@ -18,28 +18,33 @@ st.markdown("""
         background-color: transparent;
     }
     
-    /* Personalización de pestañas */
+    /* Corrección absoluta de las pestañas para que se vean nítidas y legibles */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 6px;
+        background-color: #161b22;
+        padding: 6px;
+        border-radius: 10px;
+        border: 1px solid #30363d;
     }
     .stTabs [data-baseweb="tab"] {
-        background-color: #161b22;
-        border-radius: 8px 8px 0px 0px;
-        color: #8b949e;
-        padding: 10px 16px;
+        background-color: #21262d;
+        border-radius: 6px;
+        color: #ffffff !important;
+        padding: 10px 14px;
         font-weight: 600;
+        font-size: 14px;
         border: 1px solid #30363d;
     }
     .stTabs [aria-selected="true"] {
         background-color: #1f6feb !important;
         color: #ffffff !important;
-        border-color: #1f6feb !important;
+        border-color: #388bfd !important;
     }
 
     /* Botones principales */
     .stButton button {
         background-color: #21262d;
-        color: #c9d1d9;
+        color: #ffffff;
         border: 1px solid #30363d;
         border-radius: 6px;
         font-weight: 500;
