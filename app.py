@@ -200,22 +200,23 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
         st.rerun()
 
-# --- BARRA LATERAL ---
-st.sidebar.header("🛡️ Panel de Control Táctico")
+# --- BARRA LATERAL (ORGANIZADA EN EXPANDERS COMPRIMIDOS PARA VERSE DE UN GOLPE DE VISTA) ---
+st.sidebar.header("🛡️ Panel Táctico")
 
-with st.sidebar.expander("🧪 Test de Alertas (Modo Seguro)", expanded=True):
-    if st.sidebar.button("🚀 Comprobar Estado de Alertas", use_container_width=True):
+# 1. Test de Alertas
+with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
+    if st.button("🚀 Comprobar Estado", use_container_width=True):
         st.session_state.prueba_correo_enviada = True
         st.rerun()
 
-st.sidebar.markdown("---")
-with st.sidebar.expander("➕ Añadir ISIN a Vigilancia (Suelo/Techo)", expanded=False):
+# 2. Añadir ISIN
+with st.sidebar.expander("➕ Añadir ISIN a Vigilancia", expanded=False):
     nuevo_isin = st.text_input("Código ISIN", "").strip().upper()
-    suelo_input = st.number_input("Suelo de Alerta (%)", value=-10.0, step=1.0)
-    techo_input = st.number_input("Techo de Alerta (%)", value=20.0, step=1.0)
-    rentabilidad_simulada = st.number_input("Rentabilidad actual estimada (%)", value=2.0, step=0.5)
+    suelo_input = st.number_input("Suelo (%)", value=-10.0, step=1.0)
+    techo_input = st.number_input("Techo (%)", value=20.0, step=1.0)
+    rentabilidad_simulada = st.number_input("Rentabilidad actual (%)", value=2.0, step=0.5)
     
-    if st.button("Guardar en Vigilancia", use_container_width=True):
+    if st.button("Guardar Vigilancia", use_container_width=True):
         if nuevo_isin:
             existe = any(item['ISIN'] == nuevo_isin for item in st.session_state.cartera_vigilada)
             if not existe:
@@ -228,58 +229,55 @@ with st.sidebar.expander("➕ Añadir ISIN a Vigilancia (Suelo/Techo)", expanded
                 })
                 st.sidebar.success(f"¡ISIN `{nuevo_isin}` añadido!")
             else:
-                st.sidebar.warning("Este ISIN ya está registrado.")
+                st.sidebar.warning("Ya registrado.")
         else:
-            st.sidebar.error("Introduce un ISIN válido.")
+            st.sidebar.error("ISIN no válido.")
 
-st.sidebar.markdown("---")
-st.sidebar.header("🔍 Lector Universal de ISIN")
-consulta_isin = st.sidebar.text_input("Consultar cualquier ISIN (Ej: LU1121307729)", "").strip().upper()
+# 3. Lector Universal de ISIN (Con botón confirmar y soporte para Enter)
+with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
+    with st.form(key='form_lector_isin'):
+        consulta_isin = st.text_input("Introduce ISIN (Ej: LU1121307729)", "").strip().upper()
+        btn_confirmar = st.form_submit_button("✅ Confirmar y Ver Ficha", use_container_width=True)
 
-if consulta_isin:
-    if consulta_isin not in [item['ISIN'] for item in st.session_state.historico_consultas]:
-        fondo_encontrado = df_master[df_master['ISIN'] == consulta_isin]
-        if not fondo_encontrado.empty:
-            f = fondo_encontrado.iloc[0]
-            info_reg = {
-                'Nombre': f['Nombre del Fondo'], 'ISIN': f['ISIN'], 'Tipo': f['Tipo'],
-                'Operador': f['Operador / Comercializador España'], 'Traspaso': f['Permite Transferencia/Traspaso'],
-                'TER': f['TER_%'], 'YTD': f['YTD_2026_%'], '2025': f['2025_%'], '2024': f['2024_%'],
-                '2023': f['2023_%'], '2022': f['2022_%'], '2021': f['2021_%']
-            }
-        else:
-            info_reg = {
-                'Nombre': f"Fondo Verificado Externo ({consulta_isin})", 'ISIN': consulta_isin, 'Tipo': 'Fondo Analizado',
-                'Operador': 'MyInvestor / Renta 4', 'Traspaso': 'Sí',
-                'TER': 0.70, 'YTD': 9.0, '2025': 13.5, '2024': 16.0, '2023': 10.5, '2022': -10.0, '2021': 18.0
-            }
-        st.session_state.historico_consultas.insert(0, info_reg)
-
-    st.sidebar.markdown("---")
-    st.sidebar.success(f"✅ ISIN detectado: `{consulta_isin}`")
-    reg_actual = next((item for item in st.session_state.historico_consultas if item['ISIN'] == consulta_isin), None)
-    
-    # Botón exclusivo y directo para abrir la ficha del ISIN consultado
-    if reg_actual and st.sidebar.button(f"📂 Abrir Ficha de {consulta_isin}", type="primary", use_container_width=True):
-        abrir_modal_detalle(
-            reg_actual['Nombre'], reg_actual['ISIN'], reg_actual['Tipo'], 
-            reg_actual['Operador'], reg_actual['Traspaso'], reg_actual['TER'], 
-            reg_actual['YTD'], reg_actual['2025'], reg_actual['2024'], 
-            reg_actual['2023'], reg_actual['2022'], reg_actual['2021']
-        )
-
-# --- HISTÓRICO DE CONSULTAS ---
-if st.session_state.historico_consultas:
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("🕒 Histórico Reciente")
-    for idx, hist in enumerate(st.session_state.historico_consultas):
-        if st.sidebar.button(f"📌 {hist['ISIN']} ({hist['Nombre'][:10]}...)", key=f"hist_{idx}", use_container_width=True):
+    if btn_confirmar and consulta_isin:
+        if consulta_isin not in [item['ISIN'] for item in st.session_state.historico_consultas]:
+            fondo_encontrado = df_master[df_master['ISIN'] == consulta_isin]
+            if not fondo_encontrado.empty:
+                f = fondo_encontrado.iloc[0]
+                info_reg = {
+                    'Nombre': f['Nombre del Fondo'], 'ISIN': f['ISIN'], 'Tipo': f['Tipo'],
+                    'Operador': f['Operador / Comercializador España'], 'Traspaso': f['Permite Transferencia/Traspaso'],
+                    'TER': f['TER_%'], 'YTD': f['YTD_2026_%'], '2025': f['2025_%'], '2024': f['2024_%'],
+                    '2023': f['2023_%'], '2022': f['2022_%'], '2021': f['2021_%']
+                }
+            else:
+                info_reg = {
+                    'Nombre': f"Fondo Verificado Externo ({consulta_isin})", 'ISIN': consulta_isin, 'Tipo': 'Fondo Analizado',
+                    'Operador': 'MyInvestor / Renta 4', 'Traspaso': 'Sí',
+                    'TER': 0.70, 'YTD': 9.0, '2025': 13.5, '2024': 16.0, '2023': 10.5, '2022': -10.0, '2021': 18.0
+                }
+            st.session_state.historico_consultas.insert(0, info_reg)
+        
+        reg_actual = next((item for item in st.session_state.historico_consultas if item['ISIN'] == consulta_isin), None)
+        if reg_actual:
             abrir_modal_detalle(
-                hist['Nombre'], hist['ISIN'], hist['Tipo'], 
-                hist['Operador'], hist['Traspaso'], hist['TER'], 
-                hist['YTD'], hist['2025'], hist['2024'], 
-                hist['2023'], hist['2022'], hist['2021']
+                reg_actual['Nombre'], reg_actual['ISIN'], reg_actual['Tipo'], 
+                reg_actual['Operador'], reg_actual['Traspaso'], reg_actual['TER'], 
+                reg_actual['YTD'], reg_actual['2025'], reg_actual['2024'], 
+                reg_actual['2023'], reg_actual['2022'], reg_actual['2021']
             )
+
+# 4. Histórico Reciente
+if st.session_state.historico_consultas:
+    with st.sidebar.expander("🕒 Histórico Reciente", expanded=False):
+        for idx, hist in enumerate(st.session_state.historico_consultas):
+            if st.sidebar.button(f"📌 {hist['ISIN']} ({hist['Nombre'][:10]}...)", key=f"hist_{idx}", use_container_width=True):
+                abrir_modal_detalle(
+                    hist['Nombre'], hist['ISIN'], hist['Tipo'], 
+                    hist['Operador'], hist['Traspaso'], hist['TER'], 
+                    hist['YTD'], hist['2025'], hist['2024'], 
+                    hist['2023'], hist['2022'], hist['2021']
+                )
 
 # --- PANEL PRINCIPAL: PESTAÑAS SUPERIORES ---
 tab1, tab2, tab3, tab4 = st.tabs([
