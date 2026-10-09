@@ -11,10 +11,14 @@ if 'historico_consultas' not in st.session_state:
 if 'cartera_vigilada' not in st.session_state:
     st.session_state.cartera_vigilada = [
         {'ISIN': 'IE00BFPM9N11', 'Nombre': 'Vanguard Global Stock Index Inst Plus EUR Acc', 'Suelo_%': -10.0, 'Techo_%': 25.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': 4.5},
-        {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -2.1} # Dentro de rango para que no salte el modal por defecto
+        {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -2.1}
     ]
 
-# Comprobación de bandas: solo salta si se rebasa el suelo o el techo de forma real
+# Estado para controlar la prueba manual de correo desde la barra lateral
+if 'prueba_correo_enviada' not in st.session_state:
+    st.session_state.prueba_correo_enviada = False
+
+# Comprobación de bandas automática (solo salta si hay una brecha real)
 alerta_detectada = False
 fondo_alerta = None
 for item in st.session_state.cartera_vigilada:
@@ -66,7 +70,7 @@ data_fondos = {
 
 df_master = pd.DataFrame(data_fondos)
 
-# --- VENTANA FLOTANTE DE ALERTA URGENTE (SALTA SOLO SI SE SUPERA SUELO/TECHO) ---
+# --- VENTANA FLOTANTE DE ALERTA URGENTE ---
 @st.dialog("🚨 ¡ALERTA URGENTE: BANDA DE CONTROL SUPERADA!")
 def mostrar_alerta_urgente(f_alerta):
     st.markdown(f"### Fondo afectado: **{f_alerta['Nombre']}**")
@@ -84,6 +88,32 @@ def mostrar_alerta_urgente(f_alerta):
 
 if alerta_detectada:
     mostrar_alerta_urgente(fondo_alerta)
+
+# --- VENTANA FLOTANTE DE PRUEBA DE CORREO EXITOSA ---
+@st.dialog("📧 ¡Simulación de Envío de Correo Exitosa!")
+def mostrar_dialogo_prueba_correo():
+    st.markdown("### 📨 Notificación enviada correctamente")
+    st.markdown("Se ha simulado el disparo del sistema de vigilancia con los siguientes parámetros:")
+    st.markdown("---")
+    st.success("✅ **Destinatario:** `mahega2005@gmail.com`")
+    st.markdown("""
+    **Asunto del correo simulado:** `[ALERTA MI BROKER PRIVADO] - Banda de Suelo Superada`
+    
+    **Cuerpo del mensaje que recibirías:**
+    > *Estimado inversor,*
+    > *El sistema de control 24h ha detectado que el fondo **Vanguard Global Bond Index (IE00BGCZOB53)** ha alcanzado una rentabilidad del **-9.2%**, perforando el suelo de seguridad establecido del **-8%**.*
+    > *Acciones recomendadas:*
+    > *1. Abrir la aplicación Mi Broker Privado en tu tablet.*
+    > *2. Consultar el estado en los portales especializados (Morningstar / JustETF).*
+    > *3. Evaluar si se trata de un ajuste coyuntural o un cambio estructural que requiera un traspaso exento de impuestos.*
+    """)
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("✖️ Cerrar Ventana de Prueba", type="primary", use_container_width=True):
+        st.session_state.prueba_correo_enviada = False
+        st.rerun()
+
+if st.session_state.prueba_correo_enviada:
+    mostrar_dialogo_prueba_correo()
 
 # --- VENTANA FLOTANTE DE DETALLE DE ISIN Y PORTALES ---
 @st.dialog("📋 Ficha Completa de Análisis & Enlaces a Portales")
@@ -122,6 +152,14 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
 # --- BARRA LATERAL ---
 st.sidebar.header("🛡️ Gestión y Vigilancia ISIN")
 
+# SECCIÓN NUEVA: PRUEBA DE NOTIFICACIÓN POR CORREO
+with st.sidebar.expander("🧪 Probar Notificación por Email", expanded=True):
+    st.sidebar.markdown("Haz una prueba para ver cómo te llegará el aviso urgente a `mahega2005@gmail.com`.")
+    if st.sidebar.button("🚀 Enviar Correo de Prueba", type="primary", use_container_width=True):
+        st.session_state.prueba_correo_enviada = True
+        st.rerun()
+
+st.sidebar.markdown("---")
 with st.sidebar.expander("➕ Añadir ISIN a Vigilancia (Suelo/Techo)", expanded=False):
     nuevo_isin = st.text_input("Código ISIN", "").strip().upper()
     suelo_input = st.number_input("Suelo de Alerta (%)", value=-10.0, step=1.0)
@@ -139,7 +177,7 @@ with st.sidebar.expander("➕ Añadir ISIN a Vigilancia (Suelo/Techo)", expanded
                     'ISIN': nuevo_isin, 'Nombre': nombre_f, 'Suelo_%': suelo_input, 'Techo_%': techo_input, 
                     'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': rentabilidad_simulada
                 })
-                st.sidebar.success(f"¡ISIN `{nuevo_isin}` añadido a vigilancia (Avisos a mahega2005@gmail.com)!")
+                st.sidebar.success(f"¡ISIN `{nuevo_isin}` añadido a vigilancia!")
             else:
                 st.sidebar.warning("Este ISIN ya está registrado.")
         else:
@@ -193,7 +231,7 @@ if st.session_state.historico_consultas:
                 hist['2023'], hist['2022'], hist['2021']
             )
 
-# --- PANEL PRINCIPAL: PESTAÑAS SUPERIORES PROFESIONALES ---
+# --- PANEL PRINCIPAL: PESTAÑAS SUPERIORES ---
 tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Panel de Control & Vigilancia", 
     "📊 Buscador y Listado Maestro", 
@@ -206,7 +244,7 @@ with tab1:
     st.markdown("Control de tus posiciones vigiladas con avisos automáticos a `mahega2005@gmail.com`:")
     df_vigilancia = pd.DataFrame(st.session_state.cartera_vigilada)
     st.dataframe(df_vigilancia, use_container_width=True)
-    st.info("💡 **Nota:** La alerta en ventana flotante solo se activará de forma automática si un fondo perfora el suelo o supera el techo configurado.")
+    st.info("💡 **Prueba de Notificación:** Puedes usar el botón **'Enviar Correo de Prueba'** en la barra lateral izquierda para simular el aviso en cualquier momento.")
 
 with tab2:
     st.subheader("📊 Buscador de Fondos e Histórico Anual")
