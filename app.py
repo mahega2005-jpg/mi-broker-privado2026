@@ -4,13 +4,19 @@ import pandas as pd
 # Configuración de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- ESTILOS CSS: FONDO LUMINOSO ESTILO GEMINI + CABECERA EN AZUL INTENSO ---
+# --- ESTILOS CSS DEFINITIVOS: ARMONÍA VISUAL GEMINI + BARRA LATERAL UNIFICADA ---
 st.markdown("""
 <style>
     /* Fondo general de la aplicación en tono gris/azulado suave estilo Gemini */
     .stApp {
         background-color: #f0f4f9;
         color: #1f2328;
+    }
+    
+    /* Barra lateral unificada con el mismo tono suave y limpio */
+    section[data-testid="stSidebar"] {
+        background-color: #f0f4f9;
+        border-right: 1px solid #cbd5e1;
     }
     
     /* Contenedores y tarjetas transparentes */
@@ -81,12 +87,12 @@ for item in st.session_state.cartera_vigilada:
         fondo_alerta = item
         break
 
-# --- CABECERA Y LOGOTIPO CON PANEL CENTRAL EN AZUL INTENSO ---
+# --- CABECERA Y LOGOTIPO CON PANEL CENTRAL SUAVE Y MARCADO ---
 st.markdown("""
-<div style="background: linear-gradient(135deg, #1d4ed8, #1e40af); padding: 25px; border-radius: 12px; text-align: center; color: white; border: 1px solid #3b82f6; box-shadow: 0px 4px 15px rgba(0,0,0,0.15);">
+<div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 25px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 1px solid #93c5fd; box-shadow: 0px 4px 15px rgba(0,0,0,0.05);">
     <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
-    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #ffffff;">MI BROKER PRIVADO</h2>
-    <p style="margin: 6px 0 0 0; font-size: 13px; color: #bfdbfe;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
+    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #1e40af;">MI BROKER PRIVADO</h2>
+    <p style="margin: 6px 0 0 0; font-size: 13px; color: #3b82f6;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
 </div>
 <br>
 """, unsafe_allow_html=True)
