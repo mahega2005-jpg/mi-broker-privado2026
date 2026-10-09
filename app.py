@@ -4,7 +4,7 @@ import pandas as pd
 # Configuración de la página y layout
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# --- ESTILOS CSS: PALETA INSPIRADA EN EL LOGOTIPO (AZUL ELÉCTRICO Y BRONCE SUAVE) ---
+# --- ESTILOS CSS: INSPIRADOS EN TU LOGOTIPO Y ESTÉTICA SUAVE ---
 st.markdown("""
 <style>
     /* Fondo general de la aplicación en tono gris azulado suave */
@@ -13,12 +13,12 @@ st.markdown("""
         color: #e2e8f0;
     }
     
-    /* Contenedores y tarjetas */
+    /* Contenedores y tarjetas transparentes */
     div.stMarkdownContainer, div.stDataFrame {
         background-color: transparent;
     }
     
-    /* Pestañas superiores estilizadas con los tonos corporativos */
+    /* Pestañas superiores estilizadas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 6px;
         background-color: #1a2230;
@@ -80,7 +80,7 @@ for item in st.session_state.cartera_vigilada:
         fondo_alerta = item
         break
 
-# --- CABECERA Y LOGOTIPO (INSPIRADA EN LOS TONOS DEL LOGO) ---
+# --- CABECERA Y LOGOTIPO ---
 st.markdown("""
 <div style="background: linear-gradient(135deg, #1b263b, #0f172a, #1b263b); padding: 25px; border-radius: 12px; text-align: center; color: white; border: 1px solid #334155; box-shadow: 0px 4px 20px rgba(0,0,0,0.5);">
     <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
