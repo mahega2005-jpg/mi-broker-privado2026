@@ -19,11 +19,6 @@ st.markdown("""
         border-right: 2px solid #93c5fd;
     }
     
-    /* Contenedores y tarjetas transparentes */
-    div.stMarkdownContainer, div.stDataFrame {
-        background-color: transparent;
-    }
-    
     /* Pestañas superiores estilizadas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 6px;
@@ -49,7 +44,7 @@ st.markdown("""
         box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
 
-    /* Botones principales y de la barra lateral */
+    /* Botones principales */
     .stButton button {
         background-color: #ffffff;
         color: #1f2328;
@@ -103,21 +98,18 @@ if 'historico_consultas' not in st.session_state:
     st.session_state.historico_consultas = []
 
 if 'cartera_vigilada' not in st.session_state:
-    st.session_state.cartera_vigilada = [
+    st.session_state.cartera_vigilada = pd.DataFrame([
         {'ISIN': 'IE00BFPM9N11', 'Nombre': 'Vanguard Global Stock Index Inst Plus EUR Acc', 'Suelo_%': -10.0, 'Techo_%': 25.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': 4.5},
         {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -2.1}
-    ]
+    ])
 
 if 'prueba_correo_enviada' not in st.session_state:
     st.session_state.prueba_correo_enviada = False
 
-if 'expandir_todo' not in st.session_state:
-    st.session_state.expandir_todo = False
-
 # Comprobación automática de bandas
 alerta_detectada = False
 fondo_alerta = None
-for item in st.session_state.cartera_vigilada:
+for _, item in st.session_state.cartera_vigilada.iterrows():
     if item['Rentabilidad_Actual_%'] <= item['Suelo_%'] or item['Rentabilidad_Actual_%'] >= item['Techo_%']:
         alerta_detectada = True
         fondo_alerta = item
@@ -173,7 +165,7 @@ if st.session_state.prueba_correo_enviada:
 @st.dialog("📋 Ficha Completa de Análisis & Enlaces a Portales")
 def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025, r2024, r2023, r2022, r2021):
     st.markdown(f"### 🎯 **{nombre}**")
-    st.text_input("📋 Código ISIN (Toca para copiar fácilmente)", value=isin, key=f"copy_modal_{isin}")
+    st.text_input("📋 Código ISIN (Toca para copiar)", value=isin, key=f"copy_modal_{isin}")
     st.markdown(f"**Tipo:** {tipo}")
     st.markdown("---")
     
@@ -204,7 +196,7 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
         st.rerun()
 
-# --- BARRA LATERAL ORGANIZADA CON GESTIÓN ÁGIL (AÑADIR / EDITAR / ELIMINAR) ---
+# --- BARRA LATERAL SIMPLIFICADA ---
 st.sidebar.header("🛡️ Panel Táctico")
 
 # 1. Test de Alertas
@@ -213,79 +205,15 @@ with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
         st.session_state.prueba_correo_enviada = True
         st.rerun()
 
-# 2. Gestión de ISIN Vigilados (Añadir, Editar y Eliminar)
-with st.sidebar.expander("⚙️ Gestionar Tabla de Vigilancia", expanded=False):
-    sub_tab1, sub_tab2, sub_tab3 = st.tabs(["➕ Añadir", "✏️ Editar", "🗑️ Eliminar"])
-    
-    # Subpestaña Añadir
-    with sub_tab1:
-        nuevo_isin = st.text_input("Código ISIN", "").strip().upper()
-        suelo_input = st.number_input("Suelo (%)", value=-10.0, step=1.0)
-        techo_input = st.number_input("Techo (%)", value=20.0, step=1.0)
-        rentabilidad_simulada = st.number_input("Rentabilidad actual (%)", value=2.0, step=0.5)
-        
-        if st.button("Guardar Vigilancia", use_container_width=True):
-            if nuevo_isin:
-                existe = any(item['ISIN'] == nuevo_isin for item in st.session_state.cartera_vigilada)
-                if not existe:
-                    match = df_master[df_master['ISIN'] == nuevo_isin]
-                    nombre_f = match.iloc[0]['Nombre del Fondo'] if not match.empty else f"Fondo Personalizado ({nuevo_isin})"
-                    
-                    st.session_state.cartera_vigilada.append({
-                        'ISIN': nuevo_isin, 'Nombre': nombre_f, 'Suelo_%': suelo_input, 'Techo_%': techo_input, 
-                        'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': rentabilidad_simulada
-                    })
-                    st.success(f"¡ISIN `{nuevo_isin}` añadido correctamente!")
-                    st.rerun()
-                else:
-                    st.warning("Este ISIN ya existe en la lista.")
-            else:
-                st.error("Introduce un ISIN válido.")
-
-    # Subpestaña Editar (Modificación rápida de Suelo y Techo)
-    with sub_tab2:
-        if st.session_state.cartera_vigilada:
-            opciones_editar = [f"{item['ISIN']} - {item['Nombre'][:15]}..." for item in st.session_state.cartera_vigilada]
-            seleccion_editar = st.selectbox("Selecciona ISIN a modificar", opciones_editar, key="sel_edit")
-            isin_edit_target = seleccion_editar.split(" - ")[0]
-            
-            # Recuperar datos actuales
-            item_target = next((item for item in st.session_state.cartera_vigilada if item['ISIN'] == isin_edit_target), None)
-            if item_target:
-                nuevo_suelo = st.number_input("Nuevo Suelo (%)", value=float(item_target['Suelo_%']), step=1.0, key="edit_suelo")
-                nuevo_techo = st.number_input("Nuevo Techo (%)", value=float(item_target['Techo_%']), step=1.0, key="edit_techo")
-                
-                if st.button("💾 Actualizar Umbrales", type="primary", use_container_width=True):
-                    item_target['Suelo_%'] = nuevo_suelo
-                    item_target['Techo_%'] = nuevo_techo
-                    st.success(f"¡Umbrales de `{isin_edit_target}` actualizados!")
-                    st.rerun()
-        else:
-            st.info("No hay fondos para editar.")
-
-    # Subpestaña Eliminar
-    with sub_tab3:
-        if st.session_state.cartera_vigilada:
-            opciones_eliminar = [f"{item['ISIN']} - {item['Nombre'][:15]}..." for item in st.session_state.cartera_vigilada]
-            seleccion_eliminar = st.selectbox("Selecciona ISIN a borrar", opciones_eliminar, key="sel_del")
-            
-            if st.button("🗑️ Eliminar de Vigilancia", type="primary", use_container_width=True):
-                isin_a_borrar = seleccion_eliminar.split(" - ")[0]
-                st.session_state.cartera_vigilada = [item for item in st.session_state.cartera_vigilada if item['ISIN'] != isin_a_borrar]
-                st.success(f"ISIN `{isin_a_borrar}` eliminado.")
-                st.rerun()
-        else:
-            st.info("No hay fondos para borrar.")
-
-# 3. Lector Universal de ISIN
-with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=not st.session_state.expandir_todo):
+# 2. Lector Universal de ISIN
+with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     with st.form(key='form_lector_isin'):
         consulta_isin = st.text_input("Introduce ISIN (Ej: LU1121307729)", "").strip().upper()
         btn_confirmar = st.form_submit_button("✅ Confirmar y Ver Ficha", use_container_width=True)
 
     if btn_confirmar and consulta_isin:
-        st.session_state.expandir_todo = True
-        if consulta_isin not in [item['ISIN'] for item in st.session_state.historico_consultas]:
+        isin_existente = [item['ISIN'] for item in st.session_state.historico_consultas] if isinstance(st.session_state.historico_consultas, list) else []
+        if consulta_isin not in isin_existente:
             fondo_encontrado = df_master[df_master['ISIN'] == consulta_isin]
             if not fondo_encontrado.empty:
                 f = fondo_encontrado.iloc[0]
@@ -312,7 +240,7 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=not st.session_s
                 reg_actual['2023'], reg_actual['2022'], reg_actual['2021']
             )
 
-# 4. Histórico Reciente
+# 3. Histórico Reciente
 if st.session_state.historico_consultas:
     with st.sidebar.expander("🕒 Histórico Reciente", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
@@ -334,25 +262,29 @@ tab1, tab2, tab3, tab4 = st.tabs([
 
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
-    st.markdown("Control seguro de posiciones vigiladas (Asociado a referencia `mahega2005@gmail.com`):")
+    st.markdown("💡 *Edita cifras directamente en la tabla, añade filas o borra seleccionando y pulsando Supr en el teclado de tu tablet:*")
     
-    # Renderizamos la tabla limpia de la sesión actual
-    df_vigilancia = pd.DataFrame(st.session_state.cartera_vigilada)
-    if not df_vigilancia.empty:
-        # Formateamos el ISIN para selección y copiado fácil
-        st.dataframe(
-            df_vigilancia[['ISIN', 'Nombre', 'Suelo_%', 'Techo_%', 'Email']], 
-            use_container_width=True,
-            column_config={
-                "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Toca el texto para copiarlo fácilmente")
-            }
-        )
-    else:
-        st.info("No hay ningún ISIN en la lista de vigilancia actualmente.")
+    # EDITAR TABLA DIRECTAMENTE EN PANTALLA
+    df_editado = st.data_editor(
+        st.session_state.cartera_vigilada,
+        num_rows="dynamic", # Permite añadir y borrar filas de forma nativa
+        use_container_width=True,
+        column_config={
+            "ISIN": st.column_config.TextColumn("ISIN", help="Haz doble toque para seleccionar o copiar", required=True),
+            "Nombre": st.column_config.TextColumn("Nombre del Fondo", width="large"),
+            "Suelo_%": st.column_config.NumberColumn("Suelo (%)", format="%.1f%%"),
+            "Techo_%": st.column_config.NumberColumn("Techo (%)", format="%.1f%%"),
+            "Rentabilidad_Actual_%": st.column_config.NumberColumn("Rent. Actual (%)", format="%.1f%%"),
+            "Email": st.column_config.TextColumn("Email Notificación")
+        },
+        key="editor_cartera"
+    )
     
-    # --- CAJA DE AVISO CON EL MISMO TONO QUE LA PESTAÑA ACTIVA ---
+    # Guardamos automáticamente los cambios
+    st.session_state.cartera_vigilada = df_editado
+    
     st.markdown("""
-    <div style="background-color: #cbd5e1; padding: 16px; border-radius: 10px; border: 1px solid #94a3b8; box-shadow: 0px 2px 4px rgba(0,0,0,0.08);">
+    <div style="background-color: #cbd5e1; padding: 16px; border-radius: 10px; border: 1px solid #94a3b8; box-shadow: 0px 2px 4px rgba(0,0,0,0.08); margin-top: 15px;">
         <p style="margin: 0; font-size: 14px; color: #0f172a;">💡 <b>Aviso:</b> Las alertas se disparan visualmente en pantalla de forma automática al superar los límites de riesgo configurados.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -379,26 +311,4 @@ with tab3:
     for idx, row in top_3_recomendados.reset_index().iterrows():
         st.success(f"""
         **Opción Estratégica {idx+1}: {row['Nombre del Fondo']}** (ISIN: `{row['ISIN']}`)  
-        * **Operador:** {row['Operador / Comercializador España']} | **TER:** {row['TER_%']}% | **Rentabilidad 2025:** {row['2025_%']}%  
-        """)
-
-with tab4:
-    st.subheader("📈 Gráfico Comparativo de Mercado")
-    anios = ['2021_%', '2022_%', '2023_%', '2024_%', '2025_%', 'YTD_2026_%']
-    etiquetas_anios = ['2021', '2022', '2023', '2024', '2025', '2026 (YTD)']
-
-    df_indexados = df_master[df_master['TER_%'] <= 0.30]
-    media_mercado = df_indexados[anios].mean().values
-
-    df_chart = pd.DataFrame({
-        'Año': etiquetas_anios,
-        'Media del Mercado Global': media_mercado,
-        'Tu Renta Variable (Vanguard Stock)': df_master.loc[df_master['ISIN'] == 'IE00BFPM9N11', anios].values[0]
-    })
-    df_chart = df_chart.set_index('Año')
-    st.line_chart(df_chart)
-
-    st.markdown("---")
-    st.subheader("💼 Tu Cartera Core Contratada (Indexa Capital)")
-    cartera_usuario = df_master[df_master['ISIN'].isin(['IE00BFPM9N11', 'IE00BGCZOB53'])]
-    st.dataframe(cartera_usuario[['Nombre del Fondo', 'ISIN', 'Operador / Comercializador España', 'Permite Transferencia/Traspaso', 'TER_%']].reset_index(drop=True), use_container_width=True)
+        * **Operador:** {row['Operador / Comercializador España']} | **TER:** {row
