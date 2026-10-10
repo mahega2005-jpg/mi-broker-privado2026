@@ -19,6 +19,11 @@ st.markdown("""
         border-right: 2px solid #93c5fd;
     }
     
+    /* Contenedores y tarjetas transparentes */
+    div.stMarkdownContainer, div.stDataFrame {
+        background-color: transparent;
+    }
+    
     /* Pestañas superiores estilizadas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 6px;
@@ -44,7 +49,7 @@ st.markdown("""
         box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
 
-    /* Botones principales */
+    /* Botones principales y de la barra lateral */
     .stButton button {
         background-color: #ffffff;
         color: #1f2328;
@@ -60,7 +65,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- BASE DE DATOS MAESTRA ---
+# --- BASE DE DATOS MAESTRA COMPLETA ---
 data_fondos = {
     'Nombre del Fondo': [
         'Vanguard Global Stock Index Inst Plus EUR Acc', 
@@ -105,6 +110,9 @@ if 'cartera_vigilada' not in st.session_state:
 
 if 'prueba_correo_enviada' not in st.session_state:
     st.session_state.prueba_correo_enviada = False
+
+if 'expandir_todo' not in st.session_state:
+    st.session_state.expandir_todo = False
 
 # Comprobación automática de bandas
 alerta_detectada = False
@@ -165,7 +173,7 @@ if st.session_state.prueba_correo_enviada:
 @st.dialog("📋 Ficha Completa de Análisis & Enlaces a Portales")
 def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025, r2024, r2023, r2022, r2021):
     st.markdown(f"### 🎯 **{nombre}**")
-    st.text_input("📋 Código ISIN (Toca para copiar)", value=isin, key=f"copy_modal_{isin}")
+    st.text_input("📋 Código ISIN (Toca para copiar fácilmente)", value=isin, key=f"copy_modal_{isin}")
     st.markdown(f"**Tipo:** {tipo}")
     st.markdown("---")
     
@@ -196,7 +204,7 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
         st.rerun()
 
-# --- BARRA LATERAL SIMPLIFICADA ---
+# --- BARRA LATERAL ORGANIZADA Y ESPACIOSA ---
 st.sidebar.header("🛡️ Panel Táctico")
 
 # 1. Test de Alertas
@@ -205,7 +213,7 @@ with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
         st.session_state.prueba_correo_enviada = True
         st.rerun()
 
-# 2. Lector Universal de ISIN
+# 2. Lector Universal de ISIN (con botón de Confirmar y respuesta a Enter)
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     with st.form(key='form_lector_isin'):
         consulta_isin = st.text_input("Introduce ISIN (Ej: LU1121307729)", "").strip().upper()
@@ -262,15 +270,15 @@ tab1, tab2, tab3, tab4 = st.tabs([
 
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
-    st.markdown("💡 *Edita cifras directamente en la tabla, añade filas o borra seleccionando y pulsando Supr en el teclado de tu tablet:*")
+    st.markdown("💡 *Haz toque directo en cualquier celda para cambiar Suelo %, Techo % o para copiar el ISIN. Puedes añadir nuevas filas o borrarlas:*")
     
-    # EDITAR TABLA DIRECTAMENTE EN PANTALLA
+    # EDITAR Y ELIMINAR DIRECTAMENTE EN LA TABLA CON TOUCH AGIL
     df_editado = st.data_editor(
         st.session_state.cartera_vigilada,
-        num_rows="dynamic", # Permite añadir y borrar filas de forma nativa
+        num_rows="dynamic",
         use_container_width=True,
         column_config={
-            "ISIN": st.column_config.TextColumn("ISIN", help="Haz doble toque para seleccionar o copiar", required=True),
+            "ISIN": st.column_config.TextColumn("ISIN (Copiar/Editar)", help="Doble toque para copiar el código", required=True),
             "Nombre": st.column_config.TextColumn("Nombre del Fondo", width="large"),
             "Suelo_%": st.column_config.NumberColumn("Suelo (%)", format="%.1f%%"),
             "Techo_%": st.column_config.NumberColumn("Techo (%)", format="%.1f%%"),
@@ -280,7 +288,6 @@ with tab1:
         key="editor_cartera"
     )
     
-    # Guardamos automáticamente los cambios
     st.session_state.cartera_vigilada = df_editado
     
     st.markdown("""
