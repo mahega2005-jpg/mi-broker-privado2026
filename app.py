@@ -173,7 +173,8 @@ if st.session_state.prueba_correo_enviada:
 @st.dialog("📋 Ficha Completa de Análisis & Enlaces a Portales")
 def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025, r2024, r2023, r2022, r2021):
     st.markdown(f"### 🎯 **{nombre}**")
-    st.markdown(f"**ISIN:** `{isin}` | **Tipo:** {tipo}")
+    st.text_input("📋 Código ISIN (Toca para copiar fácilmente)", value=isin, key=f"copy_modal_{isin}")
+    st.markdown(f"**Tipo:** {tipo}")
     st.markdown("---")
     
     col1, col2 = st.columns(2)
@@ -203,7 +204,7 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
         st.rerun()
 
-# --- BARRA LATERAL ORGANIZADA CON GESTIÓN COMPLETA (AÑADIR / ELIMINAR) ---
+# --- BARRA LATERAL ORGANIZADA CON GESTIÓN ÁGIL (AÑADIR / EDITAR / ELIMINAR) ---
 st.sidebar.header("🛡️ Panel Táctico")
 
 # 1. Test de Alertas
@@ -212,10 +213,11 @@ with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
         st.session_state.prueba_correo_enviada = True
         st.rerun()
 
-# 2. Gestión de ISIN Vigilados (Añadir y Eliminar)
+# 2. Gestión de ISIN Vigilados (Añadir, Editar y Eliminar)
 with st.sidebar.expander("⚙️ Gestionar Tabla de Vigilancia", expanded=False):
-    sub_tab1, sub_tab2 = st.tabs(["➕ Añadir", "🗑️ Eliminar"])
+    sub_tab1, sub_tab2, sub_tab3 = st.tabs(["➕ Añadir", "✏️ Editar", "🗑️ Eliminar"])
     
+    # Subpestaña Añadir
     with sub_tab1:
         nuevo_isin = st.text_input("Código ISIN", "").strip().upper()
         suelo_input = st.number_input("Suelo (%)", value=-10.0, step=1.0)
@@ -224,7 +226,6 @@ with st.sidebar.expander("⚙️ Gestionar Tabla de Vigilancia", expanded=False)
         
         if st.button("Guardar Vigilancia", use_container_width=True):
             if nuevo_isin:
-                # Comprobación estricta de duplicados
                 existe = any(item['ISIN'] == nuevo_isin for item in st.session_state.cartera_vigilada)
                 if not existe:
                     match = df_master[df_master['ISIN'] == nuevo_isin]
@@ -241,10 +242,32 @@ with st.sidebar.expander("⚙️ Gestionar Tabla de Vigilancia", expanded=False)
             else:
                 st.error("Introduce un ISIN válido.")
 
+    # Subpestaña Editar (Modificación rápida de Suelo y Techo)
     with sub_tab2:
         if st.session_state.cartera_vigilada:
+            opciones_editar = [f"{item['ISIN']} - {item['Nombre'][:15]}..." for item in st.session_state.cartera_vigilada]
+            seleccion_editar = st.selectbox("Selecciona ISIN a modificar", opciones_editar, key="sel_edit")
+            isin_edit_target = seleccion_editar.split(" - ")[0]
+            
+            # Recuperar datos actuales
+            item_target = next((item for item in st.session_state.cartera_vigilada if item['ISIN'] == isin_edit_target), None)
+            if item_target:
+                nuevo_suelo = st.number_input("Nuevo Suelo (%)", value=float(item_target['Suelo_%']), step=1.0, key="edit_suelo")
+                nuevo_techo = st.number_input("Nuevo Techo (%)", value=float(item_target['Techo_%']), step=1.0, key="edit_techo")
+                
+                if st.button("💾 Actualizar Umbrales", type="primary", use_container_width=True):
+                    item_target['Suelo_%'] = nuevo_suelo
+                    item_target['Techo_%'] = nuevo_techo
+                    st.success(f"¡Umbrales de `{isin_edit_target}` actualizados!")
+                    st.rerun()
+        else:
+            st.info("No hay fondos para editar.")
+
+    # Subpestaña Eliminar
+    with sub_tab3:
+        if st.session_state.cartera_vigilada:
             opciones_eliminar = [f"{item['ISIN']} - {item['Nombre'][:15]}..." for item in st.session_state.cartera_vigilada]
-            seleccion_eliminar = st.selectbox("Selecciona ISIN a borrar", opciones_eliminar)
+            seleccion_eliminar = st.selectbox("Selecciona ISIN a borrar", opciones_eliminar, key="sel_del")
             
             if st.button("🗑️ Eliminar de Vigilancia", type="primary", use_container_width=True):
                 isin_a_borrar = seleccion_eliminar.split(" - ")[0]
@@ -316,7 +339,14 @@ with tab1:
     # Renderizamos la tabla limpia de la sesión actual
     df_vigilancia = pd.DataFrame(st.session_state.cartera_vigilada)
     if not df_vigilancia.empty:
-        st.dataframe(df_vigilancia[['ISIN', 'Nombre', 'Suelo_%', 'Techo_%', 'Email']], use_container_width=True)
+        # Formateamos el ISIN para selección y copiado fácil
+        st.dataframe(
+            df_vigilancia[['ISIN', 'Nombre', 'Suelo_%', 'Techo_%', 'Email']], 
+            use_container_width=True,
+            column_config={
+                "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Toca el texto para copiarlo fácilmente")
+            }
+        )
     else:
         st.info("No hay ningún ISIN en la lista de vigilancia actualmente.")
     
