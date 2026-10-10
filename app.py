@@ -311,4 +311,26 @@ with tab3:
     for idx, row in top_3_recomendados.reset_index().iterrows():
         st.success(f"""
         **Opción Estratégica {idx+1}: {row['Nombre del Fondo']}** (ISIN: `{row['ISIN']}`)  
-        * **Operador:** {row['Operador / Comercializador España']} | **TER:** {row
+        * **Operador:** {row['Operador / Comercializador España']} | **TER:** {row['TER_%']}% | **Rentabilidad 2025:** {row['2025_%']}%  
+        """)
+
+with tab4:
+    st.subheader("📈 Gráfico Comparativo de Mercado")
+    anios = ['2021_%', '2022_%', '2023_%', '2024_%', '2025_%', 'YTD_2026_%']
+    etiquetas_anios = ['2021', '2022', '2023', '2024', '2025', '2026 (YTD)']
+
+    df_indexados = df_master[df_master['TER_%'] <= 0.30]
+    media_mercado = df_indexados[anios].mean().values
+
+    df_chart = pd.DataFrame({
+        'Año': etiquetas_anios,
+        'Media del Mercado Global': media_mercado,
+        'Tu Renta Variable (Vanguard Stock)': df_master.loc[df_master['ISIN'] == 'IE00BFPM9N11', anios].values[0]
+    })
+    df_chart = df_chart.set_index('Año')
+    st.line_chart(df_chart)
+
+    st.markdown("---")
+    st.subheader("💼 Tu Cartera Core Contratada (Indexa Capital)")
+    cartera_usuario = df_master[df_master['ISIN'].isin(['IE00BFPM9N11', 'IE00BGCZOB53'])]
+    st.dataframe(cartera_usuario[['Nombre del Fondo', 'ISIN', 'Operador / Comercializador España', 'Permite Transferencia/Traspaso', 'TER_%']].reset_index(drop=True), use_container_width=True)
