@@ -65,42 +65,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- INICIALIZAR ESTADOS DE SESIÓN ---
-if 'historico_consultas' not in st.session_state:
-    st.session_state.historico_consultas = []
-
-if 'cartera_vigilada' not in st.session_state:
-    st.session_state.cartera_vigilada = [
-        {'ISIN': 'IE00BFPM9N11', 'Nombre': 'Vanguard Global Stock Index Inst Plus EUR Acc', 'Suelo_%': -10.0, 'Techo_%': 25.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': 4.5},
-        {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -2.1}
-    ]
-
-if 'prueba_correo_enviada' not in st.session_state:
-    st.session_state.prueba_correo_enviada = False
-
-# Estado para controlar si comprimimos los expanders de la barra lateral tras confirmar
-if 'expandir_todo' not in st.session_state:
-    st.session_state.expandir_todo = False
-
-# Comprobación automática de bandas
-alerta_detectada = False
-fondo_alerta = None
-for item in st.session_state.cartera_vigilada:
-    if item['Rentabilidad_Actual_%'] <= item['Suelo_%'] or item['Rentabilidad_Actual_%'] >= item['Techo_%']:
-        alerta_detectada = True
-        fondo_alerta = item
-        break
-
-# --- CABECERA Y LOGOTIPO ---
-st.markdown("""
-<div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 25px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 2px solid #3b82f6; box-shadow: 0px 4px 15px rgba(0,0,0,0.08);">
-    <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
-    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #1e40af;">MI BROKER PRIVADO</h2>
-    <p style="margin: 6px 0 0 0; font-size: 13px; color: #1d4ed8;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
-</div>
-<br>
-""", unsafe_allow_html=True)
-
 # --- BASE DE DATOS MAESTRA ---
 data_fondos = {
     'Nombre del Fondo': [
@@ -133,6 +97,41 @@ data_fondos = {
 }
 
 df_master = pd.DataFrame(data_fondos)
+
+# --- INICIALIZAR ESTADOS DE SESIÓN ---
+if 'historico_consultas' not in st.session_state:
+    st.session_state.historico_consultas = []
+
+if 'cartera_vigilada' not in st.session_state:
+    st.session_state.cartera_vigilada = [
+        {'ISIN': 'IE00BFPM9N11', 'Nombre': 'Vanguard Global Stock Index Inst Plus EUR Acc', 'Suelo_%': -10.0, 'Techo_%': 25.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': 4.5},
+        {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -2.1}
+    ]
+
+if 'prueba_correo_enviada' not in st.session_state:
+    st.session_state.prueba_correo_enviada = False
+
+if 'expandir_todo' not in st.session_state:
+    st.session_state.expandir_todo = False
+
+# Comprobación automática de bandas
+alerta_detectada = False
+fondo_alerta = None
+for item in st.session_state.cartera_vigilada:
+    if item['Rentabilidad_Actual_%'] <= item['Suelo_%'] or item['Rentabilidad_Actual_%'] >= item['Techo_%']:
+        alerta_detectada = True
+        fondo_alerta = item
+        break
+
+# --- CABECERA Y LOGOTIPO ---
+st.markdown("""
+<div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 25px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 2px solid #3b82f6; box-shadow: 0px 4px 15px rgba(0,0,0,0.08);">
+    <div style="font-size: 38px; margin-bottom: 5px;">🛡️📈</div>
+    <h2 style="margin: 0; font-size: 24px; letter-spacing: 1.5px; color: #1e40af;">MI BROKER PRIVADO</h2>
+    <p style="margin: 6px 0 0 0; font-size: 13px; color: #1d4ed8;">Panel Táctico • Core en Indexa Capital • Vigilancia de Bandas 24h</p>
+</div>
+<br>
+""", unsafe_allow_html=True)
 
 # --- VENTANA FLOTANTE DE ALERTA URGENTE ---
 @st.dialog("🚨 ¡ALERTA URGENTE: BANDA DE CONTROL SUPERADA!")
@@ -204,7 +203,7 @@ def abrir_modal_detalle(nombre, isin, tipo, operador, traspaso, ter, ytd, r2025,
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
         st.rerun()
 
-# --- BARRA LATERAL ORGANIZADA EN EXPANDERS COMPRIMIBLES ---
+# --- BARRA LATERAL ORGANIZADA CON GESTIÓN COMPLETA (AÑADIR / ELIMINAR) ---
 st.sidebar.header("🛡️ Panel Táctico")
 
 # 1. Test de Alertas
@@ -213,31 +212,49 @@ with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
         st.session_state.prueba_correo_enviada = True
         st.rerun()
 
-# 2. Añadir ISIN
-with st.sidebar.expander("➕ Añadir ISIN a Vigilancia", expanded=False):
-    nuevo_isin = st.text_input("Código ISIN", "").strip().upper()
-    suelo_input = st.number_input("Suelo (%)", value=-10.0, step=1.0)
-    techo_input = st.number_input("Techo (%)", value=20.0, step=1.0)
-    rentabilidad_simulada = st.number_input("Rentabilidad actual (%)", value=2.0, step=0.5)
+# 2. Gestión de ISIN Vigilados (Añadir y Eliminar)
+with st.sidebar.expander("⚙️ Gestionar Tabla de Vigilancia", expanded=False):
+    sub_tab1, sub_tab2 = st.tabs(["➕ Añadir", "🗑️ Eliminar"])
     
-    if st.button("Guardar Vigilancia", use_container_width=True):
-        if nuevo_isin:
-            existe = any(item['ISIN'] == nuevo_isin for item in st.session_state.cartera_vigilada)
-            if not existe:
-                match = df_master[df_master['ISIN'] == nuevo_isin]
-                nombre_f = match.iloc[0]['Nombre del Fondo'] if not match.empty else f"Fondo Personalizado ({nuevo_isin})"
-                
-                st.session_state.cartera_vigilada.append({
-                    'ISIN': nuevo_isin, 'Nombre': nombre_f, 'Suelo_%': suelo_input, 'Techo_%': techo_input, 
-                    'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': rentabilidad_simulada
-                })
-                st.sidebar.success(f"¡ISIN `{nuevo_isin}` añadido!")
+    with sub_tab1:
+        nuevo_isin = st.text_input("Código ISIN", "").strip().upper()
+        suelo_input = st.number_input("Suelo (%)", value=-10.0, step=1.0)
+        techo_input = st.number_input("Techo (%)", value=20.0, step=1.0)
+        rentabilidad_simulada = st.number_input("Rentabilidad actual (%)", value=2.0, step=0.5)
+        
+        if st.button("Guardar Vigilancia", use_container_width=True):
+            if nuevo_isin:
+                # Comprobación estricta de duplicados
+                existe = any(item['ISIN'] == nuevo_isin for item in st.session_state.cartera_vigilada)
+                if not existe:
+                    match = df_master[df_master['ISIN'] == nuevo_isin]
+                    nombre_f = match.iloc[0]['Nombre del Fondo'] if not match.empty else f"Fondo Personalizado ({nuevo_isin})"
+                    
+                    st.session_state.cartera_vigilada.append({
+                        'ISIN': nuevo_isin, 'Nombre': nombre_f, 'Suelo_%': suelo_input, 'Techo_%': techo_input, 
+                        'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': rentabilidad_simulada
+                    })
+                    st.success(f"¡ISIN `{nuevo_isin}` añadido correctamente!")
+                    st.rerun()
+                else:
+                    st.warning("Este ISIN ya existe en la lista.")
             else:
-                st.sidebar.warning("Ya registrado.")
-        else:
-            st.sidebar.error("ISIN no válido.")
+                st.error("Introduce un ISIN válido.")
 
-# 3. Lector Universal de ISIN (El expander se mantiene abierto para la introducción, pero al confirmar comprime la vista general)
+    with sub_tab2:
+        if st.session_state.cartera_vigilada:
+            opciones_eliminar = [f"{item['ISIN']} - {item['Nombre'][:15]}..." for item in st.session_state.cartera_vigilada]
+            seleccion_eliminar = st.selectbox("Selecciona ISIN a borrar", opciones_eliminar)
+            
+            if st.button("🗑️ Eliminar de Vigilancia", type="primary", use_container_width=True):
+                isin_a_borrar = seleccion_eliminar.split(" - ")[0]
+                st.session_state.cartera_vigilada = [item for item in st.session_state.cartera_vigilada if item['ISIN'] != isin_a_borrar]
+                st.success(f"ISIN `{isin_a_borrar}` eliminado.")
+                st.rerun()
+        else:
+            st.info("No hay fondos para borrar.")
+
+# 3. Lector Universal de ISIN
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=not st.session_state.expandir_todo):
     with st.form(key='form_lector_isin'):
         consulta_isin = st.text_input("Introduce ISIN (Ej: LU1121307729)", "").strip().upper()
@@ -295,8 +312,13 @@ tab1, tab2, tab3, tab4 = st.tabs([
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
     st.markdown("Control seguro de posiciones vigiladas (Asociado a referencia `mahega2005@gmail.com`):")
+    
+    # Renderizamos la tabla limpia de la sesión actual
     df_vigilancia = pd.DataFrame(st.session_state.cartera_vigilada)
-    st.dataframe(df_vigilancia, use_container_width=True)
+    if not df_vigilancia.empty:
+        st.dataframe(df_vigilancia[['ISIN', 'Nombre', 'Suelo_%', 'Techo_%', 'Email']], use_container_width=True)
+    else:
+        st.info("No hay ningún ISIN en la lista de vigilancia actualmente.")
     
     # --- CAJA DE AVISO CON EL MISMO TONO QUE LA PESTAÑA ACTIVA ---
     st.markdown("""
