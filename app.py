@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -64,21 +65,23 @@ if 'cartera_vigilada' not in st.session_state:
 if 'prueba_correo_enviada' not in st.session_state:
     st.session_state.prueba_correo_enviada = False
 
-# CABECERA CON BOTÓN DE RECARGA
+# CABECERA CON HORA DE ACTUALIZACIÓN EN TIEMPO REAL
 col_head1, col_head2 = st.columns([4, 1])
+
+hora_actual = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
 
 with col_head1:
     st.markdown(f"""
     <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 20px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 2px solid #3b82f6;">
         <div style="font-size: 32px; margin-bottom: 3px;">🛡️📈</div>
         <h2 style="margin: 0; font-size: 22px; color: #1e40af;">MI BROKER PRIVADO</h2>
-        <p style="margin: 4px 0 0 0; font-size: 12px; color: #1d4ed8;">Panel Táctico • Refresco 24h: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #1d4ed8;">Panel Táctico • Último Refresco: {hora_actual}</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col_head2:
     st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-    if st.button("🔄 Actualizar", use_container_width=True, help="Recargar aplicación"):
+    if st.button("🔄 Actualizar", use_container_width=True, help="Recargar aplicación y actualizar fecha/hora"):
         st.rerun()
 
 st.markdown("<br>", unsafe_allow_html=True)
@@ -159,13 +162,11 @@ def abrir_modal_detalle(info_reg):
 # BARRA LATERAL
 st.sidebar.header("🛡️ Panel Táctico")
 
-# 1. Test Alertas
 with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
     if st.button("🚀 Comprobar Estado", use_container_width=True):
         st.session_state.prueba_correo_enviada = True
         st.rerun()
 
-# 2. Gestión ISIN
 with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
     opcion_g = st.radio("Acción:", ["Añadir", "Eliminar"], horizontal=True, key="rad_gest")
     if opcion_g == "Añadir":
@@ -195,7 +196,6 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` borrado.")
                 st.rerun()
 
-# 3. LECTOR UNIVERSAL DE ISIN (FORMULARIO CON LIMPIEZA AUTOMÁTICA)
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
         consulta_isin_input = st.text_input("Introduce ISIN a analizar", value="", key="txt_input_isin_field").strip().upper()
@@ -205,7 +205,6 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
         res = consultar_catalogo_maestro(consulta_isin_input)
         res['FechaConsulta'] = datetime.now().strftime("%d/%m/%Y %H:%M")
         
-        # Guardar en histórico (máximo 5)
         st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i['ISIN'] != consulta_isin_input]
         st.session_state.historico_consultas.insert(0, res)
         if len(st.session_state.historico_consultas) > 5:
@@ -213,7 +212,6 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
         
         abrir_modal_detalle(res)
 
-# 4. HISTÓRICO DE ÚLTIMAS 5 CONSULTAS LIMPIO
 if st.session_state.historico_consultas:
     with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
@@ -221,11 +219,11 @@ if st.session_state.historico_consultas:
             if st.sidebar.button(etiqueta, key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
 
-# PANEL PRINCIPAL
+# PANEL PRINCIPAL CON TRES PESTAÑAS (CONTROL & BANDAS, BUSCADOR MAESTRO, ETC.)
 tab1, tab2, tab3, tab4 = st.tabs(["🛡️ Control & Bandas", "📊 Buscador Maestro", "🤖 Copiloto IA & Prensa", "📈 Gráficos & Cartera Indexa"])
 
 with tab1:
-    st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
+    st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos - Carteras Contratadas)")
     df_editado = st.data_editor(st.session_state.cartera_vigilada, num_rows="dynamic", use_container_width=True, key="ed_cartera")
     st.session_state.cartera_vigilada = df_editado
 
