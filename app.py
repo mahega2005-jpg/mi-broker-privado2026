@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 from datetime import datetime
 import zoneinfo
 
@@ -203,7 +204,7 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` borrado.")
                 st.rerun()
 
-# LECTOR UNIVERSAL ISIN (FORMULARIO CON LIMPIEZA AUTOMÁTICA)
+# LECTOR UNIVERSAL ISIN
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
         consulta_isin_input = st.text_input("Introduce ISIN a analizar", value="", key="txt_input_isin_field").strip().upper()
@@ -227,7 +228,7 @@ if st.session_state.historico_consultas:
             if st.sidebar.button(etiqueta, key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
 
-# PANEL PRINCIPAL (PESTAÑAS TÁCTICAS)
+# PANEL PRINCIPAL
 tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Control & Bandas", 
     "📊 Buscador Maestro", 
@@ -242,9 +243,9 @@ with tab1:
 
 with tab2:
     st.subheader("📊 Buscador Maestro (2 Fondos Contratados Core + 10 Referencia del Mercado)")
-    st.markdown("💡 *Haz doble clic sobre cualquier código ISIN para copiarlo y pegarlo en la barra lateral:*")
+    st.markdown("💡 *Haz doble clic o mantén presionado sobre cualquier código ISIN para copiarlo y pegarlo en la barra lateral:*")
     
-    # TABLA PRINCIPAL FIJA CON 12 FILAS Y SCROLL LATERAL
+    # TABLA PRINCIPAL FIJA CON ISIN INTERACTIVO Y COPIABLE
     st.dataframe(
         df_master, 
         use_container_width=True,
@@ -260,21 +261,33 @@ with tab2:
 
     st.markdown("---")
 
-    # CAJITAS DE AVISO UNA DEBAJO DE LA OTRA (SOBRE EL TOP 10 MERCADO)
+    # CAJITAS DE AVISO CON ISIN HABILITADO PARA COPIAR CON PULSACIÓN PROLONGADA
     df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
     df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
     
     # Cajita Verde (Los 2 mejores)
     top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
     st.success("🚀 **Los 2 Mejores en Crecimiento (Top 10 Mercado):**")
-    st.dataframe(top2_mejores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
+    st.dataframe(
+        top2_mejores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], 
+        use_container_width=True,
+        column_config={
+            "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Mantén pulsado para copiar")
+        }
+    )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Cajita Roja (Los 2 con retroceso)
     top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
     st.error("⚠️ **Los 2 con Menor Rendimiento / Retroceso (Top 10 Mercado):**")
-    st.dataframe(top2_peores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
+    st.dataframe(
+        top2_peores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], 
+        use_container_width=True,
+        column_config={
+            "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Mantén pulsado para copiar")
+        }
+    )
 
 with tab3:
     st.subheader("☕ Copiloto IA & Prensa Financiera")
@@ -282,7 +295,7 @@ with tab3:
 
 with tab4:
     st.subheader("📈 Gráficos & Cartera Core")
-    st.markdown("🔴 **Tu Cartera Core (en Rojo)** comparada de un golpe de vista con las mejores alternativas del mercado:")
+    st.markdown("🔴 **Tu Cartera Core (Barras Rojas)** comparada de un golpe de vista con las alternativas del mercado (Barras Azules):")
 
     fondos_core_nombres = df_master[df_master['Origen'] == '📌 En Cartera (Core)']['Nombre del Fondo'].tolist()
     df_top10_calc = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
@@ -301,17 +314,46 @@ with tab4:
     if fondos_graf_activos:
         df_graf_sub = df_master[df_master['Nombre del Fondo'].isin(fondos_graf_activos)].copy()
         
-        df_graf_sub['Etiqueta_Fondo'] = df_graf_sub.apply(
-            lambda r: f"🔴 [CORE] {r['Nombre del Fondo']}" if r['Origen'] == '📌 En Cartera (Core)' else f"🔵 {r['Nombre del Fondo']}", 
+        # Etiqueta corta para eje X
+        df_graf_sub['Fondo_Corto'] = df_graf_sub.apply(
+            lambda r: f"[CORE] {r['Nombre del Fondo'][:25]}..." if r['Origen'] == '📌 En Cartera (Core)' else f"{r['Nombre del Fondo'][:25]}...", 
             axis=1
         )
         
+        # Asignar color rojo explícito a la Cartera Core y Azul al resto
+        df_graf_sub['Color_Barra'] = df_graf_sub['Origen'].apply(
+            lambda x: '#ef4444' if x == '📌 En Cartera (Core)' else '#3b82f6'
+        )
+
         col_g1, col_g2 = st.columns(2)
+        
         with col_g1:
             st.markdown("##### 🚀 Rentabilidad Año en Curso (YTD 2026)")
-            st.bar_chart(df_graf_sub.set_index('Etiqueta_Fondo')['YTD_2026_%'], use_container_width=True)
+            fig1 = px.bar(
+                df_graf_sub, 
+                x='Fondo_Corto', 
+                y='YTD_2026_%',
+                color='Color_Barra',
+                color_discrete_map={'#ef4444': '#ef4444', '#3b82f6': '#3b82f6'},
+                labels={'Fondo_Corto': 'Fondo', 'YTD_2026_%': 'Rentabilidad (%)'},
+                text_auto='.1f'
+            )
+            fig1.update_layout(showlegend=False, xaxis_title="", margin=dict(l=10, r=10, t=20, b=10))
+            st.plotly_chart(fig1, use_container_width=True)
+
         with col_g2:
             st.markdown("##### 📅 Rentabilidad Último Año Vencido (2025)")
-            st.bar_chart(df_graf_sub.set_index('Etiqueta_Fondo')['2025_%'], use_container_width=True)
+            fig2 = px.bar(
+                df_graf_sub, 
+                x='Fondo_Corto', 
+                y='2025_%',
+                color='Color_Barra',
+                color_discrete_map={'#ef4444': '#ef4444', '#3b82f6': '#3b82f6'},
+                labels={'Fondo_Corto': 'Fondo', '2025_%': 'Rentabilidad (%)'},
+                text_auto='.1f'
+            )
+            fig2.update_layout(showlegend=False, xaxis_title="", margin=dict(l=10, r=10, t=20, b=10))
+            st.plotly_chart(fig2, use_container_width=True)
+            
     else:
         st.info("Selecciona al menos un fondo para mostrar el gráfico.")
