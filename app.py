@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from datetime import datetime
 import zoneinfo
 
@@ -245,7 +244,6 @@ with tab2:
     st.subheader("📊 Buscador Maestro (2 Fondos Contratados Core + 10 Referencia del Mercado)")
     st.markdown("💡 *Haz doble clic o mantén presionado sobre cualquier código ISIN para copiarlo y pegarlo en la barra lateral:*")
     
-    # TABLA PRINCIPAL FIJA CON ISIN INTERACTIVO Y COPIABLE
     st.dataframe(
         df_master, 
         use_container_width=True,
@@ -261,11 +259,10 @@ with tab2:
 
     st.markdown("---")
 
-    # CAJITAS DE AVISO CON ISIN HABILITADO PARA COPIAR CON PULSACIÓN PROLONGADA
+    # CAJITAS DE AVISO CON ISIN INTERACTIVO DE COPIADO
     df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
     df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
     
-    # Cajita Verde (Los 2 mejores)
     top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
     st.success("🚀 **Los 2 Mejores en Crecimiento (Top 10 Mercado):**")
     st.dataframe(
@@ -278,7 +275,6 @@ with tab2:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Cajita Roja (Los 2 con retroceso)
     top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
     st.error("⚠️ **Los 2 con Menor Rendimiento / Retroceso (Top 10 Mercado):**")
     st.dataframe(
@@ -314,46 +310,35 @@ with tab4:
     if fondos_graf_activos:
         df_graf_sub = df_master[df_master['Nombre del Fondo'].isin(fondos_graf_activos)].copy()
         
-        # Etiqueta corta para eje X
-        df_graf_sub['Fondo_Corto'] = df_graf_sub.apply(
-            lambda r: f"[CORE] {r['Nombre del Fondo'][:25]}..." if r['Origen'] == '📌 En Cartera (Core)' else f"{r['Nombre del Fondo'][:25]}...", 
+        # Etiqueta visual clara para el eje
+        df_graf_sub['Fondo_Etiqueta'] = df_graf_sub.apply(
+            lambda r: f"🔴 [CORE] {r['Nombre del Fondo'][:22]}..." if r['Origen'] == '📌 En Cartera (Core)' else f"🔵 {r['Nombre del Fondo'][:22]}...", 
             axis=1
         )
-        
-        # Asignar color rojo explícito a la Cartera Core y Azul al resto
-        df_graf_sub['Color_Barra'] = df_graf_sub['Origen'].apply(
-            lambda x: '#ef4444' if x == '📌 En Cartera (Core)' else '#3b82f6'
-        )
+
+        # SEPARACIÓN VISUAL ENTRE CARTERA CORE (ROJO) Y TOP MERCADO (AZUL)
+        df_core_only = df_graf_sub[df_graf_sub['Origen'] == '📌 En Cartera (Core)']
+        df_mercado_only = df_graf_sub[df_graf_sub['Origen'] == '⭐ Top Mercado']
 
         col_g1, col_g2 = st.columns(2)
         
         with col_g1:
             st.markdown("##### 🚀 Rentabilidad Año en Curso (YTD 2026)")
-            fig1 = px.bar(
-                df_graf_sub, 
-                x='Fondo_Corto', 
-                y='YTD_2026_%',
-                color='Color_Barra',
-                color_discrete_map={'#ef4444': '#ef4444', '#3b82f6': '#3b82f6'},
-                labels={'Fondo_Corto': 'Fondo', 'YTD_2026_%': 'Rentabilidad (%)'},
-                text_auto='.1f'
-            )
-            fig1.update_layout(showlegend=False, xaxis_title="", margin=dict(l=10, r=10, t=20, b=10))
-            st.plotly_chart(fig1, use_container_width=True)
+            st.markdown("🔴 **Cartera Core (Rojo):**")
+            if not df_core_only.empty:
+                st.bar_chart(df_core_only.set_index('Fondo_Etiqueta')['YTD_2026_%'], color="#ef4444", use_container_width=True)
+            st.markdown("🔵 **Fondos Mercado (Azul):**")
+            if not df_mercado_only.empty:
+                st.bar_chart(df_mercado_only.set_index('Fondo_Etiqueta')['YTD_2026_%'], color="#3b82f6", use_container_width=True)
 
         with col_g2:
             st.markdown("##### 📅 Rentabilidad Último Año Vencido (2025)")
-            fig2 = px.bar(
-                df_graf_sub, 
-                x='Fondo_Corto', 
-                y='2025_%',
-                color='Color_Barra',
-                color_discrete_map={'#ef4444': '#ef4444', '#3b82f6': '#3b82f6'},
-                labels={'Fondo_Corto': 'Fondo', '2025_%': 'Rentabilidad (%)'},
-                text_auto='.1f'
-            )
-            fig2.update_layout(showlegend=False, xaxis_title="", margin=dict(l=10, r=10, t=20, b=10))
-            st.plotly_chart(fig2, use_container_width=True)
+            st.markdown("🔴 **Cartera Core (Rojo):**")
+            if not df_core_only.empty:
+                st.bar_chart(df_core_only.set_index('Fondo_Etiqueta')['2025_%'], color="#ef4444", use_container_width=True)
+            st.markdown("🔵 **Fondos Mercado (Azul):**")
+            if not df_mercado_only.empty:
+                st.bar_chart(df_mercado_only.set_index('Fondo_Etiqueta')['2025_%'], color="#3b82f6", use_container_width=True)
             
     else:
         st.info("Selecciona al menos un fondo para mostrar el gráfico.")
