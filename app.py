@@ -5,7 +5,7 @@ from datetime import datetime
 # Configuración de la página
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# Estilos CSS (Estilo Gemini)
+# Estilos CSS (Estilo Gemini optimizado para limpiar sombreados de botones)
 st.markdown("""
 <style>
     .stApp { background-color: #f0f4f9; color: #1f2328; }
@@ -13,7 +13,19 @@ st.markdown("""
     .stTabs [data-baseweb="tab-list"] { gap: 6px; background-color: #e2e8f0; padding: 6px; border-radius: 12px; border: 2px solid #cbd5e1; }
     .stTabs [data-baseweb="tab"] { background-color: #ffffff; border-radius: 8px; color: #475569 !important; padding: 10px 16px; font-weight: 600; font-size: 14px; border: 1px solid #cbd5e1; }
     .stTabs [aria-selected="true"] { background-color: #cbd5e1 !important; color: #0f172a !important; border-color: #94a3b8 !important; }
-    .stButton button { background-color: #ffffff; color: #1f2328; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 500; }
+    
+    /* Botones generales limpios y sin sombreados persistentes */
+    .stButton button {
+        background-color: #ffffff;
+        color: #1f2328;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    .stButton button:hover {
+        background-color: #e2e8f0;
+        border-color: #94a3b8;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -218,12 +230,12 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
             
             abrir_modal_detalle(res)
 
-# 4. HISTÓRICO DE ÚLTIMAS 5 CONSULTAS CON FECHA Y HORA
+# 4. HISTÓRICO DE ÚLTIMAS 5 CONSULTAS LIMPIO (SIN SOMBRADOS FIJOS)
 if st.session_state.historico_consultas:
     with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
             etiqueta = f"📌 {hist['ISIN']} ({hist.get('FechaConsulta','')})"
-            if st.sidebar.button(etiqueta, key=f"hist_{idx}", use_container_width=True):
+            if st.sidebar.button(etiqueta, key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
 
 # PANEL PRINCIPAL
