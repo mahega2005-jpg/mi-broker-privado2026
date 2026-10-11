@@ -49,7 +49,7 @@ st.markdown("""
         border: 1px solid #cbd5e1; 
     }
     
-    /* Pestaña Seleccionada: Gris suavizado y elegante (evitando el azul intenso) */
+    /* Pestaña Seleccionada: Gris suavizado y elegante */
     .stTabs [aria-selected="true"] { 
         background-color: #cbd5e1 !important; 
         color: #0f172a !important; 
@@ -151,6 +151,9 @@ if 'cartera_vigilada' not in st.session_state:
 if 'notificacion_actualizado' not in st.session_state:
     st.session_state.notificacion_actualizado = False
 
+if 'isin_preseleccionado' not in st.session_state:
+    st.session_state.isin_preseleccionado = ""
+
 
 # ==============================================================================
 # 5. CABECERA TÁCTICA SUPERIOR
@@ -222,7 +225,7 @@ def consultar_catalogo_maestro(isin):
 def abrir_modal_detalle(info_reg):
     """Muestra el desglose técnico y enlaces externos directos de consulta."""
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
-    st.text_input("📋 Código ISIN (Copiar)", value=info_reg['ISIN'], key=f"copy_modal_{info_reg['ISIN']}")
+    st.code(info_reg['ISIN'], language=None)
     st.markdown(f"📅 *Consultado el:* `{hora_real_espana()}`")
     st.markdown("---")
     
@@ -303,13 +306,18 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` eliminado.")
                 st.rerun()
 
+# LECTOR UNIVERSAL ISIN
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     st.write("Analiza cualquier ISIN y accede a su ficha técnica completa.")
+    
+    val_defecto = st.session_state.isin_preseleccionado
+    
     with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
-        consulta_isin_input = st.text_input("Introduce ISIN a analizar", value="", key="txt_input_isin_field").strip().upper()
+        consulta_isin_input = st.text_input("Introduce ISIN a analizar", value=val_defecto, key="txt_input_isin_field").strip().upper()
         btn_submit = st.form_submit_button("✅ Consultar e Incorporar", use_container_width=True)
 
     if btn_submit and consulta_isin_input:
+        st.session_state.isin_preseleccionado = ""
         res = consultar_catalogo_maestro(consulta_isin_input)
         res['FechaConsulta'] = hora_real_espana()
         
@@ -354,16 +362,36 @@ with tab1:
 with tab2:
     st.subheader("📊 Buscador Maestro: Top 10 Fondos de Referencia en España + Cartera Core")
     st.markdown("💡 *Selección basada en comisiones reducidas (TER), traspasabilidad fiscal 100% libre de peaje y máxima rentabilidad histórica.*")
-    st.markdown("👉 **Instrucciones táctiles:** Haz doble clic o mantén pulsado sobre cualquier ISIN para copiarlo al Lector Universal.")
     
+    # ACCESO DIRECTO PARA UN TOQUE EN TABLET
+    st.markdown("📋 **Copiador / Lector Táctil de ISIN para Tablet:**")
+    
+    col_sel1, col_sel2 = st.columns([3, 1])
+    with col_sel1:
+        isin_elegido = st.selectbox(
+            "Selecciona cualquier fondo para copiar/analizar directamente en la barra lateral:",
+            options=df_master['ISIN'].tolist(),
+            format_func=lambda x: f"{x} - {df_master[df_master['ISIN']==x]['Nombre del Fondo'].values[0]}",
+            key="sel_directo_isin_tablet"
+        )
+    with col_sel2:
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+        if st.button("🚀 Cargar en Lector", use_container_width=True):
+            st.session_state.isin_preseleccionado = isin_elegido
+            res_sel = consultar_catalogo_maestro(isin_elegido)
+            abrir_modal_detalle(res_sel)
+
+    st.markdown("---")
+
+    # TABLA PRINCIPAL CON BLOQUES DE CÓDIGO DIRECTAMENTE COPIABLES TRADICIONALES
     st.dataframe(
         df_master, 
         use_container_width=True,
-        height=460,
+        height=420,
         column_config={
             "ISIN": st.column_config.TextColumn(
                 "ISIN (Copiar)",
-                help="Selecciona o haz doble clic para copiar directamente",
+                help="Código oficial ISIN de 12 caracteres",
                 width="medium"
             ),
             "TER_%": st.column_config.NumberColumn("TER (%)", format="%.2f%%"),
@@ -382,29 +410,33 @@ with tab2:
     
     top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
     st.success("🚀 **Aviso de Oportunidad: Los 2 Fondos del Top 10 Mercado con Mayor Crecimiento Acumulado (2025 + YTD 2026):**")
-    st.dataframe(
-        top2_mejores[['ISIN', 'Nombre del Fondo', 'Categoría / Tipo', 'Comercializador España', '2025_%', 'YTD_2026_%']], 
-        use_container_width=True,
-        column_config={
-            "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Mantén pulsado para copiar"),
-            "2025_%": st.column_config.NumberColumn("2025 (%)", format="%.2f%%"),
-            "YTD_2026_%": st.column_config.NumberColumn("YTD 2026 (%)", format="%.2f%%")
-        }
-    )
+    
+    for _, row in top2_mejores.iterrows():
+        c_i1, c_i2, c_i3 = st.columns([1.5, 3.5, 1])
+        with c_i1:
+            st.code(row['ISIN'], language=None)
+        with c_i2:
+            st.markdown(f"**{row['Nombre del Fondo']}**  \n*{row['Categoría / Tipo']} • {row['Comercializador España']}*")
+        with c_i3:
+            if st.button("🔍 Analizar", key=f"btn_top_m_{row['ISIN']}", use_container_width=True):
+                res_m = consultar_catalogo_maestro(row['ISIN'])
+                abrir_modal_detalle(res_m)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
     st.error("⚠️ **Aviso de Alerta: Los 2 Fondos del Top 10 Mercado con Menor Rendimiento / Retroceso:**")
-    st.dataframe(
-        top2_peores[['ISIN', 'Nombre del Fondo', 'Categoría / Tipo', 'Comercializador España', '2025_%', 'YTD_2026_%']], 
-        use_container_width=True,
-        column_config={
-            "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Mantén pulsado para copiar"),
-            "2025_%": st.column_config.NumberColumn("2025 (%)", format="%.2f%%"),
-            "YTD_2026_%": st.column_config.NumberColumn("YTD 2026 (%)", format="%.2f%%")
-        }
-    )
+    
+    for _, row in top2_peores.iterrows():
+        c_p1, c_p2, c_p3 = st.columns([1.5, 3.5, 1])
+        with c_p1:
+            st.code(row['ISIN'], language=None)
+        with c_p2:
+            st.markdown(f"**{row['Nombre del Fondo']}**  \n*{row['Categoría / Tipo']} • {row['Comercializador España']}*")
+        with c_p3:
+            if st.button("🔍 Analizar", key=f"btn_top_p_{row['ISIN']}", use_container_width=True):
+                res_p = consultar_catalogo_maestro(row['ISIN'])
+                abrir_modal_detalle(res_p)
 
 # PESTAÑA 3: COPILOTO IA & PRENSA
 with tab3:
