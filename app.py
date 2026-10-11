@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-import yfinance as yf
 
 # Configuración de la página
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
@@ -55,7 +54,7 @@ if 'cartera_vigilada' not in st.session_state:
 if 'prueba_correo_enviada' not in st.session_state:
     st.session_state.prueba_correo_enviada = False
 
-# --- CABECERA CON BOTÓN DE RECARGA EN TIEMPO REAL EN LA PARTE SUPERIOR ---
+# --- CABECERA CON BOTÓN DE RECARGA EN TIEMPO REAL ---
 col_head1, col_head2 = st.columns([4, 1])
 
 with col_head1:
@@ -68,14 +67,14 @@ with col_head1:
     """, unsafe_allow_html=True)
 
 with col_head2:
-    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True) # Espaciador vertical alineado
-    if st.button("🔄 Actualizar", use_container_width=True, help="Recargar datos de mercado en tiempo real"):
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    if st.button("🔄 Actualizar", use_container_width=True, help="Recargar datos de la aplicación"):
         st.success("¡Datos actualizados!")
         st.rerun()
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- FUNCIÓN DE EXTRACCIÓN AUTOMÁTICA EN TIEMPO REAL ---
+# --- FUNCIÓN DE VERIFICACIÓN Y VALIDACIÓN AUTOMÁTICA DE ISIN ---
 def extraer_datos_financieros(isin):
     isin = isin.strip().upper()
     match = df_master[df_master['ISIN'] == isin]
@@ -97,51 +96,39 @@ def extraer_datos_financieros(isin):
             '2021': f['2021_%']
         }
     
-    try:
-        ticker_obj = yf.Ticker(isin)
-        hist = ticker_obj.history(period="5d")
-        if hist.empty:
-            raise ValueError("Sin datos de mercado")
-        
-        info = ticker_obj.info
-        nombre_real = info.get('longName', f"Fondo / Activo Externo ({isin})")
-        
-        return {
-            'Exito': True,
-            'Nombre': nombre_real,
-            'ISIN': isin,
-            'Tipo': 'Activo Financiero Verificado Online',
-            'Operador': 'Mercado Abierto / Broker',
-            'Traspaso': 'Consultar comercializador',
-            'TER': 0.50,
-            'YTD': round(float(info.get('ytdReturn', 5.0) or 5.0) * 100, 2),
-            '2025': 10.0, '2024': 15.0, '2023': 8.0, '2022': -10.0, '2021': 20.0
-        }
-    except Exception:
+    # Validación estricta: Si el ISIN no está en el core local, indicamos claramente que requiere contraste oficial
+    if len(isin) == 12:
         return {
             'Exito': False,
             'ISIN': isin,
-            'MensajeError': f"⚠️ No se han podido verificar datos oficiales en tiempo real para el ISIN `{isin}`. Comprueba que el código sea correcto o utiliza los portales de contraste."
+            'MensajeError': f"⚠️ El ISIN `{isin}` tiene formato válido pero no está registrado en tu base local de referencia. Utiliza los enlaces directos inferiores para consultar su cotización oficial en tiempo real."
+        }
+    else:
+        return {
+            'Exito': False,
+            'ISIN': isin,
+            'MensajeError': f"⚠️ El código `{isin}` no tiene un formato ISIN válido (debe tener 12 caracteres alfanuméricos)."
         }
 
 # Modal de Ficha con Validación Real
 @st.dialog("📋 Ficha de Consulta & Validación Automática")
 def abrir_modal_detalle(info_reg):
     if not info_reg.get('Exito', False):
-        st.error("Error de Extracción de Datos")
+        st.error("Aviso de Validación")
         st.warning(info_reg['MensajeError'])
-        st.markdown("### 🌐 Contraste Manual en Portales Oficiales")
+        st.markdown("### 🌐 Contraste Directo en Portales Oficiales")
         isin_err = info_reg['ISIN']
         st.markdown(f"- [📊 Morningstar](https://www.morningstar.es/es/funds/security/summary.aspx?search={isin_err})")
         st.markdown(f"- [🔍 QueFondos](https://www.quefondos.com/es/fondos/ficha/index.html?isin={isin_err})")
         st.markdown(f"- [📈 JustETF](https://www.justetf.com/es/search.html?query={isin_err})")
+        st.markdown("<br>", unsafe_allow_html=True)
         if st.button("✖️ Cerrar", use_container_width=True):
             st.rerun()
         return
 
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
     st.text_input("📋 Código ISIN (Copiar)", value=info_reg['ISIN'], key=f"copy_modal_{info_reg['ISIN']}")
-    st.markdown(f"✅ *Datos extraídos y verificados en tiempo real* | 📅 `{datetime.now().strftime('%d/%m/%Y %H:%M')}`")
+    st.markdown(f"✅ *Datos verificados en core local* | 📅 `{datetime.now().strftime('%d/%m/%Y %H:%M')}`")
     st.markdown("---")
     
     col1, col2 = st.columns(2)
@@ -208,10 +195,10 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` borrado.")
                 st.rerun()
 
-with st.sidebar.expander("🔍 Lector Universal ISIN (Automático)", expanded=True):
+with st.sidebar.expander("🔍 Lector Universal ISIN (Verificador)", expanded=True):
     with st.form(key='form_lector_isin'):
         consulta_isin = st.text_input("Introduce ISIN (Ej: IE00BFPM9N11)", "").strip().upper()
-        btn_confirmar = st.form_submit_button("✅ Extraer y Analizar", use_container_width=True)
+        btn_confirmar = st.form_submit_button("✅ Analizar ISIN", use_container_width=True)
 
     if btn_confirmar and consulta_isin:
         resultado = extraer_datos_financieros(consulta_isin)
@@ -245,7 +232,7 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Copiloto IA")
-    st.success("Recomendación: Extracción de datos en tiempo real activada y botón de recarga superior operativo.")
+    st.success("Recomendación: Aplicación optimizada sin dependencias externas inestables y con control de integridad activo.")
 
 with tab4:
     st.subheader("📈 Gráficos")
