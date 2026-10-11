@@ -5,7 +5,7 @@ from datetime import datetime
 # Configuración de la página
 st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="centered")
 
-# Estilos CSS (Estilo Gemini optimizado para limpiar sombreados de botones)
+# Estilos CSS (Estilo Gemini)
 st.markdown("""
 <style>
     .stApp { background-color: #f0f4f9; color: #1f2328; }
@@ -13,19 +13,7 @@ st.markdown("""
     .stTabs [data-baseweb="tab-list"] { gap: 6px; background-color: #e2e8f0; padding: 6px; border-radius: 12px; border: 2px solid #cbd5e1; }
     .stTabs [data-baseweb="tab"] { background-color: #ffffff; border-radius: 8px; color: #475569 !important; padding: 10px 16px; font-weight: 600; font-size: 14px; border: 1px solid #cbd5e1; }
     .stTabs [aria-selected="true"] { background-color: #cbd5e1 !important; color: #0f172a !important; border-color: #94a3b8 !important; }
-    
-    /* Botones generales limpios y sin sombreados persistentes */
-    .stButton button {
-        background-color: #ffffff;
-        color: #1f2328;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        font-weight: 500;
-    }
-    .stButton button:hover {
-        background-color: #e2e8f0;
-        border-color: #94a3b8;
-    }
+    .stButton button { background-color: #ffffff; color: #1f2328; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 500; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -66,9 +54,6 @@ df_master = pd.DataFrame(data_fondos)
 # ESTADOS DE SESIÓN
 if 'historico_consultas' not in st.session_state:
     st.session_state.historico_consultas = []
-
-if 'input_isin_key' not in st.session_state:
-    st.session_state.input_isin_key = ""
 
 if 'cartera_vigilada' not in st.session_state:
     st.session_state.cartera_vigilada = pd.DataFrame([
@@ -210,27 +195,25 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` borrado.")
                 st.rerun()
 
-# 3. LECTOR UNIVERSAL DE ISIN (CON BORRADOR DE CASILLA TRAS CONSULTAR)
+# 3. LECTOR UNIVERSAL DE ISIN (FORMULARIO CON LIMPIEZA AUTOMÁTICA)
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
-    consulta_isin = st.text_input("Introduce ISIN a analizar", value=st.session_state.input_isin_key, key="txt_input_isin").strip().upper()
-    
-    if st.button("✅ Consultar e Incorporar a Histórico", use_container_width=True):
-        if consulta_isin:
-            res = consultar_catalogo_maestro(consulta_isin)
-            res['FechaConsulta'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-            
-            # Guardar en histórico (máximo 5)
-            st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i['ISIN'] != consulta_isin]
-            st.session_state.historico_consultas.insert(0, res)
-            if len(st.session_state.historico_consultas) > 5:
-                st.session_state.historico_consultas.pop()
-            
-            # Limpiar la casilla para la próxima consulta
-            st.session_state.input_isin_key = ""
-            
-            abrir_modal_detalle(res)
+    with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
+        consulta_isin_input = st.text_input("Introduce ISIN a analizar", value="", key="txt_input_isin_field").strip().upper()
+        btn_submit = st.form_submit_button("✅ Consultar e Incorporar a Histórico", use_container_width=True)
 
-# 4. HISTÓRICO DE ÚLTIMAS 5 CONSULTAS LIMPIO (SIN SOMBRADOS FIJOS)
+    if btn_submit and consulta_isin_input:
+        res = consultar_catalogo_maestro(consulta_isin_input)
+        res['FechaConsulta'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+        
+        # Guardar en histórico (máximo 5)
+        st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i['ISIN'] != consulta_isin_input]
+        st.session_state.historico_consultas.insert(0, res)
+        if len(st.session_state.historico_consultas) > 5:
+            st.session_state.historico_consultas.pop()
+        
+        abrir_modal_detalle(res)
+
+# 4. HISTÓRICO DE ÚLTIMAS 5 CONSULTAS LIMPIO
 if st.session_state.historico_consultas:
     with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
