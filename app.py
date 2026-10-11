@@ -23,12 +23,19 @@ def hora_real_espana():
     tz = zoneinfo.ZoneInfo("Europe/Madrid")
     return datetime.now(tz).strftime('%d/%m/%Y %H:%M:%S')
 
-# TOP 10 FONDOS MAESTROS OPERABLES EN ESPAÑA (TER BAJO, TRASPASABLES, ALTA RENTABILIDAD)
-data_top10_maestro = {
+# CATÁLOGO DE 12 FONDOS: 2 TUYOS CONTRATADOS (CORE) + 10 MEJORES DEL MERCADO
+data_12_fondos = {
+    'Origen': [
+        '📌 En Cartera (Core)', '📌 En Cartera (Core)',
+        '⭐ Top Mercado', '⭐ Top Mercado', '⭐ Top Mercado', '⭐ Top Mercado',
+        '⭐ Top Mercado', '⭐ Top Mercado', '⭐ Top Mercado', '⭐ Top Mercado',
+        '⭐ Top Mercado', '⭐ Top Mercado'
+    ],
     'ISIN': [
-        'IE00BFPM9N11', 'IE00BGCZOB53', 'LU1681048899', 'IE00B03HD191', 
-        'LU0503631872', 'IE00B43VBZ18', 'ES0114105030', 'IE00B03HCZ61', 
-        'LU0996182563', 'LU1121307729'
+        'IE00BFPM9N11', 'IE00BGCZOB53',
+        'LU1681048899', 'IE00B03HD191', 'LU0503631872', 'IE00B43VBZ18',
+        'ES0114105030', 'IE00B03HCZ61', 'LU0996182563', 'LU1121307729',
+        'IE00B3WVRB16', 'ES0111222333'
     ],
     'Nombre del Fondo': [
         'Vanguard Global Stock Index Inst Plus EUR Acc', 
@@ -40,28 +47,30 @@ data_top10_maestro = {
         'DWS Investments Alpha Opportunities',
         'Vanguard European Stock Index EUR Acc',
         'Fidelity Funds - Global Technology A-ACC-EUR',
-        'Abante Global Funds Spanish Opportunities C EUR'
+        'Abante Global Funds Spanish Opportunities C EUR',
+        'Polar Capital Biotechnology I EUR Dis',
+        'Banco Tradicional Cartera Activa'
     ],
     'Categoría / Tipo': [
-        'Renta Variable Global', 'Renta Fija Global', 'Indexado Global (MSCI World)',
-        'Indexado S&P 500', 'Ciberseguridad & Seguridad', 'Biotecnología & Salud',
-        'Retorno Absoluto / Multi-Activo', 'Renta Variable Europa',
-        'Tecnología Global', 'Renta Variable España'
+        'Renta Variable Global', 'Renta Fija Global',
+        'Indexado Global (MSCI World)', 'Indexado S&P 500', 'Ciberseguridad', 'Biotecnología',
+        'Retorno Absoluto', 'Renta Variable Europa', 'Tecnología Global', 'Renta Variable España',
+        'Biotecnología (Clase I)', 'Gestión Activa'
     ],
     'Comercializador España': [
-        'Indexa Capital', 'Indexa Capital', 'MyInvestor / Openbank', 'MyInvestor / Renta 4',
-        'MyInvestor / IronIA', 'MyInvestor / Renta 4', 'Renta 4 / Allfunds', 'MyInvestor / Renta 4',
-        'MyInvestor / Mapfre', 'Abante Asesores'
+        'Indexa Capital', 'Indexa Capital',
+        'MyInvestor / Openbank', 'MyInvestor / Renta 4', 'MyInvestor / IronIA', 'MyInvestor / Renta 4',
+        'Renta 4 / Allfunds', 'MyInvestor / Renta 4', 'MyInvestor / Mapfre', 'Abante Asesores',
+        'MyInvestor / Renta 4', 'Banco Tradicional'
     ],
-    'Traspasable': ['Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí'],
-    'Mínimo Inversión': ['10€', '10€', '10€', '100€', '1 Participación', '1 Participación', '100€', '100€', '1 Participación', '1 Participación'],
-    'TER_%': [0.06, 0.10, 0.30, 0.10, 1.00, 1.25, 0.65, 0.12, 1.05, 1.35],
-    'YTD_2026_%': [18.55, -3.35, 17.90, 21.40, 14.20, 11.50, 6.80, 12.10, 24.50, 8.20],
-    '2025_%': [6.73, 2.89, 19.20, 23.50, 22.50, 14.00, 5.40, 11.20, 28.10, 9.10],
-    '2024_%': [26.59, 0.88, 21.90, 26.80, 25.10, 8.50, 7.10, 15.80, 32.40, 11.40],
-    '2023_%': [19.63, 4.74, 14.80, 21.20, 18.00, 6.20, 4.20, 12.50, 36.10, 14.20]
+    'Traspasable': ['Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí'],
+    'TER_%': [0.06, 0.10, 0.30, 0.10, 1.00, 1.25, 0.65, 0.12, 1.05, 1.35, 1.00, 1.85],
+    'YTD_2026_%': [18.55, -3.35, 17.90, 21.40, 14.20, 11.50, 6.80, 12.10, 24.50, 8.20, 10.90, -2.10],
+    '2025_%': [6.73, 2.89, 19.20, 23.50, 22.50, 14.00, 5.40, 11.20, 28.10, 9.10, 12.50, 4.20],
+    '2024_%': [26.59, 0.88, 21.90, 26.80, 25.10, 8.50, 7.10, 15.80, 32.40, 11.40, 24.85, 5.00],
+    '2023_%': [19.63, 4.74, 14.80, 21.20, 18.00, 6.20, 4.20, 12.50, 36.10, 14.20, 14.89, 3.50]
 }
-df_master = pd.DataFrame(data_top10_maestro)
+df_master = pd.DataFrame(data_12_fondos)
 
 # ESTADOS DE SESIÓN
 if 'historico_consultas' not in st.session_state:
@@ -76,9 +85,8 @@ if 'cartera_vigilada' not in st.session_state:
 if 'notificacion_actualizado' not in st.session_state:
     st.session_state.notificacion_actualizado = False
 
-# CABECERA CON REFRESCO Y HORA REAL DE ESPAÑA
+# CABECERA Y BOTÓN DE ACTUALIZAR
 col_head1, col_head2 = st.columns([4, 1])
-
 h_actual = hora_real_espana()
 
 with col_head1:
@@ -86,7 +94,7 @@ with col_head1:
     <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 20px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 2px solid #3b82f6;">
         <div style="font-size: 32px; margin-bottom: 3px;">🛡️📈</div>
         <h2 style="margin: 0; font-size: 22px; color: #1e40af;">MI BROKER PRIVADO</h2>
-        <p style="margin: 4px 0 0 0; font-size: 13px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Último Refresco: {h_actual}</p>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial España: {h_actual}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -96,14 +104,13 @@ with col_head2:
         st.session_state.notificacion_actualizado = True
         st.rerun()
 
-# MOSTRAR CONFIRMACIÓN VISUAL DE ACTUALIZACIÓN COMPLETA
 if st.session_state.notificacion_actualizado:
     st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}) y métricas de fondos sincronizadas.", icon="🔄")
     st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# LÓGICA DE BÚSQUEDA
+# LÓGICA DE BÚSQUEDA EN CATÁLOGO
 def consultar_catalogo_maestro(isin):
     isin = isin.strip().upper()
     match = df_master[df_master['ISIN'] == isin]
@@ -111,14 +118,14 @@ def consultar_catalogo_maestro(isin):
         f = match.iloc[0]
         return {
             'Nombre': f['Nombre del Fondo'], 'ISIN': f['ISIN'], 'Tipo': f['Categoría / Tipo'],
-            'Operador': f['Comercializador España'], 'Traspaso': f['Traspasable'], 'Minimo': f['Mínimo Inversión'],
+            'Operador': f['Comercializador España'], 'Traspaso': f['Traspasable'],
             'TER': f"{f['TER_%']}%", 'YTD': f"{f['YTD_2026_%']}%", '2025': f"{f['2025_%']}%",
             '2024': f"{f['2024_%']}%", '2023': f"{f['2023_%']}%", 'EnMaestro': True
         }
     return {
         'Nombre': f"Fondo No Registrado ({isin})", 'ISIN': isin, 'Tipo': 'Estudio Externo',
         'Operador': 'Consultar Comercializador España', 'Traspaso': 'Verificar normativa',
-        'Minimo': 'N/D', 'TER': 'N/D', 'YTD': 'N/D', '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', 'EnMaestro': False
+        'TER': 'N/D', 'YTD': 'N/D', '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', 'EnMaestro': False
     }
 
 # MODAL DE FICHA TÉCNICA
@@ -142,9 +149,8 @@ def abrir_modal_detalle(info_reg):
         st.markdown("---")
         st.markdown(f"* **Operador en España:** {info_reg['Operador']}")
         st.markdown(f"* **Traspasabilidad:** {info_reg['Traspaso']}")
-        st.markdown(f"* **Mínimo Inversión:** {info_reg['Minimo']}")
     else:
-        st.warning("⚠️ Este ISIN no está registrado en el Top 10 Maestro. Utiliza los enlaces directos para consultar su ficha oficial:")
+        st.warning("⚠️ Este ISIN no está registrado en el Catálogo Maestro. Consulta sus datos oficiales abajo:")
 
     st.markdown("### 🌐 Enlaces de Análisis Directo")
     c1, c2, c3 = st.columns(3)
@@ -219,7 +225,7 @@ if st.session_state.historico_consultas:
                 abrir_modal_detalle(hist)
 
 # PANEL PRINCIPAL
-tab1, tab2, tab3, tab4 = st.tabs(["🛡️ Control & Bandas", "📊 Buscador Maestro (Top 10 España)", "🤖 Copiloto IA & Prensa", "📈 Comparativa & Oportunidades Traspaso"])
+tab1, tab2, tab3, tab4 = st.tabs(["🛡️ Control & Bandas", "📊 Buscador Maestro (2 Core + 10 Top)", "🤖 Copiloto IA", "📈 Comparativa & Avisos de Mercado"])
 
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos - Carteras Contratadas)")
@@ -227,30 +233,43 @@ with tab1:
     st.session_state.cartera_vigilada = df_editado
 
 with tab2:
-    st.subheader("📊 Buscador Maestro: Top 10 Fondos de Referencia en España")
-    st.markdown("💡 *Selección basada en comisiones reducidas (TER), traspasabilidad fiscal 100% libre de peaje y máxima rentabilidad histórica:*")
+    st.subheader("📊 Buscador Maestro (2 Fondos Contratados Core + 10 Referencia del Mercado)")
+    st.markdown("💡 *Vista completa de tu núcleo de inversión frente al top del mercado en España:*")
     st.dataframe(df_master, use_container_width=True)
 
 with tab3:
     st.subheader("🤖 Copiloto IA")
-    st.success("Recomendación Táctica: Mantener la cartera Core en fondos indexados globales de bajo coste (TER <= 0.10%) y traspasar ganancias hacia alternativas de mayor rentabilidad solo tras confirmación de suelo/techo.")
+    st.success("Criterio: Mantener la base Core y utilizar las oportunidades de crecimiento constante para valorar traspasos estratégicos.")
 
 with tab4:
-    st.subheader("📈 Comparativa Táctica: Cartera Contratada (Core) vs Top 10 Maestro")
+    st.subheader("📈 Comparativa & Cajas de Aviso Tácticas")
     
-    rent_media_core = st.session_state.cartera_vigilada['Rentabilidad_Actual_%'].mean() if not st.session_state.cartera_vigilada.empty else 0.0
+    # CAJA DE AVISO 1: LÍDERES EN CRECIMIENTO CONSTANTE (Último Año 2025 > 10% Y Año en Curso YTD 2026 > 10%)
+    top_crecimiento = df_master[(df_master['2025_%'] >= 10.0) & (df_master['YTD_2026_%'] >= 10.0)]
     
-    st.info(f"📊 **Rentabilidad Media de tu Cartera Contratada (Core):** `{rent_media_core:.2f}%`")
-    
-    oportunidades = df_master[df_master['YTD_2026_%'] > rent_media_core]
-    
-    if not oportunidades.empty:
-        st.warning(f"⚠️ **¡Alerta Táctica! Hay {len(oportunidades)} fondos en el Buscador Maestro superando tu rentabilidad Core actual:**")
-        st.dataframe(oportunidades[['ISIN', 'Nombre del Fondo', 'Comercializador España', 'TER_%', 'YTD_2026_%']], use_container_width=True)
+    st.success("🚀 **Aviso de Oportunidad (Crecimiento Sostenido en 2025 y YTD 2026):**")
+    if not top_crecimiento.empty:
+        st.markdown("*Fondos con crecimiento por encima del mercado en el último año vencido y en el año en curso:*")
+        st.dataframe(top_crecimiento[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
     else:
-        st.success("✅ Tu cartera Core mantiene un rendimiento sólido frente a las alternativas del mercado.")
+        st.write("No hay fondos que superen el umbral doble en este momento.")
 
-    st.markdown("### 📊 Gráfico de Rendimiento Comparativo (Histórico multianual)")
-    columnas_anios = ['2023_%', '2024_%', '2025_%', 'YTD_2026_%']
-    df_grafico = df_master.set_index('Nombre del Fondo')[columnas_anios].T
-    st.line_chart(df_grafico)
+    st.markdown("---")
+
+    # CAJA DE AVISO 2: FONDOS EN PÉRDIDAS O EN RETROCESO (YTD 2026 < 0%)
+    fondos_perdidas = df_master[df_master['YTD_2026_%'] < 0.0]
+    
+    st.error("⚠️ **Aviso de Pérdidas / Retroceso en Año en Curso (YTD 2026):**")
+    if not fondos_perdidas.empty:
+        st.markdown("*Fondos actualmente en valores negativos o en fase de corrección:*")
+        st.dataframe(fondos_perdidas[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
+    else:
+        st.write("Ningún fondo del panel está en pérdidas en YTD 2026.")
+
+    st.markdown("---")
+
+    # GRÁFICO COMPARATIVO DE LÍNEAS DE RENTABILIDAD MULTIANUAL
+    st.subheader("📊 Evolución Histórica Comparativa (Años Vencidos vs YTD 2026)")
+    cols_grafico = ['2023_%', '2024_%', '2025_%', 'YTD_2026_%']
+    df_graf = df_master.set_index('Nombre del Fondo')[cols_grafico].T
+    st.line_chart(df_graf)
