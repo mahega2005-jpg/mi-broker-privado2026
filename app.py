@@ -229,7 +229,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Control & Bandas", 
     "📊 Buscador Maestro", 
     "☕ Copiloto IA & Prensa", 
-    "📈 Gráficos & Cartera Indexa"
+    "📈 Gráficos & Cartera Core"
 ])
 
 with tab1:
@@ -241,9 +241,11 @@ with tab2:
     st.subheader("📊 Buscador Maestro (2 Fondos Contratados Core + 10 Referencia del Mercado)")
     st.markdown("💡 *Haz doble clic sobre cualquier código ISIN para copiarlo y pegarlo en la barra lateral:*")
     
+    # 1. TABLA PRINCIPAL FIJA COMPLETA (ALTURA FIJA DE 12 FILAS Y SCROLL LATERAL HABILITADO)
     st.dataframe(
         df_master, 
         use_container_width=True,
+        height=460, # Muestra las 12 filas completas fijas sin necesidad de scroll vertical
         column_config={
             "ISIN": st.column_config.TextColumn(
                 "ISIN (Copiar)",
@@ -253,55 +255,59 @@ with tab2:
         }
     )
 
+    st.markdown("---")
+
+    # 2. CAJITAS DE AVISOS JUSTO DEBAJO DE LA TABLA PRINCIPAL
+    df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
+    df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
+    
+    col_av1, col_av2 = st.columns(2)
+    with col_av1:
+        top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
+        st.success("🚀 **Los 2 Mejores en Crecimiento (Top 10 Mercado):**")
+        st.dataframe(top2_mejores[['ISIN', 'Nombre del Fondo', '2025_%', 'YTD_2026_%']], use_container_width=True)
+
+    with col_av2:
+        top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
+        st.error("⚠️ **Los 2 con Menor Rendimiento / Retroceso (Top 10 Mercado):**")
+        st.dataframe(top2_peores[['ISIN', 'Nombre del Fondo', '2025_%', 'YTD_2026_%']], use_container_width=True)
+
 with tab3:
     st.subheader("☕ Copiloto IA & Prensa Financiera")
     st.success("Criterio Táctico: Mantener la base Core y utilizar las oportunidades de crecimiento constante para valorar traspasos estratégicos.")
 
 with tab4:
-    st.subheader("📈 Comparativa & Avisos Exclusivos del Top 10 Mercado")
-    
-    # FILTRADO EXCLUSIVO DEL TOP 10 (EXCLUYENDO LOS 2 CORE PARA LAS CAJAS DE AVISOS Y GRÁFICOS)
-    df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
-    
-    # Suma ponderada de comportamiento (2025 + YTD 2026) para ordenar los mejores y peores del Top 10
-    df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
-    
-    # 1. CAJITA DE LOS 2 MEJORES EN CRECIMIENTO DEL TOP 10
-    top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
-    
-    st.success("🚀 **Aviso de Oportunidad (Los 2 Fondos con Mayor Crecimiento Acumulado 2025 + YTD 2026 en el Top 10):**")
-    st.dataframe(top2_mejores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
+    st.subheader("📈 Gráficos & Cartera Core")
+    st.markdown("🔴 **Tu Cartera Core (en Rojo)** comparada de un golpe de vista con las mejores alternativas del mercado:")
 
-    st.markdown("---")
-
-    # 2. CAJITA DE LOS 2 PEORES / MENOR RENDIMIENTO DEL TOP 10
-    top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
+    fondos_core_nombres = df_master[df_master['Origen'] == '📌 En Cartera (Core)']['Nombre del Fondo'].tolist()
+    df_top10_calc = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
+    df_top10_calc['Suma_Rendimiento'] = df_top10_calc['2025_%'] + df_top10_calc['YTD_2026_%']
+    fondos_top_nombres = df_top10_calc.sort_values(by='Suma_Rendimiento', ascending=False)['Nombre del Fondo'].tolist()[:2]
     
-    st.error("⚠️ **Aviso de Alerta (Los 2 Fondos con Menor Rendimiento / Retroceso en el Top 10):**")
-    st.dataframe(top2_peores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
+    default_grafico = fondos_core_nombres + fondos_top_nombres
 
-    st.markdown("---")
-
-    # 3. GRÁFICOS COMPARATIVOS SOBRE LOS 10 MEJORES DE LA LISTA
-    st.subheader("📊 Análisis Gráfico Exclusivo sobre los 10 Mejores Fondos del Mercado")
-    st.markdown("💡 *Selecciona o desmarca fondos del Top 10 para ajustar la gráfica:*")
-
-    fondos_top10_activos = st.multiselect(
-        "Fondos del Top 10 a incluir en el gráfico:",
-        options=df_top10['Nombre del Fondo'].tolist(),
-        default=df_top10['Nombre del Fondo'].tolist()[:3],
-        key="selector_grafico_top10"
+    fondos_graf_activos = st.multiselect(
+        "Selecciona fondos para comparar en el gráfico:",
+        options=df_master['Nombre del Fondo'].tolist(),
+        default=default_grafico,
+        key="selector_grafico_core_red"
     )
 
-    if fondos_top10_activos:
-        df_sub_top = df_top10[df_top10['Nombre del Fondo'].isin(fondos_top10_activos)]
+    if fondos_graf_activos:
+        df_graf_sub = df_master[df_master['Nombre del Fondo'].isin(fondos_graf_activos)].copy()
+        
+        df_graf_sub['Etiqueta_Fondo'] = df_graf_sub.apply(
+            lambda r: f"🔴 [CORE] {r['Nombre del Fondo']}" if r['Origen'] == '📌 En Cartera (Core)' else f"🔵 {r['Nombre del Fondo']}", 
+            axis=1
+        )
         
         col_g1, col_g2 = st.columns(2)
         with col_g1:
             st.markdown("##### 🚀 Rentabilidad Año en Curso (YTD 2026)")
-            st.bar_chart(df_sub_top.set_index('Nombre del Fondo')['YTD_2026_%'], use_container_width=True)
+            st.bar_chart(df_graf_sub.set_index('Etiqueta_Fondo')['YTD_2026_%'], use_container_width=True)
         with col_g2:
             st.markdown("##### 📅 Rentabilidad Último Año Vencido (2025)")
-            st.bar_chart(df_sub_top.set_index('Nombre del Fondo')['2025_%'], use_container_width=True)
+            st.bar_chart(df_graf_sub.set_index('Etiqueta_Fondo')['2025_%'], use_container_width=True)
     else:
-        st.info("Selecciona al menos un fondo del Top 10 en la casilla superior para mostrar la gráfica.")
+        st.info("Selecciona al menos un fondo para mostrar el gráfico.")
