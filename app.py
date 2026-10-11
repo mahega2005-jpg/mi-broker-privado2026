@@ -23,7 +23,7 @@ def hora_real_espana():
     tz = zoneinfo.ZoneInfo("Europe/Madrid")
     return datetime.now(tz).strftime('%d/%m/%Y %H:%M:%S')
 
-# DATOS: 2 TUYOS CONTRATADOS (CORE) + 10 MEJORES DEL MERCADO
+# BASE DE DATOS MAESTRA: 2 TUYOS CONTRATADOS (CORE) + 10 MEJORES DEL MERCADO
 data_12_fondos = {
     'Origen': [
         '📌 En Cartera (Core)', '📌 En Cartera (Core)',
@@ -64,6 +64,7 @@ data_12_fondos = {
         'MyInvestor / Renta 4', 'Banco Tradicional'
     ],
     'Traspasable': ['Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí'],
+    'Min_Inversion': ['Desde 10€', 'Desde 10€', 'Desde 10€', '100€', '1 Participación', '1 Participación', '100€', '100€', '1 Participación', '1 Participación', '1 Participación', 'Desde 500€'],
     'TER_%': [0.06, 0.10, 0.30, 0.10, 1.00, 1.25, 0.65, 0.12, 1.05, 1.35, 1.00, 1.85],
     'YTD_2026_%': [18.55, -3.35, 17.90, 21.40, 14.20, 11.50, 6.80, 12.10, 24.50, 8.20, 10.90, -2.10],
     '2025_%': [6.73, 2.89, 19.20, 23.50, 22.50, 14.00, 5.40, 11.20, 28.10, 9.10, 12.50, 4.20],
@@ -118,14 +119,14 @@ def consultar_catalogo_maestro(isin):
         f = match.iloc[0]
         return {
             'Nombre': f['Nombre del Fondo'], 'ISIN': f['ISIN'], 'Tipo': f['Categoría / Tipo'],
-            'Operador': f['Comercializador España'], 'Traspaso': f['Traspasable'],
+            'Operador': f['Comercializador España'], 'Traspaso': f['Traspasable'], 'Minimo': f['Min_Inversion'],
             'TER': f"{f['TER_%']}%", 'YTD': f"{f['YTD_2026_%']}%", '2025': f"{f['2025_%']}%",
             '2024': f"{f['2024_%']}%", '2023': f"{f['2023_%']}%", 'EnMaestro': True
         }
     return {
         'Nombre': f"Fondo No Registrado ({isin})", 'ISIN': isin, 'Tipo': 'Estudio Externo',
         'Operador': 'Consultar Comercializador España', 'Traspaso': 'Verificar normativa',
-        'TER': 'N/D', 'YTD': 'N/D', '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', 'EnMaestro': False
+        'Minimo': 'N/D', 'TER': 'N/D', 'YTD': 'N/D', '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', 'EnMaestro': False
     }
 
 # MODAL DE FICHA TÉCNICA
@@ -149,8 +150,9 @@ def abrir_modal_detalle(info_reg):
         st.markdown("---")
         st.markdown(f"* **Operador en España:** {info_reg['Operador']}")
         st.markdown(f"* **Traspasabilidad:** {info_reg['Traspaso']}")
+        st.markdown(f"* **Mínimo Inversión:** {info_reg['Minimo']}")
     else:
-        st.warning("⚠️ Este ISIN no está registrado en el Catálogo Maestro. Consulta sus datos oficiales abajo:")
+        st.warning("⚠️ Este ISIN no está registrado en el Catálogo Maestro. Utiliza los enlaces directos para consultar su ficha oficial:")
 
     st.markdown("### 🌐 Enlaces de Análisis Directo")
     c1, c2, c3 = st.columns(3)
@@ -201,6 +203,7 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` borrado.")
                 st.rerun()
 
+# LECTOR UNIVERSAL ISIN (FORMULARIO CON LIMPIEZA AUTOMÁTICA)
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
         consulta_isin_input = st.text_input("Introduce ISIN a analizar", value="", key="txt_input_isin_field").strip().upper()
@@ -224,7 +227,7 @@ if st.session_state.historico_consultas:
             if st.sidebar.button(etiqueta, key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
 
-# PANEL PRINCIPAL
+# PANEL PRINCIPAL (PESTAÑAS TÁCTICAS)
 tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Control & Bandas", 
     "📊 Buscador Maestro", 
@@ -241,11 +244,11 @@ with tab2:
     st.subheader("📊 Buscador Maestro (2 Fondos Contratados Core + 10 Referencia del Mercado)")
     st.markdown("💡 *Haz doble clic sobre cualquier código ISIN para copiarlo y pegarlo en la barra lateral:*")
     
-    # 1. TABLA PRINCIPAL FIJA COMPLETA (ALTURA FIJA DE 12 FILAS Y SCROLL LATERAL HABILITADO)
+    # TABLA PRINCIPAL FIJA CON 12 FILAS Y SCROLL LATERAL
     st.dataframe(
         df_master, 
         use_container_width=True,
-        height=460, # Muestra las 12 filas completas fijas sin necesidad de scroll vertical
+        height=460,
         column_config={
             "ISIN": st.column_config.TextColumn(
                 "ISIN (Copiar)",
@@ -257,20 +260,21 @@ with tab2:
 
     st.markdown("---")
 
-    # 2. CAJITAS DE AVISOS JUSTO DEBAJO DE LA TABLA PRINCIPAL
+    # CAJITAS DE AVISO UNA DEBAJO DE LA OTRA (SOBRE EL TOP 10 MERCADO)
     df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
     df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
     
-    col_av1, col_av2 = st.columns(2)
-    with col_av1:
-        top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
-        st.success("🚀 **Los 2 Mejores en Crecimiento (Top 10 Mercado):**")
-        st.dataframe(top2_mejores[['ISIN', 'Nombre del Fondo', '2025_%', 'YTD_2026_%']], use_container_width=True)
+    # Cajita Verde (Los 2 mejores)
+    top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
+    st.success("🚀 **Los 2 Mejores en Crecimiento (Top 10 Mercado):**")
+    st.dataframe(top2_mejores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
 
-    with col_av2:
-        top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
-        st.error("⚠️ **Los 2 con Menor Rendimiento / Retroceso (Top 10 Mercado):**")
-        st.dataframe(top2_peores[['ISIN', 'Nombre del Fondo', '2025_%', 'YTD_2026_%']], use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Cajita Roja (Los 2 con retroceso)
+    top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
+    st.error("⚠️ **Los 2 con Menor Rendimiento / Retroceso (Top 10 Mercado):**")
+    st.dataframe(top2_peores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
 
 with tab3:
     st.subheader("☕ Copiloto IA & Prensa Financiera")
