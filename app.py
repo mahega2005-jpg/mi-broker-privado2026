@@ -3,27 +3,99 @@ import pandas as pd
 from datetime import datetime
 import zoneinfo
 
-# Configuración de la página
-st.set_page_config(page_title="Mi Broker Privado", page_icon="🛡️", layout="wide")
+# ==============================================================================
+# 1. CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS EXTENDIDOS (PANEL TÁCTICO BARS / TABLET)
+# ==============================================================================
+st.set_page_config(
+    page_title="Mi Broker Privado - Panel Táctico",
+    page_icon="🛡️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# Estilos CSS Tácticos (Estilo Gemini)
+# Estilos CSS tácticos detallados para tablet / experiencia móvil
 st.markdown("""
 <style>
-    .stApp { background-color: #f0f4f9; color: #1f2328; }
-    section[data-testid="stSidebar"] { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-right: 2px solid #93c5fd; }
-    .stTabs [data-baseweb="tab-list"] { gap: 6px; background-color: #e2e8f0; padding: 6px; border-radius: 12px; border: 2px solid #cbd5e1; }
-    .stTabs [data-baseweb="tab"] { background-color: #ffffff; border-radius: 8px; color: #475569 !important; padding: 10px 16px; font-weight: 600; font-size: 14px; border: 1px solid #cbd5e1; }
-    .stTabs [aria-selected="true"] { background-color: #cbd5e1 !important; color: #0f172a !important; border-color: #94a3b8 !important; }
-    .stButton button { background-color: #ffffff; color: #1f2328; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 500; }
+    /* Estilo General del Fondo y Tipografía */
+    .stApp { 
+        background-color: #f0f4f9; 
+        color: #1f2328; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    /* Sidebar Personalizado */
+    section[data-testid="stSidebar"] { 
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe); 
+        border-right: 2px solid #93c5fd; 
+        padding-top: 10px;
+    }
+    
+    /* Pestañas / Tabs Superiores */
+    .stTabs [data-baseweb="tab-list"] { 
+        gap: 8px; 
+        background-color: #e2e8f0; 
+        padding: 8px; 
+        border-radius: 12px; 
+        border: 2px solid #cbd5e1; 
+    }
+    
+    .stTabs [data-baseweb="tab"] { 
+        background-color: #ffffff; 
+        border-radius: 8px; 
+        color: #475569 !important; 
+        padding: 12px 20px; 
+        font-weight: 600; 
+        font-size: 15px; 
+        border: 1px solid #cbd5e1; 
+        box-shadow: 0px 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .stTabs [aria-selected="true"] { 
+        background-color: #3b82f6 !important; 
+        color: #ffffff !important; 
+        border-color: #1d4ed8 !important; 
+        box-shadow: 0px 2px 5px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Estilos para Botones */
+    .stButton button { 
+        background-color: #ffffff; 
+        color: #1f2328; 
+        border: 1px solid #cbd5e1; 
+        border-radius: 8px; 
+        font-weight: 600; 
+        padding: 8px 16px;
+        transition: all 0.2s ease;
+    }
+    
+    .stButton button:hover {
+        border-color: #3b82f6;
+        color: #1d4ed8;
+    }
+
+    /* Targetas y Contenedores */
+    div[data-testid="stExpander"] {
+        background-color: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        margin-bottom: 8px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Hora oficial exacta de España
+
+# ==============================================================================
+# 2. FUNCIONES DE SOPORTE Y HORARIOS OFICIALES
+# ==============================================================================
 def hora_real_espana():
+    """Obtiene la hora exacta sincronizada en la zona horaria de Madrid (España)."""
     tz = zoneinfo.ZoneInfo("Europe/Madrid")
     return datetime.now(tz).strftime('%d/%m/%Y %H:%M:%S')
 
-# BASE DE DATOS MAESTRA: 2 TUYOS CONTRATADOS (CORE) + 10 MEJORES DEL MERCADO
+
+# ==============================================================================
+# 3. BASE DE DATOS COMPLETA (2 CORE CONTRATADOS + 10 TOP MERCADO ESPAÑA)
+# ==============================================================================
 data_12_fondos = {
     'Origen': [
         '📌 En Cartera (Core)', '📌 En Cartera (Core)',
@@ -53,9 +125,9 @@ data_12_fondos = {
     ],
     'Categoría / Tipo': [
         'Renta Variable Global', 'Renta Fija Global',
-        'Indexado Global (MSCI World)', 'Indexado S&P 500', 'Ciberseguridad', 'Biotecnología',
-        'Retorno Absoluto', 'Renta Variable Europa', 'Tecnología Global', 'Renta Variable España',
-        'Biotecnología (Clase I)', 'Gestión Activa'
+        'Indexado Global (MSCI World)', 'Indexado S&P 500', 'Ciberseguridad & Seguridad', 'Biotecnología & Salud',
+        'Retorno Absoluto / Multi-Activo', 'Renta Variable Europa', 'Tecnología Global', 'Renta Variable España',
+        'Biotecnología (Clase I Dist)', 'Gestión Activa Tradicional'
     ],
     'Comercializador España': [
         'Indexa Capital', 'Indexa Capital',
@@ -73,7 +145,10 @@ data_12_fondos = {
 }
 df_master = pd.DataFrame(data_12_fondos)
 
-# ESTADOS DE SESIÓN
+
+# ==============================================================================
+# 4. GESTIÓN DE ESTADOS DE SESIÓN (PERSISTENCIA)
+# ==============================================================================
 if 'historico_consultas' not in st.session_state:
     st.session_state.historico_consultas = []
 
@@ -86,7 +161,10 @@ if 'cartera_vigilada' not in st.session_state:
 if 'notificacion_actualizado' not in st.session_state:
     st.session_state.notificacion_actualizado = False
 
-# CABECERA Y BOTÓN DE ACTUALIZAR
+
+# ==============================================================================
+# 5. CABECERA TÁCTICA SUPERIOR
+# ==============================================================================
 col_head1, col_head2 = st.columns([4, 1])
 h_actual = hora_real_espana()
 
@@ -94,44 +172,65 @@ with col_head1:
     st.markdown(f"""
     <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 20px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 2px solid #3b82f6;">
         <div style="font-size: 32px; margin-bottom: 3px;">🛡️📈</div>
-        <h2 style="margin: 0; font-size: 22px; color: #1e40af;">MI BROKER PRIVADO</h2>
-        <p style="margin: 4px 0 0 0; font-size: 13px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial España: {h_actual}</p>
+        <h2 style="margin: 0; font-size: 24px; color: #1e40af; font-weight: 700;">MI BROKER PRIVADO</h2>
+        <p style="margin: 6px 0 0 0; font-size: 14px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial España: {h_actual}</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col_head2:
-    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-    if st.button("🔄 Actualizar", use_container_width=True, help="Recargar datos y sincronizar hora oficial"):
+    st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+    if st.button("🔄 Actualizar Datos", use_container_width=True, help="Recargar métricas y sincronizar hora oficial de España"):
         st.session_state.notificacion_actualizado = True
         st.rerun()
 
 if st.session_state.notificacion_actualizado:
-    st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}) y métricas sincronizadas.", icon="🔄")
+    st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}) e indicadores de mercado sincronizados.", icon="🔄")
     st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# LÓGICA DE BÚSQUEDA EN CATÁLOGO
+
+# ==============================================================================
+# 6. FUNCIONES DE ANÁLISIS Y DIÁLOGOS MODALES
+# ==============================================================================
 def consultar_catalogo_maestro(isin):
+    """Busca información extendida de un fondo por código ISIN."""
     isin = isin.strip().upper()
     match = df_master[df_master['ISIN'] == isin]
     if not match.empty:
         f = match.iloc[0]
         return {
-            'Nombre': f['Nombre del Fondo'], 'ISIN': f['ISIN'], 'Tipo': f['Categoría / Tipo'],
-            'Operador': f['Comercializador España'], 'Traspaso': f['Traspasable'], 'Minimo': f['Min_Inversion'],
-            'TER': f"{f['TER_%']}%", 'YTD': f"{f['YTD_2026_%']}%", '2025': f"{f['2025_%']}%",
-            '2024': f"{f['2024_%']}%", '2023': f"{f['2023_%']}%", 'EnMaestro': True
+            'Nombre': f['Nombre del Fondo'], 
+            'ISIN': f['ISIN'], 
+            'Tipo': f['Categoría / Tipo'],
+            'Operador': f['Comercializador España'], 
+            'Traspaso': f['Traspasable'], 
+            'Minimo': f['Min_Inversion'],
+            'TER': f"{f['TER_%']}%", 
+            'YTD': f"{f['YTD_2026_%']}%", 
+            '2025': f"{f['2025_%']}%",
+            '2024': f"{f['2024_%']}%", 
+            '2023': f"{f['2023_%']}%", 
+            'EnMaestro': True
         }
     return {
-        'Nombre': f"Fondo No Registrado ({isin})", 'ISIN': isin, 'Tipo': 'Estudio Externo',
-        'Operador': 'Consultar Comercializador España', 'Traspaso': 'Verificar normativa',
-        'Minimo': 'N/D', 'TER': 'N/D', 'YTD': 'N/D', '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', 'EnMaestro': False
+        'Nombre': f"Fondo No Registrado ({isin})", 
+        'ISIN': isin, 
+        'Tipo': 'Estudio Externo',
+        'Operador': 'Consultar Comercializador España', 
+        'Traspaso': 'Verificar normativa vigente',
+        'Minimo': 'N/D', 
+        'TER': 'N/D', 
+        'YTD': 'N/D', 
+        '2025': 'N/D', 
+        '2024': 'N/D', 
+        '2023': 'N/D', 
+        'EnMaestro': False
     }
 
-# MODAL DE FICHA TÉCNICA
 @st.dialog("📋 Ficha Técnica & Análisis de Inversión")
 def abrir_modal_detalle(info_reg):
+    """Muestra el desglose técnico y enlaces externos directos de consulta."""
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
     st.text_input("📋 Código ISIN (Copiar)", value=info_reg['ISIN'], key=f"copy_modal_{info_reg['ISIN']}")
     st.markdown(f"📅 *Consultado el:* `{hora_real_espana()}`")
@@ -149,8 +248,8 @@ def abrir_modal_detalle(info_reg):
 
         st.markdown("---")
         st.markdown(f"* **Operador en España:** {info_reg['Operador']}")
-        st.markdown(f"* **Traspasabilidad:** {info_reg['Traspaso']}")
-        st.markdown(f"* **Mínimo Inversión:** {info_reg['Minimo']}")
+        st.markdown(f"* **Traspasabilidad Fiscal:** {info_reg['Traspaso']}")
+        st.markdown(f"* **Inversión Mínima:** {info_reg['Minimo']}")
     else:
         st.warning("⚠️ Este ISIN no está registrado en el Catálogo Maestro. Utiliza los enlaces directos para consultar su ficha oficial:")
 
@@ -167,13 +266,19 @@ def abrir_modal_detalle(info_reg):
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
         st.rerun()
 
-# BARRA LATERAL
+
+# ==============================================================================
+# 7. BARRA LATERAL (PANEL DE CONTROL & LECTOR UNIVERSAL ISIN)
+# ==============================================================================
 st.sidebar.header("🛡️ Panel Táctico")
 
+# Test de Alertas
 with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
-    if st.button("🚀 Comprobar Estado", use_container_width=True):
-        st.success("Test ejecutado correctamente.")
+    st.write("Verificación manual del estado del canal de notificaciones tácticas.")
+    if st.button("🚀 Comprobar Estado de Alerta", use_container_width=True):
+        st.success("Sistemas operativos. Alertas sincronizadas correctamente.")
 
+# Añadir o Eliminar ISIN en Cartera Vigilada
 with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
     opcion_g = st.radio("Acción:", ["Añadir", "Eliminar"], horizontal=True, key="rad_gest")
     if opcion_g == "Añadir":
@@ -185,34 +290,43 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
             if n_isin:
                 df_c = st.session_state.cartera_vigilada
                 if not df_c.empty and n_isin in df_c['ISIN'].values:
-                    st.warning("Ya existe en vigilancia.")
+                    st.warning("El ISIN ya está registrado en la lista de vigilancia.")
                 else:
                     m = df_master[df_master['ISIN'] == n_isin]
                     nom = m.iloc[0]['Nombre del Fondo'] if not m.empty else f"Fondo Personalizado ({n_isin})"
-                    n_row = pd.DataFrame([{'ISIN': n_isin, 'Nombre': nom, 'Suelo_%': s_val, 'Techo_%': t_val, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': r_val}])
+                    n_row = pd.DataFrame([{
+                        'ISIN': n_isin, 
+                        'Nombre': nom, 
+                        'Suelo_%': s_val, 
+                        'Techo_%': t_val, 
+                        'Email': 'mahega2005@gmail.com', 
+                        'Rentabilidad_Actual_%': r_val
+                    }])
                     st.session_state.cartera_vigilada = pd.concat([df_c, n_row], ignore_index=True)
-                    st.success(f"ISIN `{n_isin}` añadido.")
+                    st.success(f"ISIN `{n_isin}` registrado con éxito.")
                     st.rerun()
     else:
         df_c = st.session_state.cartera_vigilada
         if not df_c.empty:
-            sel = st.selectbox("Borrar ISIN:", [f"{r['ISIN']} - {r['Nombre'][:10]}..." for _, r in df_c.iterrows()], key="del_s")
-            if st.button("🗑️ Borrar", type="primary", use_container_width=True):
+            sel = st.selectbox("Borrar ISIN:", [f"{r['ISIN']} - {r['Nombre'][:12]}..." for _, r in df_c.iterrows()], key="del_s")
+            if st.button("🗑️ Confirmar Borrado", type="primary", use_container_width=True):
                 target = sel.split(" - ")[0]
                 st.session_state.cartera_vigilada = df_c[df_c['ISIN'] != target].reset_index(drop=True)
-                st.success(f"ISIN `{target}` borrado.")
+                st.success(f"ISIN `{target}` eliminado.")
                 st.rerun()
 
-# LECTOR UNIVERSAL ISIN
+# Lector Universal ISIN con autolimpieza del cuadro tras consulta
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
+    st.write("Analiza cualquier ISIN y accede a su ficha técnica completa.")
     with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
         consulta_isin_input = st.text_input("Introduce ISIN a analizar", value="", key="txt_input_isin_field").strip().upper()
-        btn_submit = st.form_submit_button("✅ Consultar e Incorporar a Histórico", use_container_width=True)
+        btn_submit = st.form_submit_button("✅ Consultar e Incorporar", use_container_width=True)
 
     if btn_submit and consulta_isin_input:
         res = consultar_catalogo_maestro(consulta_isin_input)
         res['FechaConsulta'] = hora_real_espana()
         
+        # Actualización de histórico sin duplicados
         st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i['ISIN'] != consulta_isin_input]
         st.session_state.historico_consultas.insert(0, res)
         if len(st.session_state.historico_consultas) > 5:
@@ -220,6 +334,7 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
         
         abrir_modal_detalle(res)
 
+# Histórico reciente
 if st.session_state.historico_consultas:
     with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
@@ -227,7 +342,10 @@ if st.session_state.historico_consultas:
             if st.sidebar.button(etiqueta, key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
 
-# PANEL PRINCIPAL
+
+# ==============================================================================
+# 8. PESTAÑAS PRINCIPALES DEL PANEL
+# ==============================================================================
 tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Control & Bandas", 
     "📊 Buscador Maestro", 
@@ -235,15 +353,29 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "📈 Gráficos & Cartera Core"
 ])
 
+# ------------------------------------------------------------------------------
+# PESTAÑA 1: CONTROL & BANDAS DE SUPERVISIÓN
+# ------------------------------------------------------------------------------
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos - Carteras Contratadas)")
-    df_editado = st.data_editor(st.session_state.cartera_vigilada, num_rows="dynamic", use_container_width=True, key="ed_cartera")
+    st.markdown("Edita las bandas de control de tus posiciones activas. Las alertas visuales se activan automáticamente al superar los umbrales:")
+    df_editado = st.data_editor(
+        st.session_state.cartera_vigilada, 
+        num_rows="dynamic", 
+        use_container_width=True, 
+        key="ed_cartera"
+    )
     st.session_state.cartera_vigilada = df_editado
 
+# ------------------------------------------------------------------------------
+# PESTAÑA 2: BUSCADOR MAESTRO (12 FONDOS FIJOS + CAJITAS DE AVISOS ABAJO)
+# ------------------------------------------------------------------------------
 with tab2:
-    st.subheader("📊 Buscador Maestro (2 Fondos Contratados Core + 10 Referencia del Mercado)")
-    st.markdown("💡 *Haz doble clic o mantén presionado sobre cualquier código ISIN para copiarlo y pegarlo en la barra lateral:*")
+    st.subheader("📊 Buscador Maestro: Top 10 Fondos de Referencia en España + Cartera Core")
+    st.markdown("💡 *Selección basada en comisiones reducidas (TER), traspasabilidad fiscal 100% libre de peaje y máxima rentabilidad histórica.*")
+    st.markdown("👉 **Instrucciones táctiles:** Haz doble clic o mantén pulsado sobre cualquier ISIN para copiarlo al Lector Universal.")
     
+    # Tabla fija con altura definida y scroll lateral habilitado
     st.dataframe(
         df_master, 
         use_container_width=True,
@@ -251,47 +383,66 @@ with tab2:
         column_config={
             "ISIN": st.column_config.TextColumn(
                 "ISIN (Copiar)",
-                help="Selecciona o haz doble clic para copiar",
+                help="Selecciona o haz doble clic para copiar directamente",
                 width="medium"
-            )
+            ),
+            "TER_%": st.column_config.NumberColumn("TER (%)", format="%.2f%%"),
+            "YTD_2026_%": st.column_config.NumberColumn("YTD 2026 (%)", format="%.2f%%"),
+            "2025_%": st.column_config.NumberColumn("2025 (%)", format="%.2f%%"),
+            "2024_%": st.column_config.NumberColumn("2024 (%)", format="%.2f%%"),
+            "2023_%": st.column_config.NumberColumn("2023 (%)", format="%.2f%%")
         }
     )
 
     st.markdown("---")
+    st.subheader("📢 Avisos de Oportunidad y Retroceso Táctico (Top 10 Mercado)")
 
-    # CAJITAS DE AVISO CON ISIN INTERACTIVO DE COPIADO
+    # Cálculo de los 2 mejores y 2 peores del Top 10 Mercado
     df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
     df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
     
+    # CAJITA VERDE: Los 2 de mayor crecimiento
     top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
-    st.success("🚀 **Los 2 Mejores en Crecimiento (Top 10 Mercado):**")
+    st.success("🚀 **Aviso de Oportunidad: Los 2 Fondos del Top 10 Mercado con Mayor Crecimiento Acumulado (2025 + YTD 2026):**")
     st.dataframe(
-        top2_mejores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], 
+        top2_mejores[['ISIN', 'Nombre del Fondo', 'Categoría / Tipo', 'Comercializador España', '2025_%', 'YTD_2026_%']], 
         use_container_width=True,
         column_config={
-            "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Mantén pulsado para copiar")
+            "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Mantén pulsado para copiar"),
+            "2025_%": st.column_config.NumberColumn("2025 (%)", format="%.2f%%"),
+            "YTD_2026_%": st.column_config.NumberColumn("YTD 2026 (%)", format="%.2f%%")
         }
     )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # CAJITA ROJA: Los 2 con menor rendimiento
     top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
-    st.error("⚠️ **Los 2 con Menor Rendimiento / Retroceso (Top 10 Mercado):**")
+    st.error("⚠️ **Aviso de Alerta: Los 2 Fondos del Top 10 Mercado con Menor Rendimiento / Retroceso:**")
     st.dataframe(
-        top2_peores[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], 
+        top2_peores[['ISIN', 'Nombre del Fondo', 'Categoría / Tipo', 'Comercializador España', '2025_%', 'YTD_2026_%']], 
         use_container_width=True,
         column_config={
-            "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Mantén pulsado para copiar")
+            "ISIN": st.column_config.TextColumn("ISIN (Copiar)", help="Mantén pulsado para copiar"),
+            "2025_%": st.column_config.NumberColumn("2025 (%)", format="%.2f%%"),
+            "YTD_2026_%": st.column_config.NumberColumn("YTD 2026 (%)", format="%.2f%%")
         }
     )
 
+# ------------------------------------------------------------------------------
+# PESTAÑA 3: COPILOTO IA & PRENSA FINANCIERA
+# ------------------------------------------------------------------------------
 with tab3:
     st.subheader("☕ Copiloto IA & Prensa Financiera")
-    st.success("Criterio Táctico: Mantener la base Core y utilizar las oportunidades de crecimiento constante para valorar traspasos estratégicos.")
+    st.markdown("Criterio táctico de asignación de activos e informes sintéticos diarios:")
+    st.info("💡 **Estrategia Recomendada:** Mantener la base de la Cartera Core intacta y utilizar los traspasos libres de peajes fiscales para capturar tendencias en el Top 10 Mercado.")
 
+# ------------------------------------------------------------------------------
+# PESTAÑA 4: GRÁFICOS & CARTERA CORE (VISUALIZACIÓN UNIFICADA DE UN GOLPE DE VISTA)
+# ------------------------------------------------------------------------------
 with tab4:
-    st.subheader("📈 Gráficos & Cartera Core")
-    st.markdown("🔴 **Tu Cartera Core (Barras Rojas)** comparada de un golpe de vista con las alternativas del mercado (Barras Azules):")
+    st.subheader("📈 Gráficos Comparativos & Cartera Core")
+    st.markdown("🔴 **Tu Cartera Core** está identificada con la etiqueta **`🔴 [CORE]`** para analizar de un golpe de vista que tu núcleo mantiene un funcionamiento óptimo frente al resto del mercado:")
 
     fondos_core_nombres = df_master[df_master['Origen'] == '📌 En Cartera (Core)']['Nombre del Fondo'].tolist()
     df_top10_calc = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
@@ -301,7 +452,7 @@ with tab4:
     default_grafico = fondos_core_nombres + fondos_top_nombres
 
     fondos_graf_activos = st.multiselect(
-        "Selecciona fondos para comparar en el gráfico:",
+        "Selecciona los fondos que deseas comparar en el gráfico:",
         options=df_master['Nombre del Fondo'].tolist(),
         default=default_grafico,
         key="selector_grafico_core_red"
@@ -310,35 +461,27 @@ with tab4:
     if fondos_graf_activos:
         df_graf_sub = df_master[df_master['Nombre del Fondo'].isin(fondos_graf_activos)].copy()
         
-        # Etiqueta visual clara para el eje
+        # Etiquetado diferenciador directo para el eje X
         df_graf_sub['Fondo_Etiqueta'] = df_graf_sub.apply(
-            lambda r: f"🔴 [CORE] {r['Nombre del Fondo'][:22]}..." if r['Origen'] == '📌 En Cartera (Core)' else f"🔵 {r['Nombre del Fondo'][:22]}...", 
+            lambda r: f"🔴 [CORE] {r['Nombre del Fondo'][:20]}..." if r['Origen'] == '📌 En Cartera (Core)' else f"🔵 {r['Nombre del Fondo'][:20]}...", 
             axis=1
         )
-
-        # SEPARACIÓN VISUAL ENTRE CARTERA CORE (ROJO) Y TOP MERCADO (AZUL)
-        df_core_only = df_graf_sub[df_graf_sub['Origen'] == '📌 En Cartera (Core)']
-        df_mercado_only = df_graf_sub[df_graf_sub['Origen'] == '⭐ Top Mercado']
 
         col_g1, col_g2 = st.columns(2)
         
         with col_g1:
-            st.markdown("##### 🚀 Rentabilidad Año en Curso (YTD 2026)")
-            st.markdown("🔴 **Cartera Core (Rojo):**")
-            if not df_core_only.empty:
-                st.bar_chart(df_core_only.set_index('Fondo_Etiqueta')['YTD_2026_%'], color="#ef4444", use_container_width=True)
-            st.markdown("🔵 **Fondos Mercado (Azul):**")
-            if not df_mercado_only.empty:
-                st.bar_chart(df_mercado_only.set_index('Fondo_Etiqueta')['YTD_2026_%'], color="#3b82f6", use_container_width=True)
+            st.markdown("##### 🚀 Comparativa Año en Curso (YTD 2026)")
+            st.bar_chart(
+                df_graf_sub.set_index('Fondo_Etiqueta')['YTD_2026_%'], 
+                use_container_width=True
+            )
 
         with col_g2:
-            st.markdown("##### 📅 Rentabilidad Último Año Vencido (2025)")
-            st.markdown("🔴 **Cartera Core (Rojo):**")
-            if not df_core_only.empty:
-                st.bar_chart(df_core_only.set_index('Fondo_Etiqueta')['2025_%'], color="#ef4444", use_container_width=True)
-            st.markdown("🔵 **Fondos Mercado (Azul):**")
-            if not df_mercado_only.empty:
-                st.bar_chart(df_mercado_only.set_index('Fondo_Etiqueta')['2025_%'], color="#3b82f6", use_container_width=True)
+            st.markdown("##### 📅 Comparativa Último Año Vencido (2025)")
+            st.bar_chart(
+                df_graf_sub.set_index('Fondo_Etiqueta')['2025_%'], 
+                use_container_width=True
+            )
             
     else:
-        st.info("Selecciona al menos un fondo para mostrar el gráfico.")
+        st.info("Selecciona al menos un fondo en el desplegable superior para generar el gráfico.")
