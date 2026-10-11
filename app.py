@@ -54,7 +54,7 @@ if 'cartera_vigilada' not in st.session_state:
 if 'prueba_correo_enviada' not in st.session_state:
     st.session_state.prueba_correo_enviada = False
 
-# --- CABECERA CON BOTÓN DE RECARGA EN TIEMPO REAL ---
+# CABECERA
 col_head1, col_head2 = st.columns([4, 1])
 
 with col_head1:
@@ -74,9 +74,11 @@ with col_head2:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- FUNCIÓN DE GESTIÓN DE ISIN (SIEMPRE MUESTRA CUADRO Y ENLACES) ---
+# FUNCIÓN DE BÚSQUEDA DE ISIN SIN DATOS REPETIDOS NI FALSOS
 def obtener_datos_consulta(isin):
     isin = isin.strip().upper()
+    
+    # 1. Búsqueda en df_master
     match = df_master[df_master['ISIN'] == isin]
     if not match.empty:
         f = match.iloc[0]
@@ -86,33 +88,47 @@ def obtener_datos_consulta(isin):
             'Tipo': f['Tipo'],
             'Operador': f['Operador / Comercializador España'],
             'Traspaso': f['Permite Transferencia/Traspaso'],
-            'TER': f['TER_%'],
-            'YTD': f['YTD_2026_%'],
-            '2025': f['2025_%'],
-            '2024': f['2024_%'],
-            '2023': f['2023_%'],
-            '2022': f['2022_%'],
-            '2021': f['2021_%']
+            'TER': f"{f['TER_%']}%",
+            'YTD': f"{f['YTD_2026_%']}%",
+            '2025': f"{f['2025_%']}%",
+            '2024': f"{f['2024_%']}%",
+            '2023': f"{f['2023_%']}%",
+            '2022': f"{f['2022_%']}%",
+            'Registrado': True
         }
-    else:
-        # Si el ISIN es nuevo o externo, muestra cuadro estructurado base y permite consulta directa abajo
-        return {
-            'Nombre': f"Fondo / Activo Externo ({isin})",
-            'ISIN': isin,
-            'Tipo': 'Fondo Global / ETF Analizado',
-            'Operador': 'Plataforma Online / MyInvestor / Renta 4',
-            'Traspaso': 'Sí (Sujeto a comercializador)',
-            'TER': 0.45,
-            'YTD': 8.5,
-            '2025': 12.0,
-            '2024': 14.5,
-            '2023': 9.2,
-            '2022': -9.5,
-            '2021': 19.0
-        }
+    
+    # 2. Búsqueda en Cartera Vigilada
+    if not st.session_state.cartera_vigilada.empty:
+        match_cartera = st.session_state.cartera_vigilada[st.session_state.cartera_vigilada['ISIN'] == isin]
+        if not match_cartera.empty:
+            c = match_cartera.iloc[0]
+            return {
+                'Nombre': c['Nombre'],
+                'ISIN': c['ISIN'],
+                'Tipo': 'Posición en Cartera Vigilada',
+                'Operador': 'Plataforma del Usuario',
+                'Traspaso': 'Sí',
+                'TER': 'N/D',
+                'YTD': f"{c['Rentabilidad_Actual_%']}%",
+                '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', '2022': 'N/D',
+                'Registrado': True
+            }
 
-# Modal de Ficha Completa con Cuadro y Enlaces Inferiores
-@st.dialog("📋 Ficha de Consulta & Enlaces de Ampliación")
+    # 3. ISIN Externo no registrado -> SIN DATOS REPETIDOS O FALSOS
+    return {
+        'Nombre': f"Fondo Externo / No Registrado Localmente",
+        'ISIN': isin,
+        'Tipo': 'Consulta Externa Directa',
+        'Operador': 'Verificar en portal oficial',
+        'Traspaso': 'Sujeto a comercializador',
+        'TER': 'Pendiente de carga',
+        'YTD': 'Pendiente de carga',
+        '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', '2022': 'N/D',
+        'Registrado': False
+    }
+
+# Modal de Ficha
+@st.dialog("📋 Ficha de Consulta de ISIN")
 def abrir_modal_detalle(info_reg):
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
     st.text_input("📋 Código ISIN (Copiar)", value=info_reg['ISIN'], key=f"copy_modal_{info_reg['ISIN']}")
@@ -121,19 +137,22 @@ def abrir_modal_detalle(info_reg):
     
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("Comisión TER", f"{info_reg['TER']}%")
-        st.metric("YTD 2026", f"{info_reg['YTD']}%")
-        st.metric("2025", f"{info_reg['2025']}%")
+        st.metric("Comisión TER", info_reg['TER'])
+        st.metric("YTD 2026", info_reg['YTD'])
+        st.metric("2025", info_reg['2025'])
     with col2:
-        st.metric("2024", f"{info_reg['2024']}%")
-        st.metric("2023", f"{info_reg['2023']}%")
-        st.metric("2022", f"{info_reg['2022']}%")
+        st.metric("2024", info_reg['2024'])
+        st.metric("2023", info_reg['2023'])
+        st.metric("2022", info_reg['2022'])
 
     st.markdown("---")
     st.markdown(f"* **Operador / Comercializador:** {info_reg['Operador']}")
     st.markdown(f"* **Política de Traspasos:** {info_reg['Traspaso']}")
     
-    st.markdown("### 🌐 Ampliar y Contrastar en Portales Oficiales")
+    if not info_reg.get('Registrado', True):
+        st.info("💡 *Este ISIN no está en tu base local. Utiliza los enlaces directos de abajo para ver sus rentabilidades reales en vivo:*")
+
+    st.markdown("### 🌐 Contraste Directo en Portales Oficiales")
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown(f"[📊 Morningstar](https://www.morningstar.es/es/funds/security/summary.aspx?search={info_reg['ISIN']})")
@@ -220,7 +239,7 @@ with tab2:
 
 with tab3:
     st.subheader("🤖 Copiloto IA")
-    st.success("Recomendación: Fichas de consulta optimizadas con cuadro métrico completo y enlaces de contraste inferior.")
+    st.success("Recomendación: Fichas ajustadas para evitar duplicación de métricas ficticias.")
 
 with tab4:
     st.subheader("📈 Gráficos")
