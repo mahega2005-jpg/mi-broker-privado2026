@@ -4,7 +4,7 @@ from datetime import datetime
 import zoneinfo
 
 # ==============================================================================
-# 1. CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS EXTENDIDOS (PANEL TÁCTICO BARS / TABLET)
+# 1. CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS (ESTILO SUAVIZADO RESTAURADO)
 # ==============================================================================
 st.set_page_config(
     page_title="Mi Broker Privado - Panel Táctico",
@@ -13,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilos CSS tácticos detallados para tablet / experiencia móvil
+# Estilos CSS tácticos detallados con el sombreado gris/suavizado original en las pestañas
 st.markdown("""
 <style>
     /* Estilo General del Fondo y Tipografía */
@@ -30,11 +30,11 @@ st.markdown("""
         padding-top: 10px;
     }
     
-    /* Pestañas / Tabs Superiores */
+    /* Pestañas / Tabs Superiores (Estilo Suavizado y Grisáceo original) */
     .stTabs [data-baseweb="tab-list"] { 
-        gap: 8px; 
+        gap: 6px; 
         background-color: #e2e8f0; 
-        padding: 8px; 
+        padding: 6px; 
         border-radius: 12px; 
         border: 2px solid #cbd5e1; 
     }
@@ -43,18 +43,17 @@ st.markdown("""
         background-color: #ffffff; 
         border-radius: 8px; 
         color: #475569 !important; 
-        padding: 12px 20px; 
+        padding: 10px 16px; 
         font-weight: 600; 
-        font-size: 15px; 
+        font-size: 14px; 
         border: 1px solid #cbd5e1; 
-        box-shadow: 0px 1px 3px rgba(0,0,0,0.05);
     }
     
+    /* Pestaña Seleccionada: Gris suavizado y elegante (evitando el azul intenso) */
     .stTabs [aria-selected="true"] { 
-        background-color: #3b82f6 !important; 
-        color: #ffffff !important; 
-        border-color: #1d4ed8 !important; 
-        box-shadow: 0px 2px 5px rgba(59, 130, 246, 0.3);
+        background-color: #cbd5e1 !important; 
+        color: #0f172a !important; 
+        border-color: #94a3b8 !important; 
     }
     
     /* Estilos para Botones */
@@ -63,22 +62,13 @@ st.markdown("""
         color: #1f2328; 
         border: 1px solid #cbd5e1; 
         border-radius: 8px; 
-        font-weight: 600; 
+        font-weight: 500; 
         padding: 8px 16px;
-        transition: all 0.2s ease;
     }
-    
+
     .stButton button:hover {
         border-color: #3b82f6;
         color: #1d4ed8;
-    }
-
-    /* Targetas y Contenedores */
-    div[data-testid="stExpander"] {
-        background-color: #ffffff;
-        border-radius: 10px;
-        border: 1px solid #cbd5e1;
-        margin-bottom: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -179,12 +169,12 @@ with col_head1:
 
 with col_head2:
     st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-    if st.button("🔄 Actualizar Datos", use_container_width=True, help="Recargar métricas y sincronizar hora oficial de España"):
+    if st.button("🔄 Actualizar Datos", use_container_width=True, help="Recargar métricas y sincronizar hora oficial"):
         st.session_state.notificacion_actualizado = True
         st.rerun()
 
 if st.session_state.notificacion_actualizado:
-    st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}) e indicadores de mercado sincronizados.", icon="🔄")
+    st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}) e indicadores sincronizados.", icon="🔄")
     st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
@@ -272,13 +262,11 @@ def abrir_modal_detalle(info_reg):
 # ==============================================================================
 st.sidebar.header("🛡️ Panel Táctico")
 
-# Test de Alertas
 with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
     st.write("Verificación manual del estado del canal de notificaciones tácticas.")
     if st.button("🚀 Comprobar Estado de Alerta", use_container_width=True):
         st.success("Sistemas operativos. Alertas sincronizadas correctamente.")
 
-# Añadir o Eliminar ISIN en Cartera Vigilada
 with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
     opcion_g = st.radio("Acción:", ["Añadir", "Eliminar"], horizontal=True, key="rad_gest")
     if opcion_g == "Añadir":
@@ -315,7 +303,6 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` eliminado.")
                 st.rerun()
 
-# Lector Universal ISIN con autolimpieza del cuadro tras consulta
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     st.write("Analiza cualquier ISIN y accede a su ficha técnica completa.")
     with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
@@ -326,7 +313,6 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
         res = consultar_catalogo_maestro(consulta_isin_input)
         res['FechaConsulta'] = hora_real_espana()
         
-        # Actualización de histórico sin duplicados
         st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i['ISIN'] != consulta_isin_input]
         st.session_state.historico_consultas.insert(0, res)
         if len(st.session_state.historico_consultas) > 5:
@@ -334,7 +320,6 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
         
         abrir_modal_detalle(res)
 
-# Histórico reciente
 if st.session_state.historico_consultas:
     with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
@@ -353,9 +338,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "📈 Gráficos & Cartera Core"
 ])
 
-# ------------------------------------------------------------------------------
-# PESTAÑA 1: CONTROL & BANDAS DE SUPERVISIÓN
-# ------------------------------------------------------------------------------
+# PESTAÑA 1: CONTROL & BANDAS
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos - Carteras Contratadas)")
     st.markdown("Edita las bandas de control de tus posiciones activas. Las alertas visuales se activan automáticamente al superar los umbrales:")
@@ -367,15 +350,12 @@ with tab1:
     )
     st.session_state.cartera_vigilada = df_editado
 
-# ------------------------------------------------------------------------------
-# PESTAÑA 2: BUSCADOR MAESTRO (12 FONDOS FIJOS + CAJITAS DE AVISOS ABAJO)
-# ------------------------------------------------------------------------------
+# PESTAÑA 2: BUSCADOR MAESTRO
 with tab2:
     st.subheader("📊 Buscador Maestro: Top 10 Fondos de Referencia en España + Cartera Core")
     st.markdown("💡 *Selección basada en comisiones reducidas (TER), traspasabilidad fiscal 100% libre de peaje y máxima rentabilidad histórica.*")
     st.markdown("👉 **Instrucciones táctiles:** Haz doble clic o mantén pulsado sobre cualquier ISIN para copiarlo al Lector Universal.")
     
-    # Tabla fija con altura definida y scroll lateral habilitado
     st.dataframe(
         df_master, 
         use_container_width=True,
@@ -397,11 +377,9 @@ with tab2:
     st.markdown("---")
     st.subheader("📢 Avisos de Oportunidad y Retroceso Táctico (Top 10 Mercado)")
 
-    # Cálculo de los 2 mejores y 2 peores del Top 10 Mercado
     df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
     df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
     
-    # CAJITA VERDE: Los 2 de mayor crecimiento
     top2_mejores = df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2)
     st.success("🚀 **Aviso de Oportunidad: Los 2 Fondos del Top 10 Mercado con Mayor Crecimiento Acumulado (2025 + YTD 2026):**")
     st.dataframe(
@@ -416,7 +394,6 @@ with tab2:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # CAJITA ROJA: Los 2 con menor rendimiento
     top2_peores = df_top10.sort_values(by='Suma_Rendimiento', ascending=True).head(2)
     st.error("⚠️ **Aviso de Alerta: Los 2 Fondos del Top 10 Mercado con Menor Rendimiento / Retroceso:**")
     st.dataframe(
@@ -429,17 +406,13 @@ with tab2:
         }
     )
 
-# ------------------------------------------------------------------------------
-# PESTAÑA 3: COPILOTO IA & PRENSA FINANCIERA
-# ------------------------------------------------------------------------------
+# PESTAÑA 3: COPILOTO IA & PRENSA
 with tab3:
     st.subheader("☕ Copiloto IA & Prensa Financiera")
     st.markdown("Criterio táctico de asignación de activos e informes sintéticos diarios:")
     st.info("💡 **Estrategia Recomendada:** Mantener la base de la Cartera Core intacta y utilizar los traspasos libres de peajes fiscales para capturar tendencias en el Top 10 Mercado.")
 
-# ------------------------------------------------------------------------------
-# PESTAÑA 4: GRÁFICOS & CARTERA CORE (VISUALIZACIÓN UNIFICADA DE UN GOLPE DE VISTA)
-# ------------------------------------------------------------------------------
+# PESTAÑA 4: GRÁFICOS & CARTERA CORE
 with tab4:
     st.subheader("📈 Gráficos Comparativos & Cartera Core")
     st.markdown("🔴 **Tu Cartera Core** está identificada con la etiqueta **`🔴 [CORE]`** para analizar de un golpe de vista que tu núcleo mantiene un funcionamiento óptimo frente al resto del mercado:")
@@ -461,7 +434,6 @@ with tab4:
     if fondos_graf_activos:
         df_graf_sub = df_master[df_master['Nombre del Fondo'].isin(fondos_graf_activos)].copy()
         
-        # Etiquetado diferenciador directo para el eje X
         df_graf_sub['Fondo_Etiqueta'] = df_graf_sub.apply(
             lambda r: f"🔴 [CORE] {r['Nombre del Fondo'][:20]}..." if r['Origen'] == '📌 En Cartera (Core)' else f"🔵 {r['Nombre del Fondo'][:20]}...", 
             axis=1
