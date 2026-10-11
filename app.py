@@ -105,7 +105,7 @@ with col_head2:
         st.rerun()
 
 if st.session_state.notificacion_actualizado:
-    st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}) y métricas de fondos sincronizadas.", icon="🔄")
+    st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}) y métricas sincronizadas.", icon="🔄")
     st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
@@ -224,8 +224,13 @@ if st.session_state.historico_consultas:
             if st.sidebar.button(etiqueta, key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
 
-# PANEL PRINCIPAL
-tab1, tab2, tab3, tab4 = st.tabs(["🛡️ Control & Bandas", "📊 Buscador Maestro (2 Core + 10 Top)", "🤖 Copiloto IA", "📈 Comparativa & Avisos de Mercado"])
+# PANEL PRINCIPAL CON LAS 4 PESTAÑAS EXACTAS RECUPERADAS
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🛡️ Control & Bandas", 
+    "📊 Buscador Maestro", 
+    "☕ Copiloto IA & Prensa", 
+    "📈 Gráficos & Cartera Indexa"
+])
 
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos - Carteras Contratadas)")
@@ -238,38 +243,43 @@ with tab2:
     st.dataframe(df_master, use_container_width=True)
 
 with tab3:
-    st.subheader("🤖 Copiloto IA")
-    st.success("Criterio: Mantener la base Core y utilizar las oportunidades de crecimiento constante para valorar traspasos estratégicos.")
+    st.subheader("☕ Copiloto IA & Prensa Financiera")
+    st.success("Criterio Táctico: Mantener la base Core y utilizar las oportunidades de crecimiento constante para valorar traspasos estratégicos.")
 
 with tab4:
-    st.subheader("📈 Comparativa & Cajas de Aviso Tácticas")
+    st.subheader("📈 Comparativa & Avisos de Mercado")
     
-    # CAJA DE AVISO 1: LÍDERES EN CRECIMIENTO CONSTANTE (Último Año 2025 > 10% Y Año en Curso YTD 2026 > 10%)
+    # CAJA DE AVISO 1: LÍDERES EN CRECIMIENTO CONSTANTE
     top_crecimiento = df_master[(df_master['2025_%'] >= 10.0) & (df_master['YTD_2026_%'] >= 10.0)]
-    
     st.success("🚀 **Aviso de Oportunidad (Crecimiento Sostenido en 2025 y YTD 2026):**")
     if not top_crecimiento.empty:
-        st.markdown("*Fondos con crecimiento por encima del mercado en el último año vencido y en el año en curso:*")
         st.dataframe(top_crecimiento[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
-    else:
-        st.write("No hay fondos que superen el umbral doble en este momento.")
 
-    st.markdown("---")
-
-    # CAJA DE AVISO 2: FONDOS EN PÉRDIDAS O EN RETROCESO (YTD 2026 < 0%)
+    # CAJA DE AVISO 2: FONDOS EN PÉRDIDAS O EN RETROCESO
     fondos_perdidas = df_master[df_master['YTD_2026_%'] < 0.0]
-    
     st.error("⚠️ **Aviso de Pérdidas / Retroceso en Año en Curso (YTD 2026):**")
     if not fondos_perdidas.empty:
-        st.markdown("*Fondos actualmente en valores negativos o en fase de corrección:*")
         st.dataframe(fondos_perdidas[['ISIN', 'Nombre del Fondo', 'Comercializador España', '2025_%', 'YTD_2026_%']], use_container_width=True)
-    else:
-        st.write("Ningún fondo del panel está en pérdidas en YTD 2026.")
 
     st.markdown("---")
 
-    # GRÁFICO COMPARATIVO DE LÍNEAS DE RENTABILIDAD MULTIANUAL
-    st.subheader("📊 Evolución Histórica Comparativa (Años Vencidos vs YTD 2026)")
-    cols_grafico = ['2023_%', '2024_%', '2025_%', 'YTD_2026_%']
-    df_graf = df_master.set_index('Nombre del Fondo')[cols_grafico].T
-    st.line_chart(df_graf)
+    # NUEVO GRÁFICO LIMPIO Y COMPARATIVO POR SELECCIÓN DE FONDOS
+    st.subheader("📊 Gráfico Comparativo Interactivo (YTD 2026 vs Años Anteriores)")
+    st.markdown("👉 *Selecciona abajo únicamente los fondos que quieras comparar para mantener la pantalla clara y limpia:*")
+    
+    lista_nombres = df_master['Nombre del Fondo'].tolist()
+    
+    # Por defecto selecciona los 2 Core + 2 del top para que el gráfico empiece totalmente limpio
+    fondos_seleccionados = st.multiselect(
+        "Filtrar fondos en el gráfico:",
+        options=lista_nombres,
+        default=lista_nombres[:4]
+    )
+    
+    if fondos_seleccionados:
+        df_filtrado_grafico = df_master[df_master['Nombre del Fondo'].isin(fondos_seleccionados)]
+        cols_grafico = ['2023_%', '2024_%', '2025_%', 'YTD_2026_%']
+        df_chart = df_filtrado_grafico.set_index('Nombre del Fondo')[cols_grafico].T
+        st.line_chart(df_chart, use_container_width=True)
+    else:
+        st.info("Selecciona al menos un fondo en el desplegable superior para visualizar la gráfica.")
