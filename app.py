@@ -224,7 +224,7 @@ if st.session_state.historico_consultas:
             if st.sidebar.button(etiqueta, key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
 
-# PANEL PRINCIPAL CON LAS 4 PESTAÑAS EXACTAS RECUPERADAS
+# PANEL PRINCIPAL
 tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Control & Bandas", 
     "📊 Buscador Maestro", 
@@ -239,8 +239,20 @@ with tab1:
 
 with tab2:
     st.subheader("📊 Buscador Maestro (2 Fondos Contratados Core + 10 Referencia del Mercado)")
-    st.markdown("💡 *Vista completa de tu núcleo de inversión frente al top del mercado en España:*")
-    st.dataframe(df_master, use_container_width=True)
+    st.markdown("💡 *Haz doble clic sobre cualquier código ISIN para copiarlo y pegarlo directamente en el Lector Universal de la barra lateral:*")
+    
+    # Muestra la tabla configurando la columna ISIN como copiable mediante data_editor/dataframe
+    st.dataframe(
+        df_master, 
+        use_container_width=True,
+        column_config={
+            "ISIN": st.column_config.TextColumn(
+                "ISIN (Copiar)",
+                help="Selecciona o haz doble clic para copiar",
+                width="medium"
+            )
+        }
+    )
 
 with tab3:
     st.subheader("☕ Copiloto IA & Prensa Financiera")
@@ -263,23 +275,26 @@ with tab4:
 
     st.markdown("---")
 
-    # NUEVO GRÁFICO LIMPIO Y COMPARATIVO POR SELECCIÓN DE FONDOS
-    st.subheader("📊 Gráfico Comparativo Interactivo (YTD 2026 vs Años Anteriores)")
-    st.markdown("👉 *Selecciona abajo únicamente los fondos que quieras comparar para mantener la pantalla clara y limpia:*")
-    
-    lista_nombres = df_master['Nombre del Fondo'].tolist()
-    
-    # Por defecto selecciona los 2 Core + 2 del top para que el gráfico empiece totalmente limpio
-    fondos_seleccionados = st.multiselect(
-        "Filtrar fondos en el gráfico:",
-        options=lista_nombres,
-        default=lista_nombres[:4]
+    # COMPARATIVA LIMPIA DE BARRAS DIRECTAS
+    st.subheader("📊 Comparativa Visual Limpia (Selección Táctica)")
+    st.markdown("💡 *Añade o quita fondos a la lista para comparar solo lo que te interesa:*")
+
+    fondos_activos = st.multiselect(
+        "Fondos a incluir en la gráfica:",
+        options=df_master['Nombre del Fondo'].tolist(),
+        default=df_master['Nombre del Fondo'].tolist()[:2],
+        key="selector_grafico_limpio"
     )
-    
-    if fondos_seleccionados:
-        df_filtrado_grafico = df_master[df_master['Nombre del Fondo'].isin(fondos_seleccionados)]
-        cols_grafico = ['2023_%', '2024_%', '2025_%', 'YTD_2026_%']
-        df_chart = df_filtrado_grafico.set_index('Nombre del Fondo')[cols_grafico].T
-        st.line_chart(df_chart, use_container_width=True)
+
+    if fondos_activos:
+        df_sub = df_master[df_master['Nombre del Fondo'].isin(fondos_activos)]
+        
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            st.markdown("##### 🚀 Rentabilidad Año en Curso (YTD 2026)")
+            st.bar_chart(df_sub.set_index('Nombre del Fondo')['YTD_2026_%'], use_container_width=True)
+        with col_g2:
+            st.markdown("##### 📅 Rentabilidad Último Año Vencido (2025)")
+            st.bar_chart(df_sub.set_index('Nombre del Fondo')['2025_%'], use_container_width=True)
     else:
-        st.info("Selecciona al menos un fondo en el desplegable superior para visualizar la gráfica.")
+        st.info("Selecciona al menos un fondo en la casilla superior para mostrar la gráfica.")
