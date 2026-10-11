@@ -112,7 +112,7 @@ def consultar_catalogo_maestro(isin):
     return {
         'Nombre': f"Fondo No Registrado ({isin})",
         'ISIN': isin,
-        'Tipo': 'Estudio Externe',
+        'Tipo': 'Estudio Externo',
         'Operador': 'Consultar Comercializador España',
         'Traspaso': 'Verificar normativa',
         'Minimo': 'N/D',
@@ -244,5 +244,7 @@ with tab3:
     st.success("Criterio: Priorizar fondos indexados con TER ≤ 0.30% y traspasabilidad sin peaje fiscal.")
 
 with tab4:
-    st.subheader("📈 Gráficos")
-    st.line_chart(df_master[['2021_%', '2022_%', '2023_%', '2024_%', '2025_%', 'YTD_2026_%']].T)
+    st.subheader("📈 Gráficos Comparativos")
+    columnas_anios = ['2022_%', '2023_%', '2024_%', '2025_%', 'YTD_2026_%']
+    df_grafico = df_master.set_index('Nombre del Fondo')[columnas_anios].T
+    st.line_chart(df_grafico)
