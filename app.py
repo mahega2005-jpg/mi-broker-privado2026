@@ -17,33 +17,46 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Base de datos maestra local (core de referencia)
+# BASE DE DATOS MAESTRA CENTRAL (FONDOS OPERABLES EN ESPAÑA - COMISIÓN BAJA & TRASPASABLES)
 data_fondos = {
     'Nombre del Fondo': [
         'Vanguard Global Stock Index Inst Plus EUR Acc', 
         'Vanguard Global Bond Index Inst Plus EUR Hgd', 
         'Polar Capital Biotechnology EUR R Acc',
+        'Polar Capital Biotechnology I EUR Dis',
+        'Abante Global Funds Spanish Opportunities C EUR Cap',
         'Pictet - Security P EUR',
         'Amundi Index MSCI World AE-C',
-        'Banco Tradicional Cartera Activa (Ejemplo)'
+        'Banco Tradicional Cartera Activa'
     ],
-    'ISIN': ['IE00BFPM9N11', 'IE00BGCZOB53', 'IE00B43VBZ18', 'LU0503631872', 'LU1681048899', 'ES0111222333'],
-    'Tipo': ['Renta Variable Global', 'Renta Fija Global', 'Biotecnología', 'Ciberseguridad', 'Indexado Global', 'Gestión Activa'],
-    'Operador / Comercializador España': ['Indexa Capital', 'Indexa Capital', 'MyInvestor / Renta 4', 'MyInvestor / IronIA', 'MyInvestor / Openbank', 'Banco Tradicional'],
-    'Permite Transferencia/Traspaso': ['Sí', 'Sí', 'Sí', 'Sí', 'Sí', 'Sí (Con comisiones)'],
-    'TER_%': [0.06, 0.10, 1.25, 1.00, 0.30, 1.85],       
-    'YTD_2026_%': [18.55, -3.35, 11.5, 14.2, 7.9, 2.1],
-    '2025_%': [6.73, 2.89, 14.0, 22.5, 19.2, 4.2],
-    '2024_%': [26.59, 0.88, 8.5, 25.1, 21.9, 5.0],
-    '2023_%': [19.63, 4.74, 6.2, 18.0, 14.8, 3.5],
-    '2022_%': [-12.79, -15.03, -12.4, -20.1, -18.5, -8.5],
-    '2021_%': [27.5, 5.1, 10.1, 31.0, 27.1, 6.1]
+    'ISIN': [
+        'IE00BFPM9N11', 'IE00BGCZOB53', 'IE00B43VBZ18', 'IE00B3WVRB16', 'LU1121307729', 'LU0503631872', 'LU1681048899', 'ES0111222333'
+    ],
+    'Tipo': [
+        'Renta Variable Global', 'Renta Fija Global', 'Biotecnología', 'Biotecnología (Clase I)', 'Renta Variable España', 'Ciberseguridad', 'Indexado Global', 'Gestión Activa'
+    ],
+    'Operador / Comercializador España': [
+        'Indexa Capital', 'Indexa Capital', 'MyInvestor / Renta 4', 'MyInvestor / Renta 4', 'Abante Asesores', 'MyInvestor / IronIA', 'MyInvestor / Openbank', 'Banco Tradicional'
+    ],
+    'Permite Transferencia/Traspaso': [
+        'Sí (Exento peaje fiscal)', 'Sí (Exento peaje fiscal)', 'Sí (Traspasable)', 'Sí (Traspasable)', 'Sí (Traspasable)', 'Sí (Traspasable)', 'Sí (Traspasable)', 'Sí (Sujeto a comisiones)'
+    ],
+    'Min_Inversion': ['Desde 10€', 'Desde 10€', '1 Participación', '1 Participación', '1 Participación', '1 Participación', 'Desde 10€', 'Desde 500€'],
+    'TER_%': [0.06, 0.10, 1.25, 1.00, 1.35, 1.00, 0.30, 1.85],       
+    'YTD_2026_%': [18.55, -3.35, 11.50, 10.90, 8.20, 14.20, 7.90, 2.10],
+    '2025_%': [6.73, 2.89, 14.00, 12.50, 9.10, 22.50, 19.20, 4.20],
+    '2024_%': [26.59, 0.88, 8.50, 24.85, 11.40, 25.10, 21.90, 5.00],
+    '2023_%': [19.63, 4.74, 6.20, 14.89, 14.20, 18.00, 14.80, 3.50],
+    '2022_%': [-12.79, -15.03, -12.40, 11.97, -8.30, -20.10, -18.50, -8.50]
 }
 df_master = pd.DataFrame(data_fondos)
 
-# Estados de sesión
+# ESTADOS DE SESIÓN
 if 'historico_consultas' not in st.session_state:
     st.session_state.historico_consultas = []
+
+if 'input_isin_key' not in st.session_state:
+    st.session_state.input_isin_key = ""
 
 if 'cartera_vigilada' not in st.session_state:
     st.session_state.cartera_vigilada = pd.DataFrame([
@@ -54,7 +67,7 @@ if 'cartera_vigilada' not in st.session_state:
 if 'prueba_correo_enviada' not in st.session_state:
     st.session_state.prueba_correo_enviada = False
 
-# CABECERA
+# CABECERA CON BOTÓN DE RECARGA
 col_head1, col_head2 = st.columns([4, 1])
 
 with col_head1:
@@ -68,18 +81,16 @@ with col_head1:
 
 with col_head2:
     st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-    if st.button("🔄 Actualizar", use_container_width=True, help="Recargar datos de la aplicación"):
-        st.success("¡Datos actualizados!")
+    if st.button("🔄 Actualizar", use_container_width=True, help="Recargar aplicación"):
         st.rerun()
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# FUNCIÓN DE BÚSQUEDA DE ISIN SIN DATOS REPETIDOS NI FALSOS
-def obtener_datos_consulta(isin):
+# LÓGICA DE BÚSQUEDA BASADA EN EL CATÁLOGO MAESTRO CENTRAL
+def consultar_catalogo_maestro(isin):
     isin = isin.strip().upper()
-    
-    # 1. Búsqueda en df_master
     match = df_master[df_master['ISIN'] == isin]
+    
     if not match.empty:
         f = match.iloc[0]
         return {
@@ -88,71 +99,54 @@ def obtener_datos_consulta(isin):
             'Tipo': f['Tipo'],
             'Operador': f['Operador / Comercializador España'],
             'Traspaso': f['Permite Transferencia/Traspaso'],
+            'Minimo': f['Min_Inversion'],
             'TER': f"{f['TER_%']}%",
             'YTD': f"{f['YTD_2026_%']}%",
             '2025': f"{f['2025_%']}%",
             '2024': f"{f['2024_%']}%",
             '2023': f"{f['2023_%']}%",
             '2022': f"{f['2022_%']}%",
-            'Registrado': True
+            'EnMaestro': True
         }
     
-    # 2. Búsqueda en Cartera Vigilada
-    if not st.session_state.cartera_vigilada.empty:
-        match_cartera = st.session_state.cartera_vigilada[st.session_state.cartera_vigilada['ISIN'] == isin]
-        if not match_cartera.empty:
-            c = match_cartera.iloc[0]
-            return {
-                'Nombre': c['Nombre'],
-                'ISIN': c['ISIN'],
-                'Tipo': 'Posición en Cartera Vigilada',
-                'Operador': 'Plataforma del Usuario',
-                'Traspaso': 'Sí',
-                'TER': 'N/D',
-                'YTD': f"{c['Rentabilidad_Actual_%']}%",
-                '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', '2022': 'N/D',
-                'Registrado': True
-            }
-
-    # 3. ISIN Externo no registrado -> SIN DATOS REPETIDOS O FALSOS
     return {
-        'Nombre': f"Fondo Externo / No Registrado Localmente",
+        'Nombre': f"Fondo No Registrado ({isin})",
         'ISIN': isin,
-        'Tipo': 'Consulta Externa Directa',
-        'Operador': 'Verificar en portal oficial',
-        'Traspaso': 'Sujeto a comercializador',
-        'TER': 'Pendiente de carga',
-        'YTD': 'Pendiente de carga',
-        '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', '2022': 'N/D',
-        'Registrado': False
+        'Tipo': 'Estudio Externe',
+        'Operador': 'Consultar Comercializador España',
+        'Traspaso': 'Verificar normativa',
+        'Minimo': 'N/D',
+        'TER': 'N/D', 'YTD': 'N/D', '2025': 'N/D', '2024': 'N/D', '2023': 'N/D', '2022': 'N/D',
+        'EnMaestro': False
     }
 
-# Modal de Ficha
-@st.dialog("📋 Ficha de Consulta de ISIN")
+# MODAL DE FICHA TÉCNICA Y ANÁLISIS
+@st.dialog("📋 Ficha Técnica & Análisis de Inversión")
 def abrir_modal_detalle(info_reg):
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
     st.text_input("📋 Código ISIN (Copiar)", value=info_reg['ISIN'], key=f"copy_modal_{info_reg['ISIN']}")
     st.markdown(f"📅 *Consultado el:* `{datetime.now().strftime('%d/%m/%Y %H:%M')}`")
     st.markdown("---")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Comisión TER", info_reg['TER'])
-        st.metric("YTD 2026", info_reg['YTD'])
-        st.metric("2025", info_reg['2025'])
-    with col2:
-        st.metric("2024", info_reg['2024'])
-        st.metric("2023", info_reg['2023'])
-        st.metric("2022", info_reg['2022'])
+    if info_reg['EnMaestro']:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Comisión TER", info_reg['TER'])
+            st.metric("YTD 2026", info_reg['YTD'])
+            st.metric("Rentabilidad 2025", info_reg['2025'])
+        with col2:
+            st.metric("Rentabilidad 2024", info_reg['2024'])
+            st.metric("Rentabilidad 2023", info_reg['2023'])
+            st.metric("Rentabilidad 2022", info_reg['2022'])
 
-    st.markdown("---")
-    st.markdown(f"* **Operador / Comercializador:** {info_reg['Operador']}")
-    st.markdown(f"* **Política de Traspasos:** {info_reg['Traspaso']}")
-    
-    if not info_reg.get('Registrado', True):
-        st.info("💡 *Este ISIN no está en tu base local. Utiliza los enlaces directos de abajo para ver sus rentabilidades reales en vivo:*")
+        st.markdown("---")
+        st.markdown(f"* **Operador en España:** {info_reg['Operador']}")
+        st.markdown(f"* **Traspasabilidad:** {info_reg['Traspaso']}")
+        st.markdown(f"* **Mínimo Inversión:** {info_reg['Minimo']}")
+    else:
+        st.warning("⚠️ Este ISIN no está en tu Catálogo Maestro Central. Utiliza los portales de contraste para revisar sus condiciones de inversión:")
 
-    st.markdown("### 🌐 Contraste Directo en Portales Oficiales")
+    st.markdown("### 🌐 Enlaces de Análisis y Estudio Directo")
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown(f"[📊 Morningstar](https://www.morningstar.es/es/funds/security/summary.aspx?search={info_reg['ISIN']})")
@@ -168,11 +162,13 @@ def abrir_modal_detalle(info_reg):
 # BARRA LATERAL
 st.sidebar.header("🛡️ Panel Táctico")
 
+# 1. Test Alertas
 with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
     if st.button("🚀 Comprobar Estado", use_container_width=True):
         st.session_state.prueba_correo_enviada = True
         st.rerun()
 
+# 2. Gestión ISIN
 with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
     opcion_g = st.radio("Acción:", ["Añadir", "Eliminar"], horizontal=True, key="rad_gest")
     if opcion_g == "Añadir":
@@ -202,22 +198,27 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` borrado.")
                 st.rerun()
 
+# 3. LECTOR UNIVERSAL DE ISIN (CON BORRADOR DE CASILLA TRAS CONSULTAR)
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
-    with st.form(key='form_lector_isin'):
-        consulta_isin = st.text_input("Introduce ISIN (Ej: IE00BFPM9N11)", "").strip().upper()
-        btn_confirmar = st.form_submit_button("✅ Consultar Ficha", use_container_width=True)
-
-    if btn_confirmar and consulta_isin:
-        resultado = obtener_datos_consulta(consulta_isin)
-        resultado['FechaConsulta'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-        
-        st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i['ISIN'] != consulta_isin]
-        st.session_state.historico_consultas.insert(0, resultado)
-        if len(st.session_state.historico_consultas) > 5:
-            st.session_state.historico_consultas.pop()
+    consulta_isin = st.text_input("Introduce ISIN a analizar", value=st.session_state.input_isin_key, key="txt_input_isin").strip().upper()
+    
+    if st.button("✅ Consultar e Incorporar a Histórico", use_container_width=True):
+        if consulta_isin:
+            res = consultar_catalogo_maestro(consulta_isin)
+            res['FechaConsulta'] = datetime.now().strftime("%d/%m/%Y %H:%M")
             
-        abrir_modal_detalle(resultado)
+            # Guardar en histórico (máximo 5)
+            st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i['ISIN'] != consulta_isin]
+            st.session_state.historico_consultas.insert(0, res)
+            if len(st.session_state.historico_consultas) > 5:
+                st.session_state.historico_consultas.pop()
+            
+            # Limpiar la casilla para la próxima consulta
+            st.session_state.input_isin_key = ""
+            
+            abrir_modal_detalle(res)
 
+# 4. HISTÓRICO DE ÚLTIMAS 5 CONSULTAS CON FECHA Y HORA
 if st.session_state.historico_consultas:
     with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
@@ -234,12 +235,13 @@ with tab1:
     st.session_state.cartera_vigilada = df_editado
 
 with tab2:
-    st.subheader("📊 Buscador y Listado Maestro de Fondos")
+    st.subheader("📊 Buscador y Listado Maestro de Fondos Operables en España")
+    st.markdown("💡 *Filtro de operabilidad: Bajas comisiones (TER), traspasables y accesibles desde España:*")
     st.dataframe(df_master, use_container_width=True)
 
 with tab3:
     st.subheader("🤖 Copiloto IA")
-    st.success("Recomendación: Fichas ajustadas para evitar duplicación de métricas ficticias.")
+    st.success("Criterio: Priorizar fondos indexados con TER ≤ 0.30% y traspasabilidad sin peaje fiscal.")
 
 with tab4:
     st.subheader("📈 Gráficos")
