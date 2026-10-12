@@ -13,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilos CSS tácticos detallados con el sombreado gris/suavizado original en las pestañas
+# Estilos CSS tácticos detallados con el sombreado gris/suavizado en las pestañas
 st.markdown("""
 <style>
     /* Estilo General del Fondo y Tipografía */
@@ -30,7 +30,7 @@ st.markdown("""
         padding-top: 10px;
     }
     
-    /* Pestañas / Tabs Superiores (Estilo Suavizado y Grisáceo original) */
+    /* Pestañas / Tabs Superiores (Estilo Suavizado y Grisáceo) */
     .stTabs [data-baseweb="tab-list"] { 
         gap: 6px; 
         background-color: #e2e8f0; 
@@ -184,7 +184,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 # ==============================================================================
-# 6. FUNCIONES DE ANÁLISIS Y DIÁLOGOS MODALES
+# 6. FUNCIONES DE ANÁLISIS Y DIÁLOGOS MODALES (ENLACES CORREGIDOS)
 # ==============================================================================
 def consultar_catalogo_maestro(isin):
     """Busca información extendida de un fondo por código ISIN."""
@@ -223,7 +223,7 @@ def consultar_catalogo_maestro(isin):
 
 @st.dialog("📋 Ficha Técnica & Análisis de Inversión")
 def abrir_modal_detalle(info_reg):
-    """Muestra el desglose técnico y enlaces externos directos de consulta."""
+    """Muestra el desglose técnico y enlaces externos directos orientados a España."""
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
     st.code(info_reg['ISIN'], language=None)
     st.markdown(f"📅 *Consultado el:* `{hora_real_espana()}`")
@@ -246,12 +246,12 @@ def abrir_modal_detalle(info_reg):
     else:
         st.warning("⚠️ Este ISIN no está registrado en el Catálogo Maestro. Utiliza los enlaces directos para consultar su ficha oficial:")
 
-    st.markdown("### 🌐 Enlaces de Análisis Directo")
+    st.markdown("### 🌐 Enlaces Directos de Análisis Infalibles")
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.markdown(f"[📊 Morningstar](https://www.morningstar.es/es/funds/security/summary.aspx?search={info_reg['ISIN']})")
+        st.markdown(f"[📊 Morningstar ES](https://www.morningstar.es/es/funds/security/summary.aspx?search={info_reg['ISIN']})")
     with c2:
-        st.markdown(f"[🔍 QueFondos](https://www.quefondos.com/es/fondos/ficha/index.html?isin={info_reg['ISIN']})")
+        st.markdown(f"[🔍 Finect](https://www.finect.com/busqueda?q={info_reg['ISIN']})")
     with c3:
         st.markdown(f"[📈 JustETF](https://www.justetf.com/es/search.html?query={info_reg['ISIN']})")
 
@@ -306,7 +306,7 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                 st.success(f"ISIN `{target}` eliminado.")
                 st.rerun()
 
-# LECTOR UNIVERSAL ISIN
+# LECTOR UNIVERSAL ISIN CON AUTO-LIMPIEZA E HISTÓRICO
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     st.write("Analiza cualquier ISIN y accede a su ficha técnica completa.")
     
@@ -383,7 +383,7 @@ with tab2:
 
     st.markdown("---")
 
-    # TABLA PRINCIPAL CON BLOQUES DE CÓDIGO DIRECTAMENTE COPIABLES TRADICIONALES
+    # TABLA PRINCIPAL DE 12 FONDOS FIJOS
     st.dataframe(
         df_master, 
         use_container_width=True,
