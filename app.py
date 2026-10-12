@@ -184,7 +184,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 # ==============================================================================
-# 6. FUNCIONES DE ANÁLISIS Y DIÁLOGOS MODALES (ENLACES CORREGIDOS)
+# 6. FUNCIONES DE ANÁLISIS Y DIÁLOGOS MODALES (RUTAS EXTERNAS CORREGIDAS)
 # ==============================================================================
 def consultar_catalogo_maestro(isin):
     """Busca información extendida de un fondo por código ISIN."""
@@ -223,7 +223,7 @@ def consultar_catalogo_maestro(isin):
 
 @st.dialog("📋 Ficha Técnica & Análisis de Inversión")
 def abrir_modal_detalle(info_reg):
-    """Muestra el desglose técnico y enlaces externos directos orientados a España."""
+    """Muestra el desglose técnico y enlaces externos orientados a apertura directa."""
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
     st.code(info_reg['ISIN'], language=None)
     st.markdown(f"📅 *Consultado el:* `{hora_real_espana()}`")
@@ -246,14 +246,21 @@ def abrir_modal_detalle(info_reg):
     else:
         st.warning("⚠️ Este ISIN no está registrado en el Catálogo Maestro. Utiliza los enlaces directos para consultar su ficha oficial:")
 
-    st.markdown("### 🌐 Enlaces Directos de Análisis Infalibles")
+    st.markdown("### 🌐 Enlaces Directos a Ficha Oficial")
     c1, c2, c3 = st.columns(3)
+    
+    # ISIN limpio para pasar en URLs de búsqueda directa
+    isin_clean = info_reg['ISIN'].strip()
+
     with c1:
-        st.markdown(f"[📊 Morningstar ES](https://www.morningstar.es/es/funds/security/summary.aspx?search={info_reg['ISIN']})")
+        # Enlace que salta directamente a la búsqueda resuelta en Morningstar ES
+        st.markdown(f"[📊 Morningstar Directo](https://www.morningstar.es/es/search/quickrank.aspx?search={isin_clean})")
     with c2:
-        st.markdown(f"[🔍 Finect](https://www.finect.com/busqueda?q={info_reg['ISIN']})")
+        # Búsqueda en Google Finance (Soporta todos los ISINs sin bloqueos 404)
+        st.markdown(f"[🌐 Google Finance](https://www.google.com/finance/quote/{isin_clean})")
     with c3:
-        st.markdown(f"[📈 JustETF](https://www.justetf.com/es/search.html?query={info_reg['ISIN']})")
+        # Búsqueda directa en Citywire España (muy fiable para fondos en España)
+        st.markdown(f"[📈 Citywire España](https://citywire.com/es/search?q={isin_clean})")
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("✖️ Cerrar Ventana", use_container_width=True):
