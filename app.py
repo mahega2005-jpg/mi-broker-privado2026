@@ -190,7 +190,7 @@ def ejecutar_escanner_automatico_top10():
 
 
 # ==============================================================================
-# 6. CABECERA TÁCTICA SUPERIOR (CON BOTÓN DE EDICIÓN ARRIBA A LA DERECHA)
+# 6. CABECERA TÁCTICA SUPERIOR (CON BOTÓN "EDITAR APP" HTML ARRIBA A LA DERECHA)
 # ==============================================================================
 col_head1, col_head2 = st.columns([2.5, 1])
 h_actual = hora_real_espana()
@@ -204,8 +204,14 @@ with col_head1:
     """, unsafe_allow_html=True)
 
 with col_head2:
-    st.markdown("<div style='height: 2px;'></div>", unsafe_allow_html=True)
-    st.link_button("🛠️ Editar App", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
+    st.markdown("""
+    <a href="https://github.com/mahega2005-jpg/mi-broker-privado2026" target="_blank" style="text-decoration: none;">
+        <div style="background-color: #ffffff; color: #1f2328; text-align: center; padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #cbd5e1; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 8px;">
+            🛠️ Editar App
+        </div>
+    </a>
+    """, unsafe_allow_html=True)
+    
     if st.button("🔄 Actualizar Datos", use_container_width=True):
         ejecutar_escanner_automatico_top10()
         st.session_state.notificacion_actualizado = True
