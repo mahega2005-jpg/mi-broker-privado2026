@@ -4,7 +4,7 @@ from datetime import datetime
 import zoneinfo
 
 # ==============================================================================
-# 1. CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS (ESTILO SUAVIZADO RESTAURADO)
+# 1. CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS (ESTILO SUAVIZADO)
 # ==============================================================================
 st.set_page_config(
     page_title="Mi Broker Privado - Panel Táctico",
@@ -13,24 +13,20 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilos CSS tácticos detallados con el sombreado gris/suavizado en las pestañas
 st.markdown("""
 <style>
-    /* Estilo General del Fondo y Tipografía */
     .stApp { 
         background-color: #f0f4f9; 
         color: #1f2328; 
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     
-    /* Sidebar Personalizado */
     section[data-testid="stSidebar"] { 
         background: linear-gradient(135deg, #dbeafe, #bfdbfe); 
         border-right: 2px solid #93c5fd; 
         padding-top: 10px;
     }
     
-    /* Pestañas / Tabs Superiores (Estilo Suavizado y Grisáceo) */
     .stTabs [data-baseweb="tab-list"] { 
         gap: 6px; 
         background-color: #e2e8f0; 
@@ -49,14 +45,12 @@ st.markdown("""
         border: 1px solid #cbd5e1; 
     }
     
-    /* Pestaña Seleccionada: Gris suavizado y elegante */
     .stTabs [aria-selected="true"] { 
         background-color: #cbd5e1 !important; 
         color: #0f172a !important; 
         border-color: #94a3b8 !important; 
     }
     
-    /* Estilos para Botones */
     .stButton button { 
         background-color: #ffffff; 
         color: #1f2328; 
@@ -78,13 +72,12 @@ st.markdown("""
 # 2. FUNCIONES DE SOPORTE Y HORARIOS OFICIALES
 # ==============================================================================
 def hora_real_espana():
-    """Obtiene la hora exacta sincronizada en la zona horaria de Madrid (España)."""
     tz = zoneinfo.ZoneInfo("Europe/Madrid")
     return datetime.now(tz).strftime('%d/%m/%Y %H:%M:%S')
 
 
 # ==============================================================================
-# 3. BASE DE DATOS COMPLETA (2 CORE CONTRATADOS + 10 TOP MERCADO ESPAÑA)
+# 3. BASE DE DATOS COMPLETA (2 CORE + 10 TOP MERCADO)
 # ==============================================================================
 data_12_fondos = {
     'Origen': [
@@ -137,7 +130,7 @@ df_master = pd.DataFrame(data_12_fondos)
 
 
 # ==============================================================================
-# 4. GESTIÓN DE ESTADOS DE SESIÓN (PERSISTENCIA)
+# 4. GESTIÓN DE ESTADOS DE SESIÓN
 # ==============================================================================
 if 'historico_consultas' not in st.session_state:
     st.session_state.historico_consultas = []
@@ -187,7 +180,6 @@ st.markdown("<br>", unsafe_allow_html=True)
 # 6. FUNCIONES DE ANÁLISIS Y DIÁLOGOS MODALES
 # ==============================================================================
 def consultar_catalogo_maestro(isin):
-    """Busca información extendida de un fondo por código ISIN."""
     isin = isin.strip().upper()
     match = df_master[df_master['ISIN'] == isin]
     if not match.empty:
@@ -223,7 +215,6 @@ def consultar_catalogo_maestro(isin):
 
 @st.dialog("📋 Ficha Técnica & Análisis de Inversión")
 def abrir_modal_detalle(info_reg):
-    """Muestra el desglose técnico y enlaces externos orientados a apertura directa."""
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
     st.code(info_reg['ISIN'], language=None)
     st.markdown(f"📅 *Consultado el:* `{hora_real_espana()}`")
@@ -244,7 +235,7 @@ def abrir_modal_detalle(info_reg):
         st.markdown(f"* **Traspasabilidad Fiscal:** {info_reg['Traspaso']}")
         st.markdown(f"* **Inversión Mínima:** {info_reg['Minimo']}")
     else:
-        st.warning("⚠️ Este ISIN no está registrado en el Catálogo Maestro. Utiliza los enlaces directos para consultar su ficha oficial:")
+        st.warning("⚠️ Este ISIN no está registrado en el Catálogo Maestro. Utiliza los enlaces directos para consultar su ficha oficial en directo:")
 
     st.markdown("### 🌐 Enlaces Directos a Ficha Oficial")
     c1, c2, c3 = st.columns(3)
@@ -263,7 +254,7 @@ def abrir_modal_detalle(info_reg):
 
 
 # ==============================================================================
-# 7. BARRA LATERAL (PANEL DE CONTROL & LECTOR UNIVERSAL ISIN)
+# 7. BARRA LATERAL (ENTRADAS / SALIDAS DE FONDOS & LECTOR UNIVERSAL)
 # ==============================================================================
 st.sidebar.header("🛡️ Panel Táctico")
 
@@ -272,9 +263,9 @@ with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
     if st.button("🚀 Comprobar Estado de Alerta", use_container_width=True):
         st.success("Sistemas operativos. Alertas sincronizadas correctamente.")
 
-with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
-    opcion_g = st.radio("Acción:", ["Añadir", "Eliminar"], horizontal=True, key="rad_gest")
-    if opcion_g == "Añadir":
+with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN (Gestión de Entradas y Salidas)", expanded=False):
+    opcion_g = st.radio("Acción:", ["Añadir Entrada", "Eliminar Salida"], horizontal=True, key="rad_gest")
+    if opcion_g == "Añadir Entrada":
         n_isin = st.text_input("Código ISIN", key="add_i").strip().upper()
         s_val = st.number_input("Suelo (%)", value=-10.0, step=1.0, key="add_s")
         t_val = st.number_input("Techo (%)", value=20.0, step=1.0, key="add_t")
@@ -296,22 +287,20 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
                         'Rentabilidad_Actual_%': r_val
                     }])
                     st.session_state.cartera_vigilada = pd.concat([df_c, n_row], ignore_index=True)
-                    st.success(f"ISIN `{n_isin}` registrado con éxito.")
+                    st.success(f"ISIN `{n_isin}` incorporado a la cartera con éxito.")
                     st.rerun()
     else:
         df_c = st.session_state.cartera_vigilada
         if not df_c.empty:
-            sel = st.selectbox("Borrar ISIN:", [f"{r['ISIN']} - {r['Nombre'][:12]}..." for _, r in df_c.iterrows()], key="del_s")
-            if st.button("🗑️ Confirmar Borrado", type="primary", use_container_width=True):
+            sel = st.selectbox("Dar de baja ISIN:", [f"{r['ISIN']} - {r['Nombre'][:12]}..." for _, r in df_c.iterrows()], key="del_s")
+            if st.button("🗑️ Confirmar Salida de Fondo", type="primary", use_container_width=True):
                 target = sel.split(" - ")[0]
                 st.session_state.cartera_vigilada = df_c[df_c['ISIN'] != target].reset_index(drop=True)
-                st.success(f"ISIN `{target}` eliminado.")
+                st.success(f"ISIN `{target}` eliminado de la cartera de vigilancia.")
                 st.rerun()
 
-# LECTOR UNIVERSAL ISIN CON AUTO-LIMPIEZA E HISTÓRICO
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
     st.write("Analiza cualquier ISIN y accede a su ficha técnica completa.")
-    
     val_defecto = st.session_state.isin_preseleccionado
     
     with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
@@ -344,7 +333,7 @@ if st.session_state.historico_consultas:
 tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Control & Bandas", 
     "📊 Buscador Maestro", 
-    "☕ Copiloto IA & Prensa", 
+    "🎯 Radar de Tendencias & Estrategias", 
     "📈 Gráficos & Cartera Core"
 ])
 
@@ -365,9 +354,7 @@ with tab2:
     st.subheader("📊 Buscador Maestro: Top 10 Fondos de Referencia en España + Cartera Core")
     st.markdown("💡 *Selección basada en comisiones reducidas (TER), traspasabilidad fiscal 100% libre de peaje y máxima rentabilidad histórica.*")
     
-    # ACCESO DIRECTO PARA UN TOQUE EN TABLET
     st.markdown("📋 **Copiador / Lector Táctil de ISIN para Tablet:**")
-    
     col_sel1, col_sel2 = st.columns([3, 1])
     with col_sel1:
         isin_elegido = st.selectbox(
@@ -385,7 +372,6 @@ with tab2:
 
     st.markdown("---")
 
-    # TABLA PRINCIPAL DE 12 FONDOS FIJOS
     st.dataframe(
         df_master, 
         use_container_width=True,
@@ -440,24 +426,136 @@ with tab2:
                 res_p = consultar_catalogo_maestro(row['ISIN'])
                 abrir_modal_detalle(res_p)
 
-# PESTAÑA 3: COPILOTO IA & PRENSA
+# PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS (AMPLIADO 3x3)
 with tab3:
-    st.subheader("☕ Copiloto IA & Prensa Financiera")
-    st.markdown("Criterio táctico de asignación de activos e informes sintéticos diarios:")
-    st.info("💡 **Estrategia Recomendada:** Mantener la base de la Cartera Core intacta y utilizar los traspasos libres de peajes fiscales para capturar tendencias en el Top 10 Mercado.")
+    st.subheader("🎯 Radar de Tendencias Globales & Simulación de Estrategias")
+    st.markdown("Análisis táctico para anticiparse al mercado detectando las megatendencias de mayor impulso y cruzándolas con los 3 fondos líderes por sector:")
+    
+    st.markdown("### 🧭 Modelo Táctico de Asignación por Estrategia")
+    estrategia_sel = st.radio(
+        "Selecciona una Estrategia Táctica de Mercado:",
+        options=[
+            "🛡️ Estrategia Conservadora / Defensiva (Preservación)",
+            "⚖️ Estrategia Moderada / Core Indexado (Equilibrada)",
+            "🚀 Estrategia Crecimiento & Megatendencias (Sintética Aportación)"
+        ],
+        horizontal=True,
+        key="radio_estrategias"
+    )
+    
+    if "Conservadora" in estrategia_sel:
+        st.info("""
+        **Perfil Táctico Defensivo:**
+        * **Asignación:** 70% Renta Fija Global Hedged + 20% Retorno Absoluto / Multi-Activo + 10% RV Global Core.
+        * **Fondos Vehículo:** `IE00BGCZOB53` (Vanguard Bond) + `ES0114105030` (DWS Alpha) + `IE00BFPM9N11` (Vanguard Global).
+        * **Objetivo:** Proteger capital ante volatilidad de tipos y caídas bursátiles, manteniendo traspasabilidad fiscal 100%.
+        """)
+    elif "Moderada" in estrategia_sel:
+        st.success("""
+        **Perfil Táctico Core Equilibrado:**
+        * **Asignación:** 60% RV Global Indexada (MSCI World / S&P 500) + 20% Renta Fija Global + 20% Megatendencias Activas.
+        * **Fondos Vehículo:** `IE00BFPM9N11` (Vanguard Global) + `IE00B03HD191` (S&P 500) + `LU0503631872` (Pictet Security).
+        * **Objetivo:** Crecimiento sostenido con mínimos costes TER (0.06% - 0.30%) y captura de la prima de riesgo global.
+        """)
+    else:
+        st.warning("""
+        **Perfil Táctico Dinámico & Megatendencias:**
+        * **Asignación:** 40% RV Global Core + 30% Tecnología & IA + 15% Ciberseguridad + 15% Biotecnología / Salud.
+        * **Fondos Vehículo:** `LU0996182563` (Fidelity Tech) + `LU0503631872` (Pictet Security) + `IE00B43VBZ18` (Polar Biotech).
+        * **Objetivo:** Adelantarse al ciclo económico aprovechando sectores con vientos de cola estructurales.
+        """)
+
+    st.markdown("---")
+    st.markdown("### 🛰️ Radar Megatendencial: 3 Fondos de Referencia por Sector")
+
+    t1, t2, t3 = st.columns(3)
+    
+    with t1:
+        st.markdown("""
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;">
+            <h4 style="margin-top:0; color: #1e40af;">💻 IA, Tecnología & Ciberseguridad</h4>
+            <p style="font-size: 13px; color: #475569;"><b>Tendencia:</b> Digitalización masiva, gasto corporativo en protección e infraestructuras de IA.</p>
+            <p style="font-size: 12px; color: #15803d;"><b>Impulso:</b> Muy Alto 🚀</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        st.code("LU0996182563", language=None)
+        st.caption("Fidelity Funds - Global Tech")
+        if st.button("🔍 Analizar Fidelity Tech", key="btn_t1_1", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("LU0996182563"))
+            
+        st.code("LU0503631872", language=None)
+        st.caption("Pictet - Security P EUR")
+        if st.button("🔍 Analizar Pictet Security", key="btn_t1_2", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("LU0503631872"))
+
+        st.code("IE00B03HD191", language=None)
+        st.caption("Vanguard US 500 Index")
+        if st.button("🔍 Analizar Vanguard S&P500", key="btn_t1_3", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("IE00B03HD191"))
+
+    with t2:
+        st.markdown("""
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;">
+            <h4 style="margin-top:0; color: #1e40af;">🧬 Biotecnología, Salud & Longevidad</h4>
+            <p style="font-size: 13px; color: #475569;"><b>Tendencia:</b> Envejecimiento de la población, patentes biotecnológicas y terapias génicas.</p>
+            <p style="font-size: 12px; color: #15803d;"><b>Impulso:</b> Alto 📈</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        st.code("IE00B43VBZ18", language=None)
+        st.caption("Polar Capital Biotech (Acc)")
+        if st.button("🔍 Analizar Polar Biotech R", key="btn_t2_1", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("IE00B43VBZ18"))
+
+        st.code("IE00B3WVRB16", language=None)
+        st.caption("Polar Capital Biotech (Dis)")
+        if st.button("🔍 Analizar Polar Biotech I", key="btn_t2_2", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("IE00B3WVRB16"))
+
+        st.code("IE00BFPM9N11", language=None)
+        st.caption("Vanguard Global Stock Core")
+        if st.button("🔍 Analizar Vanguard Global", key="btn_t2_3", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("IE00BFPM9N11"))
+
+    with t3:
+        st.markdown("""
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;">
+            <h4 style="margin-top:0; color: #1e40af;">🛡️ Retorno Absoluto & Preservación</h4>
+            <p style="font-size: 13px; color: #475569;"><b>Tendencia:</b> Descorrelación de la bolsa tradicional y protección de capital ante eventos de volatilidad.</p>
+            <p style="font-size: 12px; color: #b45309;"><b>Impulso:</b> Moderado / Defensivo 🛡️</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        st.code("ES0114105030", language=None)
+        st.caption("DWS Investments Alpha Opp")
+        if st.button("🔍 Analizar DWS Alpha", key="btn_t3_1", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("ES0114105030"))
+
+        st.code("IE00BGCZOB53", language=None)
+        st.caption("Vanguard Global Bond Index")
+        if st.button("🔍 Analizar Vanguard Bond", key="btn_t3_2", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("IE00BGCZOB53"))
+
+        st.code("LU1681048899", language=None)
+        st.caption("Amundi Index MSCI World")
+        if st.button("🔍 Analizar Amundi MSCI World", key="btn_t3_3", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("LU1681048899"))
 
 # PESTAÑA 4: GRÁFICOS & CARTERA CORE
 with tab4:
     st.subheader("📈 Gráficos Comparativos & Cartera Core")
     st.markdown("🔴 **Tu Cartera Core** está identificada con la etiqueta **`🔴 [CORE]`** para analizar de un golpe de vista que tu núcleo mantiene un funcionamiento óptimo frente al resto del mercado:")
 
-    # CAMBIO REALIZADO: Ahora la lista por defecto selecciona LOS 12 FONDOS COMPLETOS de la base de datos
     todos_los_fondos_nombres = df_master['Nombre del Fondo'].tolist()
 
     fondos_graf_activos = st.multiselect(
         "Selecciona los fondos que deseas comparar en el gráfico:",
         options=todos_los_fondos_nombres,
-        default=todos_los_fondos_nombres,  # Se muestran los 12 por defecto
+        default=todos_los_fondos_nombres,
         key="selector_grafico_core_red"
     )
 
