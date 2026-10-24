@@ -454,7 +454,7 @@ with tab2:
                 res_p = consultar_catalogo_maestro(row['ISIN'])
                 abrir_modal_detalle(res_p)
 
-# PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS (ALINEACIÓN PERFECTA + REFLEXIÓN TÁCTICA)
+# PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS (INCLUYE LAS 3 CAJITAS INFERIORES)
 with tab3:
     st.subheader("🎯 Radar de Tendencias Globales & Simulación de Estrategias")
     st.markdown("Análisis táctico para anticiparse al mercado detectando las megatendencias de mayor impulso y cruzándolas con los 3 fondos líderes por sector:")
@@ -528,7 +528,7 @@ with tab3:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # BLOQUE 1 DE FONDOS (FILA 1 ALINEADA)
+    # BLOQUE 1 DE FONDOS
     f1_1, f1_2, f1_3 = st.columns(3)
     with f1_1:
         st.code("LU0996182563", language=None)
@@ -550,7 +550,7 @@ with tab3:
 
     st.markdown("---")
 
-    # BLOQUE 2 DE FONDOS (FILA 2 ALINEADA)
+    # BLOQUE 2 DE FONDOS
     f2_1, f2_2, f2_3 = st.columns(3)
     with f2_1:
         st.code("LU0503631872", language=None)
@@ -572,7 +572,7 @@ with tab3:
 
     st.markdown("---")
 
-    # BLOQUE 3 DE FONDOS (FILA 3 ALINEADA)
+    # BLOQUE 3 DE FONDOS
     f3_1, f3_2, f3_3 = st.columns(3)
     with f3_1:
         st.code("IE00B03HD191", language=None)
@@ -594,9 +594,8 @@ with tab3:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 3. REFLEXIÓN TÁCTICA Y ELECCIÓN DEL MEJOR FONDO POR ESTRATEGIA
+    # REFLEXIÓN TÁCTICA Y ELECCIÓN DEL MEJOR FONDO POR ESTRATEGIA
     st.markdown("### 💡 Reflexión Táctica: Elección del Mejor Fondo por Sector")
-    
     st.markdown("""
     <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; border: 2px solid #93c5fd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
         <h4 style="margin-top:0; color: #1e40af;">🏆 ¿Cuál es el Mejor Fondo para cada Estrategia y Por Qué?</h4>
@@ -604,50 +603,4 @@ with tab3:
             <li><b>En IA & Tecnología (Mejor Opción: <code>LU0996182563</code> - Fidelity Global Tech):</b><br>
             <i>¿Por qué?</i> Aunque el <code>Vanguard S&P 500</code> es excelente por comisiones, el fondo de Fidelity aporta una <b>gestión activa diferencial</b> capaz de rotar entre semiconductores, software en la nube y ciberseguridad, habiendo demostrado una rentabilidad histórica superior (+24.50% YTD / +28.10% en 2025) mitigando caídas sectoriales.</li>
             <li style="margin-top: 10px;"><b>En Biotecnología & Salud (Mejor Opción: <code>IE00B43VBZ18</code> - Polar Capital Biotech):</b><br>
-            <i>¿Por qué?</i> El sector salud requiere un análisis científico especializado para elegir compañías con patentes aprobadas. Polar Capital cuenta con uno de los equipos más sólidos del mundo en biotecnología, capturando subidas de doble dígito sostenidas (+11.50% YTD / +14.00% en 2025).</li>
-            <li style="margin-top: 10px;"><b>En Preservación & Retorno Absoluto (Mejor Opción: <code>IE00BGCZOB53</code> - Vanguard Global Bond / <code>ES0114105030</code> DWS Alpha):</b><br>
-            <i>¿Por qué?</i> Para el inversor defensivo, la clave es la <b>baja comisiones TER (0.10%)</b> y la cobertura en euros del <code>Vanguard Bond</code>. Si se busca descorrelación pura frente a la bolsa, el <code>DWS Alpha</code> aporta flexibilidad en la duración de la renta fija para proteger el capital.</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-
-# PESTAÑA 4: GRÁFICOS & CARTERA CORE
-with tab4:
-    st.subheader("📈 Gráficos Comparativos & Cartera Core")
-    st.markdown("🔴 **Tu Cartera Core** está identificada con la etiqueta **`🔴 [CORE]`** para analizar de un golpe de vista que tu núcleo mantiene un funcionamiento óptimo frente al resto del mercado:")
-
-    todos_los_fondos_nombres = df_master['Nombre del Fondo'].tolist()
-
-    fondos_graf_activos = st.multiselect(
-        "Selecciona los fondos que deseas comparar en el gráfico:",
-        options=todos_los_fondos_nombres,
-        default=todos_los_fondos_nombres,
-        key="selector_grafico_core_red"
-    )
-
-    if fondos_graf_activos:
-        df_graf_sub = df_master[df_master['Nombre del Fondo'].isin(fondos_graf_activos)].copy()
-        
-        df_graf_sub['Fondo_Etiqueta'] = df_graf_sub.apply(
-            lambda r: f"🔴 [CORE] {r['Nombre del Fondo'][:20]}..." if r['Origen'] == '📌 En Cartera (Core)' else f"🔵 {r['Nombre del Fondo'][:20]}...", 
-            axis=1
-        )
-
-        col_g1, col_g2 = st.columns(2)
-        
-        with col_g1:
-            st.markdown("##### 🚀 Comparativa Año en Curso (YTD 2026)")
-            st.bar_chart(
-                df_graf_sub.set_index('Fondo_Etiqueta')['YTD_2026_%'], 
-                use_container_width=True
-            )
-
-        with col_g2:
-            st.markdown("##### 📅 Comparativa Último Año Vencido (2025)")
-            st.bar_chart(
-                df_graf_sub.set_index('Fondo_Etiqueta')['2025_%'], 
-                use_container_width=True
-            )
-            
-    else:
-        st.info("Selecciona al menos un fondo en el desplegable superior para generar el gráfico.")
+            <i>¿Por qué?</i> El sector salud requiere un análisis científico especializado para elegir compañías con patentes aprobadas. Polar Capital cuenta con uno de los equipos más
