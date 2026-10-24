@@ -256,7 +256,6 @@ if st.session_state.notificacion_actualizado:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-
 # ==============================================================================
 # 7. FUNCIONES MODALES Y CONSULTAS
 # ==============================================================================
