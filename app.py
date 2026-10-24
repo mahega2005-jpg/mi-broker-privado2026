@@ -1,3 +1,8 @@
+import streamlit as st
+
+# BOTÓN DE ACCESO DIRECTO A GITHUB (GARANTIZADO EN LA BARRA LATERAL)
+st.sidebar.link_button("🐱 Editar App en GitHub", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
+st.sidebar.markdown("---")
 # ==============================================================================
 # PROYECTO: MI BROKER PRIVADO - PANEL TÁCTICO DE INVERSIÓN
 # AUTOR: Bartolomé Marín Hedrera
