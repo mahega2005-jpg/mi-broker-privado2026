@@ -75,47 +75,8 @@ st.markdown("""
         flex-direction: column;
         justify-content: space-between;
     }
-    /* BOTÓN FLOTANTE DEL GATITO (GITHUB) */
-    .github-top-right {
-        position: fixed;
-        top: 12px;
-        right: 25px;
-        z-index: 999999;
-        background-color: #1f2937;
-        color: #ffffff;
-        padding: 6px 14px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid #374151;
-    }
-    .github-top-right a {
-        text-decoration: none;
-        color: #ffffff;
-        font-weight: 600;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
 </style>
 """, unsafe_allow_html=True)
-
-# ------------------------------------------------------------------------------
-# BOTÓN FLOTANTE CON EL SÍMBOLO DEL GATITO (ESQUINA SUPERIOR DERECHA)
-# ------------------------------------------------------------------------------
-st.markdown(
-    """
-    <div class="github-top-right">
-        <a href="https://github.com/mahega2005-jpg/mi-broker-privado2026" target="_blank">
-            🐈‍⬛ GitHub
-        </a>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 
 # ==============================================================================
 # 2. SOPORTE Y HORARIO OFICIAL
@@ -229,28 +190,38 @@ def ejecutar_escanner_automatico_top10():
 
 
 # ==============================================================================
-# 6. CABECERA TÁCTICA SUPERIOR
+# 6. CABECERA TÁCTICA SUPERIOR (CON EL BOTÓN DEL GATITO DIRECTO A GITHUB/APP)
 # ==============================================================================
-col_head1, col_head2 = st.columns([4, 1])
+col_head1, col_head2, col_head3 = st.columns([3, 1, 1])
 h_actual = hora_real_espana()
 
 with col_head1:
     st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 20px; border-radius: 12px; text-align: center; color: #1e3a8a; border: 2px solid #3b82f6;">
-        <div style="font-size: 32px; margin-bottom: 3px;">🛡️📈</div>
-        <h2 style="margin: 0; font-size: 24px; color: #1e40af; font-weight: 700;">MI BROKER PRIVADO</h2>
-        <p style="margin: 6px 0 0 0; font-size: 14px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial España: {h_actual}</p>
+    <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 16px; border-radius: 12px; text-align: left; color: #1e3a8a; border: 2px solid #3b82f6;">
+        <div style="font-size: 24px; margin-bottom: 2px;">🛡️📈 <b style="font-size: 20px; color: #1e40af;">MI BROKER PRIVADO</b></div>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial España: {h_actual}</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col_head2:
-    st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
     if st.button("🔄 Actualizar Datos", use_container_width=True):
+        ejecutar_escanner_automatico_top10()
         st.session_state.notificacion_actualizado = True
         st.rerun()
 
+with col_head3:
+    st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
+    st.markdown("""
+    <a href="https://github.com/mahega2005-jpg/mi-broker-privado2026" target="_blank" style="text-decoration: none;">
+        <div style="background-color: #1f2937; color: #ffffff; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            🐈‍⬛ GitHub
+        </div>
+    </a>
+    """, unsafe_allow_html=True)
+
 if st.session_state.notificacion_actualizado:
-    st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}).", icon="🔄")
+    st.toast(f"✅ ¡Escaneo autónomo completado! Hora oficial ({h_actual}) y Top 10 auditados.", icon="🔄")
     st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
