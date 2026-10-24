@@ -184,9 +184,9 @@ def ejecutar_escanner_automatico_top10():
 
 
 # ==============================================================================
-# 6. CABECERA TÁCTICA SUPERIOR (CON BOTÓN DE ACCESO DIRECTO A GITHUB)
+# 6. CABECERA TÁCTICA SUPERIOR
 # ==============================================================================
-col_head1, col_head2 = st.columns([2.5, 1])
+col_head1, col_head2 = st.columns([3, 1])
 h_actual = hora_real_espana()
 
 with col_head1:
@@ -198,11 +198,10 @@ with col_head1:
     """, unsafe_allow_html=True)
 
 with col_head2:
-    st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-    st.link_button("🐱 GitHub / Editar", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
+    st.markdown("<div style='height: 2px;'></div>", unsafe_allow_html=True)
+    st.link_button("🐱 Editar App", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
-
 
 # ==============================================================================
 # 7. FUNCIONES MODALES Y CONSULTAS
@@ -320,8 +319,11 @@ if st.session_state.historico_consultas:
         for idx, hist in enumerate(st.session_state.historico_consultas):
             if st.sidebar.button(f"📌 {hist['ISIN']} ({hist.get('FechaConsulta','')})", key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
-
-
+st.sidebar.markdown("---")
+if st.sidebar.button("🔄 Actualizar Datos", use_container_width=True):
+    ejecutar_escanner_automatico_top10()
+    st.toast(f"✅ ¡Escaneo autónomo completado! Hora oficial ({hora_real_espana()}) y Top 10 auditados.", icon="🔄")
+    st.rerun()
 # ==============================================================================
 # 9. PESTAÑAS PRINCIPALES DEL PANEL
 # ==============================================================================
