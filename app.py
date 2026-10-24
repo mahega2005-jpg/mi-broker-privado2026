@@ -75,47 +75,8 @@ st.markdown("""
         flex-direction: column;
         justify-content: space-between;
     }
-    /* BOTÓN FLOTANTE DEL GATITO (GITHUB) */
-    .github-top-right {
-        position: fixed;
-        top: 12px;
-        right: 25px;
-        z-index: 999999;
-        background-color: #1f2937;
-        color: #ffffff;
-        padding: 6px 14px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid #374151;
-    }
-    .github-top-right a {
-        text-decoration: none;
-        color: #ffffff;
-        font-weight: 600;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
 </style>
 """, unsafe_allow_html=True)
-
-# ------------------------------------------------------------------------------
-# BOTÓN FLOTANTE CON EL SÍMBOLO DEL GATITO (ESQUINA SUPERIOR DERECHA)
-# ------------------------------------------------------------------------------
-st.markdown(
-    """
-    <div class="github-top-right">
-        <a href="https://github.com/mahega2005-jpg/mi-broker-privado2026" target="_blank">
-            🐈‍⬛ GitHub
-        </a>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 
 # ==============================================================================
 # 2. SOPORTE Y HORARIO OFICIAL
@@ -227,6 +188,7 @@ def ejecutar_escanner_automatico_top10():
         f"• **Estado:** Ranking dinámico ordenado por eficiencia neta. Core blindado e independiente."
     )
 
+
 # ==============================================================================
 # 6. CABECERA TÁCTICA SUPERIOR
 # ==============================================================================
@@ -253,7 +215,7 @@ with col_head3:
     st.markdown("""
     <a href="https://github.com/mahega2005-jpg/mi-broker-privado2026" target="_blank" style="text-decoration: none;">
         <div style="background-color: #1f2937; color: #ffffff; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            🐈‍🇦 Ver GitHub
+            🐈‍⬛ Ver GitHub
         </div>
     </a>
     """, unsafe_allow_html=True)
@@ -263,6 +225,8 @@ if st.session_state.notificacion_actualizado:
     st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
+
+
 # ==============================================================================
 # 7. FUNCIONES MODALES Y CONSULTAS
 # ==============================================================================
@@ -578,7 +542,7 @@ with tab3:
 
     with col_box1:
         st.markdown("""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #f87171; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #f87171; min-height: 280px; display: flex; flexDirection: column; justify-content: space-between;">
             <div>
                 <h4 style="color: #b91c1c; margin-top:0; font-size: 16px;">🛑 1. Techos (Top 10 + Core)</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
@@ -597,7 +561,7 @@ with tab3:
 
     with col_box2:
         st.markdown("""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #34d399; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #34d399; min-height: 280px; display: flex; flexDirection: column; justify-content: space-between;">
             <div>
                 <h4 style="color: #047857; margin-top:0; font-size: 16px;">🎯 2. Suelos (Top 10 + Core)</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
@@ -616,7 +580,7 @@ with tab3:
 
     with col_box3:
         st.markdown("""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #60a5fa; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #60a5fa; min-height: 280px; display: flex; flexDirection: column; justify-content: space-between;">
             <div>
                 <h4 style="color: #1d4ed8; margin-top:0; font-size: 16px;">⚡ 3. Escáner Ciego</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
