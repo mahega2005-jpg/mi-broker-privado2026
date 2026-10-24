@@ -314,4 +314,69 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
             sel = st.selectbox("Dar de baja ISIN:", [f"{r['ISIN']} - {r['Nombre'][:12]}" for _, r in df_c.iterrows()], key="del_s")
             if st.button("🗑️ Confirmar Salida", type="primary", use_container_width=True):
                 target = sel.split(" - ")[0]
-                st.session_state.cartera_vigilada = df_c
+                st.session_state.cartera_vigilada = df_c[df_c['ISIN'] != target].reset_index(drop=True)
+                st.success("ISIN eliminado.")
+                st.rerun()
+
+with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
+    val_defecto = st.session_state.isin_preseleccionado
+    with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
+        consulta_isin_input = st.text_input("Introduce ISIN", value=val_defecto, key="txt_input_isin_field").strip().upper()
+        btn_submit = st.form_submit_button("✅ Consultar e Incorporar", use_container_width=True)
+    if btn_submit and consulta_isin_input:
+        st.session_state.isin_preseleccionado = ""
+        res = consultar_catalogo_maestro(consulta_isin_input)
+        res['FechaConsulta'] = hora_real_espana()
+        st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i['ISIN'] != consulta_isin_input]
+        st.session_state.historico_consultas.insert(0, res)
+        if len(st.session_state.historico_consultas) > 5: st.session_state.historico_consultas.pop()
+        abrir_modal_detalle(res)
+
+if st.session_state.historico_consultas:
+    with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
+        for idx, hist in enumerate(st.session_state.historico_consultas):
+            if st.sidebar.button(f"📌 {hist['ISIN']} ({hist.get('FechaConsulta','')})", key=f"btn_hist_{idx}", use_container_width=True):
+                abrir_modal_detalle(hist)
+
+
+# ==============================================================================
+# 9. PESTAÑAS PRINCIPALES DEL PANEL
+# ==============================================================================
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🛡️ Control & Bandas", 
+    "📊 Buscador Maestro", 
+    "🎯 Radar de Tendencias & Estrategias", 
+    "📈 Gráficos & Cartera Core"
+])
+
+# ------------------------------------------------------------------------------
+# PESTAÑA 1: CONTROL & BANDAS
+# ------------------------------------------------------------------------------
+with tab1:
+    st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
+    st.markdown("Edita las bandas de control de tus posiciones activas:")
+    st.session_state.cartera_vigilada = st.data_editor(st.session_state.cartera_vigilada, num_rows="dynamic", use_container_width=True, key="ed_cartera")
+
+# ------------------------------------------------------------------------------
+# PESTAÑA 2: BUSCADOR MAESTRO
+# ------------------------------------------------------------------------------
+with tab2:
+    st.subheader("📊 Buscador Maestro: Top 10 Dinámico de Referencia + Cartera Core")
+    df_master_actual = st.session_state.df_master_app
+    
+    col_sel1, col_sel2 = st.columns([3, 1])
+    with col_sel1:
+        isin_elegido = st.selectbox("Selecciona fondo:", options=df_master_actual['ISIN'].tolist(), format_func=lambda x: f"{x} - {df_master_actual[df_master_actual['ISIN']==x]['Nombre del Fondo'].values[0]}", key="sel_directo_tablet")
+    with col_sel2:
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+        if st.button("🚀 Cargar en Lector", use_container_width=True):
+            st.session_state.isin_preseleccionado = isin_elegido
+            abrir_modal_detalle(consultar_catalogo_maestro(isin_elegido))
+            
+    st.dataframe(df_master_actual, use_container_width=True, height=380)
+    
+    st.markdown("---")
+    
+    st.markdown("### ⚡ Escáner Autónomo & Informe de Rotación del Top 10")
+    st.markdown("""
+    <div style="background-color: #ffffff; padding: 18px;
