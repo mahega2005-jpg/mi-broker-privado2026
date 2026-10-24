@@ -1,6 +1,8 @@
 # ==============================================================================
-# PROYECTO: MI BROKER PRIVADO - PANEL TÁCTICO DE INVERSIÓN (PARTE 1/2)
+# PROYECTO: MI BROKER PRIVADO - PANEL TÁCTICO DE INVERSIÓN
 # AUTOR: Bartolomé Marín Hedrera
+# DESCRIPCIÓN: Panel de control avanzado en Streamlit para la gestión táctica
+#              de fondos de inversión, supervisión de bandas y motor autónomo.
 # ==============================================================================
 
 import streamlit as st
@@ -155,9 +157,6 @@ if 'mensaje_escaner_ciego' not in st.session_state:
         "El motor autónomo evalúa permanentemente la rentabilidad neta ajustada por comisiones TER."
     )
 
-if 'notificacion_actualizado' not in st.session_state:
-    st.session_state.notificacion_actualizado = False
-
 if 'isin_preseleccionado' not in st.session_state:
     st.session_state.isin_preseleccionado = ""
 
@@ -183,34 +182,26 @@ def ejecutar_escanner_automatico_top10():
         f"• **Estado:** Ranking dinámico ordenado por eficiencia neta. Core blindado e independiente."
     )
 
+
 # ==============================================================================
-# 6. CABECERA TÁCTICA SUPERIOR
+# 6. CABECERA TÁCTICA SUPERIOR (CON BOTÓN DE ACCESO DIRECTO A GITHUB)
 # ==============================================================================
+col_head1, col_head2 = st.columns([2.5, 1])
 h_actual = hora_real_espana()
 
-st.markdown(f"""
-<div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 16px; border-radius: 12px; text-align: left; color: #1e3a8a; border: 2px solid #3b82f6; margin-bottom: 8px;">
-    <div style="font-size: 22px; margin-bottom: 2px;">🛡️📈 <b style="font-size: 18px; color: #1e40af;">MI BROKER PRIVADO</b></div>
-    <p style="margin: 4px 0 0 0; font-size: 12px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial: {h_actual}</p>
-</div>
-""", unsafe_allow_html=True)
-
-col_head1, col_head2 = st.columns([1, 1])
 with col_head1:
-    if st.button("🔄 Actualizar Datos", use_container_width=True):
-        ejecutar_escanner_automatico_top10()
-        st.session_state.notificacion_actualizado = True
-        st.rerun()
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 16px; border-radius: 12px; text-align: left; color: #1e3a8a; border: 2px solid #3b82f6;">
+        <div style="font-size: 22px; margin-bottom: 2px;">🛡️📈 <b style="font-size: 18px; color: #1e40af;">MI BROKER PRIVADO</b></div>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial: {h_actual}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col_head2:
-    st.link_button("🛠️ Editar App", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
-
-if st.session_state.notificacion_actualizado:
-    st.toast(f"✅ ¡Escaneo autónomo completado! Hora oficial ({h_actual}) y Top 10 auditados.", icon="🔄")
-    st.session_state.notificacion_actualizado = False
+    st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+    st.link_button("🐱 GitHub / Editar", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
-
 
 
 # ==============================================================================
@@ -266,8 +257,14 @@ def abrir_modal_detalle(info_reg):
 
 
 # ==============================================================================
-# 8. BARRA LATERAL
+# 8. BARRA LATERAL (CON BOTÓN DE ACTUALIZAR DATOS)
 # ==============================================================================
+if st.sidebar.button("🔄 Actualizar Datos", use_container_width=True):
+    ejecutar_escanner_automatico_top10()
+    st.toast(f"✅ ¡Escaneo autónomo completado! Hora oficial ({hora_real_espana()}) y Top 10 auditados.", icon="🔄")
+    st.rerun()
+
+st.sidebar.markdown("---")
 st.sidebar.header("🛡️ Panel Táctico")
 
 with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
@@ -326,7 +323,7 @@ if st.session_state.historico_consultas:
 
 
 # ==============================================================================
-# 9. PESTAÑAS PRINCIPALES DEL PANEL (INICIO)
+# 9. PESTAÑAS PRINCIPALES DEL PANEL
 # ==============================================================================
 tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Control & Bandas", 
@@ -335,11 +332,17 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "📈 Gráficos & Cartera Core"
 ])
 
+# ------------------------------------------------------------------------------
+# PESTAÑA 1: CONTROL & BANDAS
+# ------------------------------------------------------------------------------
 with tab1:
     st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
     st.markdown("Edita las bandas de control de tus posiciones activas:")
     st.session_state.cartera_vigilada = st.data_editor(st.session_state.cartera_vigilada, num_rows="dynamic", use_container_width=True, key="ed_cartera")
 
+# ------------------------------------------------------------------------------
+# PESTAÑA 2: BUSCADOR MAESTRO
+# ------------------------------------------------------------------------------
 with tab2:
     st.subheader("📊 Buscador Maestro: Top 10 Dinámico de Referencia + Cartera Core")
     df_master_actual = st.session_state.df_master_app
@@ -354,7 +357,9 @@ with tab2:
             abrir_modal_detalle(consultar_catalogo_maestro(isin_elegido))
             
     st.dataframe(df_master_actual, use_container_width=True, height=380)
+    
     st.markdown("---")
+    
     st.markdown("### ⚡ Escáner Autónomo & Informe de Rotación del Top 10")
     st.markdown("""
     <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
@@ -363,10 +368,12 @@ with tab2:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
     st.markdown("---")
     st.subheader("📢 Avisos de Oportunidad y Retroceso Táctico")
     df_top10 = df_master_actual[df_master_actual['Origen'] == '⭐ Top Mercado'].copy()
     df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
+    
     for _, row in df_top10.sort_values(by='Suma_Rendimiento', ascending=False).head(2).iterrows():
         c1, c2, c3 = st.columns([1.5, 3.5, 1])
         with c1: st.code(row['ISIN'], language=None)
@@ -374,9 +381,6 @@ with tab2:
         with c3:
             if st.button("🔍 Analizar", key=f"top_m_{row['ISIN']}", use_container_width=True):
                 abrir_modal_detalle(consultar_catalogo_maestro(row['ISIN']))
-# ==============================================================================
-# PROYECTO: MI BROKER PRIVADO - PANEL TÁCTICO DE INVERSIÓN (PARTE 2/2)
-# ==============================================================================
 
 # ------------------------------------------------------------------------------
 # PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS
