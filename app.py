@@ -184,7 +184,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 # ==============================================================================
-# 6. FUNCIONES DE ANÁLISIS Y DIÁLOGOS MODALES (RUTAS EXTERNAS CORREGIDAS)
+# 6. FUNCIONES DE ANÁLISIS Y DIÁLOGOS MODALES
 # ==============================================================================
 def consultar_catalogo_maestro(isin):
     """Busca información extendida de un fondo por código ISIN."""
@@ -248,18 +248,13 @@ def abrir_modal_detalle(info_reg):
 
     st.markdown("### 🌐 Enlaces Directos a Ficha Oficial")
     c1, c2, c3 = st.columns(3)
-    
-    # ISIN limpio para pasar en URLs de búsqueda directa
     isin_clean = info_reg['ISIN'].strip()
 
     with c1:
-        # Enlace que salta directamente a la búsqueda resuelta en Morningstar ES
         st.markdown(f"[📊 Morningstar Directo](https://www.morningstar.es/es/search/quickrank.aspx?search={isin_clean})")
     with c2:
-        # Búsqueda en Google Finance (Soporta todos los ISINs sin bloqueos 404)
         st.markdown(f"[🌐 Google Finance](https://www.google.com/finance/quote/{isin_clean})")
     with c3:
-        # Búsqueda directa en Citywire España (muy fiable para fondos en España)
         st.markdown(f"[📈 Citywire España](https://citywire.com/es/search?q={isin_clean})")
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -456,17 +451,13 @@ with tab4:
     st.subheader("📈 Gráficos Comparativos & Cartera Core")
     st.markdown("🔴 **Tu Cartera Core** está identificada con la etiqueta **`🔴 [CORE]`** para analizar de un golpe de vista que tu núcleo mantiene un funcionamiento óptimo frente al resto del mercado:")
 
-    fondos_core_nombres = df_master[df_master['Origen'] == '📌 En Cartera (Core)']['Nombre del Fondo'].tolist()
-    df_top10_calc = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
-    df_top10_calc['Suma_Rendimiento'] = df_top10_calc['2025_%'] + df_top10_calc['YTD_2026_%']
-    fondos_top_nombres = df_top10_calc.sort_values(by='Suma_Rendimiento', ascending=False)['Nombre del Fondo'].tolist()[:2]
-    
-    default_grafico = fondos_core_nombres + fondos_top_nombres
+    # CAMBIO REALIZADO: Ahora la lista por defecto selecciona LOS 12 FONDOS COMPLETOS de la base de datos
+    todos_los_fondos_nombres = df_master['Nombre del Fondo'].tolist()
 
     fondos_graf_activos = st.multiselect(
         "Selecciona los fondos que deseas comparar en el gráfico:",
-        options=df_master['Nombre del Fondo'].tolist(),
-        default=default_grafico,
+        options=todos_los_fondos_nombres,
+        default=todos_los_fondos_nombres,  # Se muestran los 12 por defecto
         key="selector_grafico_core_red"
     )
 
