@@ -421,7 +421,4 @@ with tab2:
     st.markdown("---")
     st.subheader("📢 Avisos de Oportunidad y Retroceso Táctico (Top 10 Mercado)")
 
-    df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].copy()
-    df_top10['Suma_Rendimiento'] = df_top10['2025_%'] + df_top10['YTD_2026_%']
-    
-    top2_mejores = df
+    df_top10 = df_master[df_master['Origen'] == '⭐ Top Mercado'].
