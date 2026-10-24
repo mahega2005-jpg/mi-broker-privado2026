@@ -190,7 +190,7 @@ def ejecutar_escanner_automatico_top10():
 
 
 # ==============================================================================
-# 6. CABECERA TÁCTICA SUPERIOR
+# 6. CABECERA TÁCTICA SUPERIOR (CON BOTÓN DE STREAMLIT CLOUD)
 # ==============================================================================
 col_head1, col_head2, col_head3 = st.columns([3, 1, 1])
 h_actual = hora_real_espana()
@@ -213,9 +213,9 @@ with col_head2:
 with col_head3:
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
     st.markdown("""
-    <a href="https://github.com/mahega2005-jpg/mi-broker-privado2026" target="_blank" style="text-decoration: none;">
-        <div style="background-color: #1f2937; color: #ffffff; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            🐈‍⬛ Ver GitHub
+    <a href="https://share.streamlit.io/" target="_blank" style="text-decoration: none;">
+        <div style="background-color: #ff4b4b; color: #ffffff; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #ff2b2b; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            ☁️ Streamlit Cloud
         </div>
     </a>
     """, unsafe_allow_html=True)
@@ -542,7 +542,7 @@ with tab3:
 
     with col_box1:
         st.markdown("""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #f87171; min-height: 280px; display: flex; flexDirection: column; justify-content: space-between;">
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #f87171; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <h4 style="color: #b91c1c; margin-top:0; font-size: 16px;">🛑 1. Techos (Top 10 + Core)</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
@@ -561,7 +561,7 @@ with tab3:
 
     with col_box2:
         st.markdown("""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #34d399; min-height: 280px; display: flex; flexDirection: column; justify-content: space-between;">
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #34d399; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <h4 style="color: #047857; margin-top:0; font-size: 16px;">🎯 2. Suelos (Top 10 + Core)</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
@@ -580,7 +580,7 @@ with tab3:
 
     with col_box3:
         st.markdown("""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #60a5fa; min-height: 280px; display: flex; flexDirection: column; justify-content: space-between;">
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #60a5fa; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <h4 style="color: #1d4ed8; margin-top:0; font-size: 16px;">⚡ 3. Escáner Ciego</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
