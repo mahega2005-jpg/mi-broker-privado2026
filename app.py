@@ -204,10 +204,8 @@ with col_head2:
         ejecutar_escanner_automatico_top10()
         st.session_state.notificacion_actualizado = True
         st.rerun()
-    
-    # NUEVA CAJITA CREADA DEBAJO DE ACTUALIZAR DATOS
-    if st.button("🛠️ Editar App", use_container_width=True):
-        st.toast("¡Cajita nueva lista para configurar su función!", icon="🛠️")
+
+    st.link_button("🛠️ Editar App", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
 
 if st.session_state.notificacion_actualizado:
     st.toast(f"✅ ¡Escaneo autónomo completado! Hora oficial ({h_actual}) y Top 10 auditados.", icon="🔄")
