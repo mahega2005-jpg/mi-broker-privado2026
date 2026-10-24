@@ -182,8 +182,9 @@ def ejecutar_escanner_automatico_top10():
 # ==============================================================================
 # 6. CABECERA TÁCTICA SUPERIOR
 # ==============================================================================
-col_head1, col_head2 = st.columns([3, 1])
 h_actual = hora_real_espana()
+
+col_head1, col_head2 = st.columns([3, 1])
 
 with col_head1:
     st.markdown(f"""
