@@ -2,7 +2,7 @@
 # PROYECTO: MI BROKER PRIVADO - PANEL TÁCTICO DE INVERSIÓN
 # AUTOR: Bartolomé Marín Hedrera
 # DESCRIPCIÓN: Panel de control avanzado en Streamlit para la gestión táctica
-#              de fondos de inversión, supervisión de bandas y motor autónomo de rotación.
+#              de fondos de inversión, supervisión de bandas y motor autónomo.
 # ==============================================================================
 
 import streamlit as st
@@ -79,7 +79,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 2. SOPORTE Y HORARIO OFICIAL (ZONA ESPAÑA)
+# 2. SOPORTE Y HORARIO OFICIAL
 # ==============================================================================
 def hora_real_espana():
     tz = zoneinfo.ZoneInfo("Europe/Madrid")
@@ -152,7 +152,10 @@ if 'cartera_vigilada' not in st.session_state:
     ])
 
 if 'mensaje_escaner_ciego' not in st.session_state:
-    st.session_state.mensaje_escaner_ciego = "Sistema sincronizado. Sin rotaciones críticas detectadas en el último ciclo."
+    st.session_state.mensaje_escaner_ciego = (
+        "🟢 **Estado del Top 10:** Todos los fondos superan el filtro de eficiencia (Rentabilidad Neta ajustada por TER). "
+        "Sin rotaciones en este ciclo."
+    )
 
 if 'notificacion_actualizado' not in st.session_state:
     st.session_state.notificacion_actualizado = False
@@ -165,35 +168,24 @@ if 'isin_preseleccionado' not in st.session_state:
 # 5. MOTOR AUTÓNOMO DE ESCANEO Y ROTACIÓN DEL TOP 10 (NET SCORE EFICIENTE)
 # ==============================================================================
 def ejecutar_escanner_automatico_top10():
-    """Ejecuta la auditoría autónoma del mercado, calcula scores netos ajustados por TER,
-    reorganiza el ranking y detecta entradas/expulsiones del Top 10 respetando el Core."""
     df = st.session_state.df_master_app
     
-    # Separar Core (intocable) y Top Mercado
     df_core = df[df['Origen'] == '📌 En Cartera (Core)'].copy()
     df_top = df[df['Origen'] == '⭐ Top Mercado'].copy()
     
-    # Calcular Score Táctico Eficiente: (YTD * 0.5) + (2025 * 0.3) - (TER * 1.5)
     df_top['Score_Eficiente'] = (df_top['YTD_2026_%'] * 0.5) + (df_top['2025_%'] * 0.3) - (df_top['TER_%'] * 1.5)
-    
-    # Ordenar estrictamente de mayor a menor rendimiento neto eficiente
     df_top_ordenado = df_top.sort_values(by='Score_Eficiente', ascending=False).reset_index(drop=True)
     
-    # Simulación de auditoría de rotación autónoma
-    # Comprobamos si el primer elemento supera al décimo de forma notable para simular entrada de valor
-    lider_actual = df_top_ordenado.iloc[0]['Nombre del Fondo'][:25]
-    decimo_actual = df_top_ordenado.iloc[9]['Nombre del Fondo'][:25] if len(df_top_ordenado) >= 10 else "N/D"
-    
-    # Reconstruir dataframe maestro uniendo Core y Top 10 ordenado
     st.session_state.df_master_app = pd.concat([df_core, df_top_ordenado], ignore_index=True)
     
-    # Actualizar el mensaje dinámico de la cajita del Escáner Ciego
+    lider = df_top_ordenado.iloc[0]['Nombre del Fondo']
+    decimo = df_top_ordenado.iloc[-1]['Nombre del Fondo']
+    
     st.session_state.mensaje_escaner_ciego = (
-        f"⚡ **Última Auditoría ({hora_real_espana()}):** "
-        f"Escáner autónomo completado con éxito. "
-        f"Líder del Top 10: *{lider_actual}* (Puesto 1). "
-        f"Margen de defensa del Puesto 10 (*{decimo_actual}*) validado. "
-        f"Sin expulsiones forzosas en este ciclo."
+        f"⚡ **Auditoría de Mercado ({hora_real_espana()}):**<br>"
+        f"• **Líder del Ranking (Puesto 1):** {lider}<br>"
+        f"• **Umbral de Corte (Puesto 10):** {decimo}<br>"
+        f"• **Regla de Expulsión:** Si entra un aspirante en puestos 1-9, desciende la lista y el puesto 10 actual queda expulsado del Top 10."
     )
 
 
@@ -214,7 +206,7 @@ with col_head1:
 
 with col_head2:
     st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-    if st.button("🔄 Actualizar Datos", use_container_width=True, help="Ejecuta el escaneo autónomo del Top 10 y sincroniza métricas"):
+    if st.button("🔄 Actualizar Datos", use_container_width=True):
         ejecutar_escanner_automatico_top10()
         st.session_state.notificacion_actualizado = True
         st.rerun()
@@ -227,10 +219,9 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 # ==============================================================================
-# 7. FUNCIONES DE SOPORTE Y VENTANAS MODALES
+# 7. FUNCIONES MODALES Y CONSULTAS
 # ==============================================================================
 def consultar_catalogo_maestro(isin):
-    """Busca un ISIN en la base de datos maestra y extrae sus métricas."""
     df_m = st.session_state.df_master_app
     isin = isin.strip().upper()
     match = df_m[df_m['ISIN'] == isin]
@@ -250,7 +241,6 @@ def consultar_catalogo_maestro(isin):
 
 @st.dialog("📋 Ficha Técnica & Análisis de Inversión")
 def abrir_modal_detalle(info_reg):
-    """Despliega la ventana modal con el desglose técnico y enlaces a Morningstar/Google Finance."""
     st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
     st.code(info_reg['ISIN'], language=None)
     st.markdown(f"📅 *Consultado el:* `{hora_real_espana()}`")
@@ -270,7 +260,6 @@ def abrir_modal_detalle(info_reg):
         st.markdown(f"* **Inversión Mínima:** {info_reg['Minimo']}")
     else:
         st.warning("⚠️ ISIN externo. Consulta los enlaces directos:")
-    
     st.markdown("### 🌐 Enlaces Directos")
     c1, c2, c3 = st.columns(3)
     isin_clean = info_reg['ISIN'].strip()
@@ -282,7 +271,7 @@ def abrir_modal_detalle(info_reg):
 
 
 # ==============================================================================
-# 8. BARRA LATERAL (PANEL TÁCTICO Y LECTOR UNIVERSAL)
+# 8. BARRA LATERAL
 # ==============================================================================
 st.sidebar.header("🛡️ Panel Táctico")
 
@@ -360,7 +349,7 @@ with tab1:
     st.session_state.cartera_vigilada = st.data_editor(st.session_state.cartera_vigilada, num_rows="dynamic", use_container_width=True, key="ed_cartera")
 
 # ------------------------------------------------------------------------------
-# PESTAÑA 2: BUSCADOR MAESTRO
+# PESTAÑA 2: BUSCADOR MAESTRO (CON LA CAJITA CLARA DEBAJO DE LA TABLA)
 # ------------------------------------------------------------------------------
 with tab2:
     st.subheader("📊 Buscador Maestro: Top 10 Dinámico de Referencia + Cartera Core")
@@ -375,8 +364,20 @@ with tab2:
             st.session_state.isin_preseleccionado = isin_elegido
             abrir_modal_detalle(consultar_catalogo_maestro(isin_elegido))
             
-    st.dataframe(df_master_actual, use_container_width=True, height=420)
+    st.dataframe(df_master_actual, use_container_width=True, height=380)
     
+    st.markdown("---")
+    
+    # === CAJITA DE INFORME Y ROTACIÓN (UBICADA AQUÍ EN LA PESTAÑA 2) ===
+    st.markdown("### ⚡ Escáner Autónomo & Informe de Rotación del Top 10")
+    st.markdown("""
+    <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+        <div style="font-size: 14px; color: #1e3a8a; line-height: 1.6;">
+    """ + st.session_state.mensaje_escaner_ciego + """
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("---")
     st.subheader("📢 Avisos de Oportunidad y Retroceso Táctico")
     df_top10 = df_master_actual[df_master_actual['Origen'] == '⭐ Top Mercado'].copy()
@@ -391,11 +392,11 @@ with tab2:
                 abrir_modal_detalle(consultar_catalogo_maestro(row['ISIN']))
 
 # ------------------------------------------------------------------------------
-# PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS (CON LAS 3 CAJITAS Y AUDITORÍA)
+# PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS
 # ------------------------------------------------------------------------------
 with tab3:
     st.subheader("🎯 Radar de Tendencias Globales & Simulación de Estrategias")
-    st.markdown("Análisis táctico para anticiparse al mercado detectando las megatendencias de mayor impulso y cruzándolas con los fondos líderes:")
+    st.markdown("Análisis táctico para anticiparse al mercado detectando las megatendencias de mayor impulso:")
     
     st.markdown("### 🧭 Modelo Táctico de Asignación por Estrategia")
     estrategia_sel = st.radio(
@@ -459,7 +460,6 @@ with tab3:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # BLOQUE 1 DE FONDOS SECTORIALES
     f1_1, f1_2, f1_3 = st.columns(3)
     with f1_1:
         st.code("LU0996182563", language=None)
@@ -476,7 +476,6 @@ with tab3:
 
     st.markdown("---")
 
-    # BLOQUE 2 DE FONDOS SECTORIALES
     f2_1, f2_2, f2_3 = st.columns(3)
     with f2_1:
         st.code("LU0503631872", language=None)
@@ -493,7 +492,6 @@ with tab3:
 
     st.markdown("---")
 
-    # BLOQUE 3 DE FONDOS SECTORIALES
     f3_1, f3_2, f3_3 = st.columns(3)
     with f3_1:
         st.code("IE00B03HD191", language=None)
@@ -510,7 +508,6 @@ with tab3:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # REFLEXIÓN TÁCTICA
     st.markdown("### 💡 Reflexión Táctica: Elección del Mejor Fondo por Sector")
     st.markdown("""
     <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; border: 2px solid #93c5fd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
@@ -522,69 +519,6 @@ with tab3:
         </ul>
     </div>
     """, unsafe_allow_html=True)
-
-    st.markdown("<br><hr><br>", unsafe_allow_html=True)
-
-    # LAS 3 CAJITAS INFERIORES DE CONTRAPUNTO TÁCTICO (CON EL ESCÁNER CIEGO DINÁMICO)
-    st.markdown("### 🔭 Contrapunto Táctico: Detección Automática de Techos, Suelos & Anomalías")
-    st.markdown("Análisis algorítmico basado en el histórico y el comportamiento reciente:")
-
-    col_box1, col_box2, col_box3 = st.columns(3)
-
-    with col_box1:
-        st.markdown("""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #f87171; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <h4 style="color: #b91c1c; margin-top:0; font-size: 16px;">🛑 1. Techos (Top 10 + Core)</h4>
-                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                Identifica extensiones alcistas verticales eufóricas frente a la media histórica.
-                </p>
-                <hr style="margin: 8px 0; border-color: #fee2e2;">
-                <p style="font-size: 12px; color: #7f1d1d; margin-bottom: 0;">
-                <b>Antídoto Emocional:</b> Freno contra el FOMO.
-                </p>
-            </div>
-            <div style="background-color: #fef2f2; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #991b1b; font-weight: 600;">
-                Monitoreo Activo
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_box2:
-        st.markdown("""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #34d399; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <h4 style="color: #047857; margin-top:0; font-size: 16px;">🎯 2. Suelos (Top 10 + Core)</h4>
-                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                Escanea correcciones sanas y retrocesos coyunturales con sólidos cimientos a 3-5 años.
-                </p>
-                <hr style="margin: 8px 0; border-color: #d1fae5;">
-                <p style="font-size: 12px; color: #065f46; margin-bottom: 0;">
-                <b>Oportunidad:</b> Momento óptimo de acumulación (DCA).
-                </p>
-            </div>
-            <div style="background-color: #ecfdf5; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #065f46; font-weight: 600;">
-                Monitoreo Activo
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_box3:
-        # CAJITA DINÁMICA DEL ESCÁNER CIEGO CONECTADA AL MOTOR AUTÓNOMO
-        msg_escaner = st.session_state.mensaje_escaner_ciego
-        st.markdown(f"""
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #60a5fa; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <h4 style="color: #1d4ed8; margin-top:0; font-size: 16px;">⚡ 3. Escáner Ciego (Auditoría)</h4>
-                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                {msg_escaner}
-                </p>
-            </div>
-            <div style="background-color: #eff6ff; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #1e40af; font-weight: 600;">
-                Motor Autónomo Activo
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # PESTAÑA 4: GRÁFICOS & CARTERA CORE
