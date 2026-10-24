@@ -4,7 +4,7 @@ from datetime import datetime
 import zoneinfo
 
 # ==============================================================================
-# 1. CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS (ESTILO SUAVIZADO)
+# 1. CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS (ESTILO SUAVIZADO & ALINEACIÓN PERFECTA)
 # ==============================================================================
 st.set_page_config(
     page_title="Mi Broker Privado - Panel Táctico",
@@ -15,18 +15,21 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    /* Estilo General del Fondo y Tipografía */
     .stApp { 
         background-color: #f0f4f9; 
         color: #1f2328; 
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     
+    /* Sidebar Personalizado */
     section[data-testid="stSidebar"] { 
         background: linear-gradient(135deg, #dbeafe, #bfdbfe); 
         border-right: 2px solid #93c5fd; 
         padding-top: 10px;
     }
     
+    /* Pestañas / Tabs Superiores (Estilo Suavizado) */
     .stTabs [data-baseweb="tab-list"] { 
         gap: 6px; 
         background-color: #e2e8f0; 
@@ -51,6 +54,7 @@ st.markdown("""
         border-color: #94a3b8 !important; 
     }
     
+    /* Botones Táctiles */
     .stButton button { 
         background-color: #ffffff; 
         color: #1f2328; 
@@ -63,6 +67,30 @@ st.markdown("""
     .stButton button:hover {
         border-color: #3b82f6;
         color: #1d4ed8;
+    }
+
+    /* Tarjetas del Radar Megatendencial con Altura Fija para Alineación Horizontal */
+    .trend-card-header {
+        background-color: #ffffff;
+        padding: 16px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        min-height: 165px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .fund-box-item {
+        background-color: #ffffff;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        min-height: 95px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-bottom: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -254,7 +282,7 @@ def abrir_modal_detalle(info_reg):
 
 
 # ==============================================================================
-# 7. BARRA LATERAL (ENTRADAS / SALIDAS DE FONDOS & LECTOR UNIVERSAL)
+# 7. BARRA LATERAL
 # ==============================================================================
 st.sidebar.header("🛡️ Panel Táctico")
 
@@ -426,7 +454,7 @@ with tab2:
                 res_p = consultar_catalogo_maestro(row['ISIN'])
                 abrir_modal_detalle(res_p)
 
-# PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS (AMPLIADO 3x3)
+# PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS (ALINEACIÓN PERFECTA + REFLEXIÓN TÁCTICA)
 with tab3:
     st.subheader("🎯 Radar de Tendencias Globales & Simulación de Estrategias")
     st.markdown("Análisis táctico para anticiparse al mercado detectando las megatendencias de mayor impulso y cruzándolas con los 3 fondos líderes por sector:")
@@ -468,82 +496,120 @@ with tab3:
     st.markdown("---")
     st.markdown("### 🛰️ Radar Megatendencial: 3 Fondos de Referencia por Sector")
 
+    # ENCABEZADOS DE SECTOR CON ALTURA ALINEADA
     t1, t2, t3 = st.columns(3)
     
     with t1:
         st.markdown("""
-        <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;">
-            <h4 style="margin-top:0; color: #1e40af;">💻 IA, Tecnología & Ciberseguridad</h4>
-            <p style="font-size: 13px; color: #475569;"><b>Tendencia:</b> Digitalización masiva, gasto corporativo en protección e infraestructuras de IA.</p>
-            <p style="font-size: 12px; color: #15803d;"><b>Impulso:</b> Muy Alto 🚀</p>
+        <div class="trend-card-header">
+            <h4 style="margin:0; color: #1e40af;">💻 IA, Tecnología & Ciberseguridad</h4>
+            <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Digitalización masiva, gasto corporativo en protección e infraestructuras de IA.</p>
+            <p style="font-size: 12px; color: #15803d; margin:0;"><b>Impulso:</b> Muy Alto 🚀</p>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
-        
+
+    with t2:
+        st.markdown("""
+        <div class="trend-card-header">
+            <h4 style="margin:0; color: #1e40af;">🧬 Biotecnología, Salud & Longevidad</h4>
+            <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Envejecimiento de la población, patentes biotecnológicas y terapias génicas.</p>
+            <p style="font-size: 12px; color: #15803d; margin:0;"><b>Impulso:</b> Alto 📈</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t3:
+        st.markdown("""
+        <div class="trend-card-header">
+            <h4 style="margin:0; color: #1e40af;">🛡️ Retorno Absoluto & Preservación</h4>
+            <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Descorrelación de la bolsa tradicional y protección de capital ante volatilidad.</p>
+            <p style="font-size: 12px; color: #b45309; margin:0;"><b>Impulso:</b> Moderado / Defensivo 🛡️</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # BLOQUE 1 DE FONDOS (FILA 1 ALINEADA)
+    f1_1, f1_2, f1_3 = st.columns(3)
+    with f1_1:
         st.code("LU0996182563", language=None)
         st.caption("Fidelity Funds - Global Tech")
         if st.button("🔍 Analizar Fidelity Tech", key="btn_t1_1", use_container_width=True):
             abrir_modal_detalle(consultar_catalogo_maestro("LU0996182563"))
-            
-        st.code("LU0503631872", language=None)
-        st.caption("Pictet - Security P EUR")
-        if st.button("🔍 Analizar Pictet Security", key="btn_t1_2", use_container_width=True):
-            abrir_modal_detalle(consultar_catalogo_maestro("LU0503631872"))
 
-        st.code("IE00B03HD191", language=None)
-        st.caption("Vanguard US 500 Index")
-        if st.button("🔍 Analizar Vanguard S&P500", key="btn_t1_3", use_container_width=True):
-            abrir_modal_detalle(consultar_catalogo_maestro("IE00B03HD191"))
-
-    with t2:
-        st.markdown("""
-        <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;">
-            <h4 style="margin-top:0; color: #1e40af;">🧬 Biotecnología, Salud & Longevidad</h4>
-            <p style="font-size: 13px; color: #475569;"><b>Tendencia:</b> Envejecimiento de la población, patentes biotecnológicas y terapias génicas.</p>
-            <p style="font-size: 12px; color: #15803d;"><b>Impulso:</b> Alto 📈</p>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
-        
+    with f1_2:
         st.code("IE00B43VBZ18", language=None)
         st.caption("Polar Capital Biotech (Acc)")
         if st.button("🔍 Analizar Polar Biotech R", key="btn_t2_1", use_container_width=True):
             abrir_modal_detalle(consultar_catalogo_maestro("IE00B43VBZ18"))
 
-        st.code("IE00B3WVRB16", language=None)
-        st.caption("Polar Capital Biotech (Dis)")
-        if st.button("🔍 Analizar Polar Biotech I", key="btn_t2_2", use_container_width=True):
-            abrir_modal_detalle(consultar_catalogo_maestro("IE00B3WVRB16"))
-
-        st.code("IE00BFPM9N11", language=None)
-        st.caption("Vanguard Global Stock Core")
-        if st.button("🔍 Analizar Vanguard Global", key="btn_t2_3", use_container_width=True):
-            abrir_modal_detalle(consultar_catalogo_maestro("IE00BFPM9N11"))
-
-    with t3:
-        st.markdown("""
-        <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;">
-            <h4 style="margin-top:0; color: #1e40af;">🛡️ Retorno Absoluto & Preservación</h4>
-            <p style="font-size: 13px; color: #475569;"><b>Tendencia:</b> Descorrelación de la bolsa tradicional y protección de capital ante eventos de volatilidad.</p>
-            <p style="font-size: 12px; color: #b45309;"><b>Impulso:</b> Moderado / Defensivo 🛡️</p>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
-        
+    with f1_3:
         st.code("ES0114105030", language=None)
         st.caption("DWS Investments Alpha Opp")
         if st.button("🔍 Analizar DWS Alpha", key="btn_t3_1", use_container_width=True):
             abrir_modal_detalle(consultar_catalogo_maestro("ES0114105030"))
 
+    st.markdown("---")
+
+    # BLOQUE 2 DE FONDOS (FILA 2 ALINEADA)
+    f2_1, f2_2, f2_3 = st.columns(3)
+    with f2_1:
+        st.code("LU0503631872", language=None)
+        st.caption("Pictet - Security P EUR")
+        if st.button("🔍 Analizar Pictet Security", key="btn_t1_2", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("LU0503631872"))
+
+    with f2_2:
+        st.code("IE00B3WVRB16", language=None)
+        st.caption("Polar Capital Biotech (Dis)")
+        if st.button("🔍 Analizar Polar Biotech I", key="btn_t2_2", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("IE00B3WVRB16"))
+
+    with f2_3:
         st.code("IE00BGCZOB53", language=None)
         st.caption("Vanguard Global Bond Index")
         if st.button("🔍 Analizar Vanguard Bond", key="btn_t3_2", use_container_width=True):
             abrir_modal_detalle(consultar_catalogo_maestro("IE00BGCZOB53"))
 
+    st.markdown("---")
+
+    # BLOQUE 3 DE FONDOS (FILA 3 ALINEADA)
+    f3_1, f3_2, f3_3 = st.columns(3)
+    with f3_1:
+        st.code("IE00B03HD191", language=None)
+        st.caption("Vanguard US 500 Index")
+        if st.button("🔍 Analizar Vanguard S&P500", key="btn_t1_3", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("IE00B03HD191"))
+
+    with f3_2:
+        st.code("IE00BFPM9N11", language=None)
+        st.caption("Vanguard Global Stock Core")
+        if st.button("🔍 Analizar Vanguard Global", key="btn_t2_3", use_container_width=True):
+            abrir_modal_detalle(consultar_catalogo_maestro("IE00BFPM9N11"))
+
+    with f3_3:
         st.code("LU1681048899", language=None)
         st.caption("Amundi Index MSCI World")
         if st.button("🔍 Analizar Amundi MSCI World", key="btn_t3_3", use_container_width=True):
             abrir_modal_detalle(consultar_catalogo_maestro("LU1681048899"))
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 3. REFLEXIÓN TÁCTICA Y ELECCIÓN DEL MEJOR FONDO POR ESTRATEGIA
+    st.markdown("### 💡 Reflexión Táctica: Elección del Mejor Fondo por Sector")
+    
+    st.markdown("""
+    <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; border: 2px solid #93c5fd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <h4 style="margin-top:0; color: #1e40af;">🏆 ¿Cuál es el Mejor Fondo para cada Estrategia y Por Qué?</h4>
+        <ul style="color: #334155; font-size: 14px; line-height: 1.6;">
+            <li><b>En IA & Tecnología (Mejor Opción: <code>LU0996182563</code> - Fidelity Global Tech):</b><br>
+            <i>¿Por qué?</i> Aunque el <code>Vanguard S&P 500</code> es excelente por comisiones, el fondo de Fidelity aporta una <b>gestión activa diferencial</b> capaz de rotar entre semiconductores, software en la nube y ciberseguridad, habiendo demostrado una rentabilidad histórica superior (+24.50% YTD / +28.10% en 2025) mitigando caídas sectoriales.</li>
+            <li style="margin-top: 10px;"><b>En Biotecnología & Salud (Mejor Opción: <code>IE00B43VBZ18</code> - Polar Capital Biotech):</b><br>
+            <i>¿Por qué?</i> El sector salud requiere un análisis científico especializado para elegir compañías con patentes aprobadas. Polar Capital cuenta con uno de los equipos más sólidos del mundo en biotecnología, capturando subidas de doble dígito sostenidas (+11.50% YTD / +14.00% en 2025).</li>
+            <li style="margin-top: 10px;"><b>En Preservación & Retorno Absoluto (Mejor Opción: <code>IE00BGCZOB53</code> - Vanguard Global Bond / <code>ES0114105030</code> DWS Alpha):</b><br>
+            <i>¿Por qué?</i> Para el inversor defensivo, la clave es la <b>baja comisiones TER (0.10%)</b> y la cobertura en euros del <code>Vanguard Bond</code>. Si se busca descorrelación pura frente a la bolsa, el <code>DWS Alpha</code> aporta flexibilidad en la duración de la renta fija para proteger el capital.</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
 
 # PESTAÑA 4: GRÁFICOS & CARTERA CORE
 with tab4:
