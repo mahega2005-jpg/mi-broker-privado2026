@@ -75,8 +75,47 @@ st.markdown("""
         flex-direction: column;
         justify-content: space-between;
     }
+    /* BOTÓN FLOTANTE DEL GATITO (GITHUB) */
+    .github-top-right {
+        position: fixed;
+        top: 12px;
+        right: 25px;
+        z-index: 999999;
+        background-color: #1f2937;
+        color: #ffffff;
+        padding: 6px 14px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #374151;
+    }
+    .github-top-right a {
+        text-decoration: none;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
 </style>
 """, unsafe_allow_html=True)
+
+# ------------------------------------------------------------------------------
+# BOTÓN FLOTANTE CON EL SÍMBOLO DEL GATITO (ESQUINA SUPERIOR DERECHA)
+# ------------------------------------------------------------------------------
+st.markdown(
+    """
+    <div class="github-top-right">
+        <a href="https://github.com/mahega2005-jpg/mi-broker-privado2026" target="_blank">
+            🐈‍⬛ GitHub
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # ==============================================================================
 # 2. SOPORTE Y HORARIO OFICIAL
