@@ -1,8 +1,6 @@
 import streamlit as st
 
-# BOTÓN DE ACCESO DIRECTO A GITHUB (GARANTIZADO EN LA BARRA LATERAL)
-st.sidebar.link_button("🐱 Editar App en GitHub", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
-st.sidebar.markdown("---")
+
 # ==============================================================================
 # PROYECTO: MI BROKER PRIVADO - PANEL TÁCTICO DE INVERSIÓN
 # AUTOR: Bartolomé Marín Hedrera
@@ -181,8 +179,6 @@ def ejecutar_escanner_automatico_top10():
         f"• **Umbral de Corte (Puesto 10):** {decimo}<br>"
         f"• **Estado:** Ranking dinámico ordenado por eficiencia neta. Core blindado e independiente."
     )
-
-
 # ==============================================================================
 # 6. CABECERA TÁCTICA SUPERIOR
 # ==============================================================================
@@ -202,6 +198,7 @@ with col_head2:
     st.link_button("🐱 Editar App", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
+
 
 # ==============================================================================
 # 7. FUNCIONES MODALES Y CONSULTAS
