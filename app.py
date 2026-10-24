@@ -245,13 +245,12 @@ with col_head1:
 
 with col_head2:
     st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-    if st.button("🔄 Actualizar Datos", use_container_width=True, help="Ejecuta el escaneo autónomo del Top 10 y sincroniza métricas"):
-        ejecutar_escanner_automatico_top10()
+    if st.button("🔄 Actualizar Datos", use_container_width=True):
         st.session_state.notificacion_actualizado = True
         st.rerun()
 
 if st.session_state.notificacion_actualizado:
-    st.toast(f"✅ ¡Escaneo autónomo completado! Hora oficial ({h_actual}) y Top 10 auditados.", icon="🔄")
+    st.toast(f"✅ ¡Sistema actualizado al 100%! Hora oficial ({h_actual}).", icon="🔄")
     st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
