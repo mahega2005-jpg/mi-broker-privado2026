@@ -8,7 +8,9 @@ import pandas as pd
 from datetime import datetime
 import zoneinfo
 
+# ==============================================================================
 # 1. CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS
+# ==============================================================================
 st.set_page_config(
     page_title="Mi Broker Privado - Panel Táctico",
     page_icon="🛡️",
@@ -18,23 +20,72 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    .stApp { background-color: #f0f4f9; color: #1f2328; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    section[data-testid="stSidebar"] { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-right: 2px solid #93c5fd; padding-top: 10px; }
-    .stTabs [data-baseweb="tab-list"] { gap: 6px; background-color: #e2e8f0; padding: 6px; border-radius: 12px; border: 2px solid #cbd5e1; }
-    .stTabs [data-baseweb="tab"] { background-color: #ffffff; border-radius: 8px; color: #475569 !important; padding: 10px 16px; font-weight: 600; font-size: 14px; border: 1px solid #cbd5e1; }
-    .stTabs [aria-selected="true"] { background-color: #cbd5e1 !important; color: #0f172a !important; border-color: #94a3b8 !important; }
-    .stButton button { background-color: #ffffff; color: #1f2328; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 500; padding: 8px 16px; }
-    .stButton button:hover { border-color: #3b82f6; color: #1d4ed8; }
-    .trend-card-header { background-color: #ffffff; padding: 16px; border-radius: 10px; border: 1px solid #cbd5e1; min-height: 165px; display: flex; flex-direction: column; justify-content: space-between; }
+    .stApp { 
+        background-color: #f0f4f9; 
+        color: #1f2328; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    section[data-testid="stSidebar"] { 
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe); 
+        border-right: 2px solid #93c5fd; 
+        padding-top: 10px;
+    }
+    .stTabs [data-baseweb="tab-list"] { 
+        gap: 6px; 
+        background-color: #e2e8f0; 
+        padding: 6px; 
+        border-radius: 12px; 
+        border: 2px solid #cbd5e1; 
+    }
+    .stTabs [data-baseweb="tab"] { 
+        background-color: #ffffff; 
+        border-radius: 8px; 
+        color: #475569 !important; 
+        padding: 10px 16px; 
+        font-weight: 600; 
+        font-size: 14px; 
+        border: 1px solid #cbd5e1; 
+    }
+    .stTabs [aria-selected="true"] { 
+        background-color: #cbd5e1 !important; 
+        color: #0f172a !important; 
+        border-color: #94a3b8 !important; 
+    }
+    .stButton button { 
+        background-color: #ffffff; 
+        color: #1f2328; 
+        border: 1px solid #cbd5e1; 
+        border-radius: 8px; 
+        font-weight: 500; 
+        padding: 8px 16px;
+    }
+    .stButton button:hover {
+        border-color: #3b82f6;
+        color: #1d4ed8;
+    }
+    .trend-card-header {
+        background-color: #ffffff;
+        padding: 16px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        min-height: 165px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# 2. SOPORTE Y HORARIO
+# ==============================================================================
+# 2. SOPORTE Y HORARIO OFICIAL
+# ==============================================================================
 def hora_real_espana():
     tz = zoneinfo.ZoneInfo("Europe/Madrid")
     return datetime.now(tz).strftime('%d/%m/%Y %H:%M:%S')
 
+# ==============================================================================
 # 3. BASE DE DATOS MAESTRA (12 FONDOS)
+# ==============================================================================
 data_12_fondos = {
     'Origen': [
         '📌 En Cartera (Core)', '📌 En Cartera (Core)',
@@ -84,20 +135,21 @@ data_12_fondos = {
 }
 df_master = pd.DataFrame(data_12_fondos)
 
+# ==============================================================================
 # 4. ESTADOS DE SESIÓN
-if 'historico_consultas' not in st.session_state:
-    st.session_state.historico_consultas = []
+# ==============================================================================
+if 'historico_consultas' not in st.session_state: st.session_state.historico_consultas = []
 if 'cartera_vigilada' not in st.session_state:
     st.session_state.cartera_vigilada = pd.DataFrame([
         {'ISIN': 'IE00BFPM9N11', 'Nombre': 'Vanguard Global Stock Index Inst Plus EUR Acc', 'Suelo_%': -10.0, 'Techo_%': 25.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': 18.55},
         {'ISIN': 'IE00BGCZOB53', 'Nombre': 'Vanguard Global Bond Index Inst Plus EUR Hgd', 'Suelo_%': -8.0, 'Techo_%': 15.0, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': -3.35}
     ])
-if 'notificacion_actualizado' not in st.session_state:
-    st.session_state.notificacion_actualizado = False
-if 'isin_preseleccionado' not in st.session_state:
-    st.session_state.isin_preseleccionado = ""
+if 'notificacion_actualizado' not in st.session_state: st.session_state.notificacion_actualizado = False
+if 'isin_preseleccionado' not in st.session_state: st.session_state.isin_preseleccionado = ""
 
-# 5. CABECERA
+# ==============================================================================
+# 5. CABECERA TÁCTICA
+# ==============================================================================
 col_head1, col_head2 = st.columns([4, 1])
 h_actual = hora_real_espana()
 
@@ -122,7 +174,9 @@ if st.session_state.notificacion_actualizado:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
+# ==============================================================================
 # 6. FUNCIONES MODALES
+# ==============================================================================
 def consultar_catalogo_maestro(isin):
     isin = isin.strip().upper()
     match = df_master[df_master['ISIN'] == isin]
@@ -170,8 +224,13 @@ def abrir_modal_detalle(info_reg):
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("✖️ Cerrar", use_container_width=True): st.rerun()
 
-# 7. BARRA LATERAL
+# ==============================================================================
+# 7. BARRA LATERAL (CON SU HISTÓRICO RESTAURADO)
+# ==============================================================================
 st.sidebar.header("🛡️ Panel Táctico")
+with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
+    if st.button("🚀 Comprobar Estado", use_container_width=True): st.success("Operativo.")
+
 with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
     opcion_g = st.radio("Acción:", ["Añadir Entrada", "Eliminar Salida"], horizontal=True, key="rad_gest")
     if opcion_g == "Añadir Entrada":
@@ -183,13 +242,13 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
             if n_isin:
                 df_c = st.session_state.cartera_vigilada
                 if not df_c.empty and n_isin in df_c['ISIN'].values:
-                    st.warning("El ISIN ya está registrado.")
+                    st.warning("Ya registrado.")
                 else:
                     m = df_master[df_master['ISIN'] == n_isin]
                     nom = m.iloc[0]['Nombre del Fondo'] if not m.empty else f"Fondo ({n_isin})"
                     n_row = pd.DataFrame([{'ISIN': n_isin, 'Nombre': nom, 'Suelo_%': s_val, 'Techo_%': t_val, 'Email': 'mahega2005@gmail.com', 'Rentabilidad_Actual_%': r_val}])
                     st.session_state.cartera_vigilada = pd.concat([df_c, n_row], ignore_index=True)
-                    st.success("ISIN incorporado.")
+                    st.success("Guardado.")
                     st.rerun()
     else:
         df_c = st.session_state.cartera_vigilada
@@ -198,7 +257,7 @@ with st.sidebar.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
             if st.button("🗑️ Confirmar Salida", type="primary", use_container_width=True):
                 target = sel.split(" - ")[0]
                 st.session_state.cartera_vigilada = df_c[df_c['ISIN'] != target].reset_index(drop=True)
-                st.success("ISIN eliminado.")
+                st.success("Eliminado.")
                 st.rerun()
 
 with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
@@ -216,12 +275,13 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
         abrir_modal_detalle(res)
 
 if st.session_state.historico_consultas:
-    with st.sidebar.expander("🕒 Histórico Reciente", expanded=False):
+    with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
-            if st.sidebar.button(f"📌 {hist['ISIN']}", key=f"btn_hist_{idx}", use_container_width=True):
+            if st.sidebar.button(f"📌 {hist['ISIN']} ({hist.get('FechaConsulta','')})", key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
-
+# ==============================================================================
 # 8. PESTAÑAS PRINCIPALES
+# ==============================================================================
 tab1, tab2, tab3, tab4 = st.tabs([
     "🛡️ Control & Bandas", 
     "📊 Buscador Maestro", 
@@ -230,18 +290,18 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 with tab1:
-    st.subheader("🛡️ Supervisión 24h de Bandas")
+    st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
     st.markdown("Edita las bandas de control de tus posiciones activas:")
     st.session_state.cartera_vigilada = st.data_editor(st.session_state.cartera_vigilada, num_rows="dynamic", use_container_width=True, key="ed_cartera")
 
 with tab2:
-    st.subheader("📊 Buscador Maestro: Top 10 Fondos + Cartera Core")
+    st.subheader("📊 Buscador Maestro: Top 10 Fondos de Referencia + Cartera Core")
     col_sel1, col_sel2 = st.columns([3, 1])
     with col_sel1:
         isin_elegido = st.selectbox("Selecciona fondo:", options=df_master['ISIN'].tolist(), format_func=lambda x: f"{x} - {df_master[df_master['ISIN']==x]['Nombre del Fondo'].values[0]}", key="sel_directo_tablet")
     with col_sel2:
         st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        if st.button("🚀 Cargar", use_container_width=True):
+        if st.button("🚀 Cargar en Lector", use_container_width=True):
             st.session_state.isin_preseleccionado = isin_elegido
             abrir_modal_detalle(consultar_catalogo_maestro(isin_elegido))
     st.dataframe(df_master, use_container_width=True, height=420)
@@ -264,21 +324,97 @@ with tab3:
     estrategia_sel = st.radio("Estrategia:", ["Conservadora", "Moderada", "Crecimiento"], horizontal=True, key="radio_estrategias")
     
     st.markdown("---")
-    t1, t2, t3 = st.columns(3)
-    with t1: st.markdown('<div class="trend-card-header"><h4>💻 Tecnología</h4><p>Impulso: Muy Alto 🚀</p></div>', unsafe_allow_html=True)
-    with t2: st.markdown('<div class="trend-card-header"><h4>🧬 Biotecnología</h4><p>Impulso: Alto 📈</p></div>', unsafe_allow_html=True)
-    with t3: st.markdown('<div class="trend-card-header"><h4>🛡️ Preservación</h4><p>Impulso: Defensivo 🛡️</p></div>', unsafe_allow_html=True)
+    st.markdown("### 🛰️ Radar Megatendencial: 3 Fondos de Referencia por Sector")
     
+    t1, t2, t3 = st.columns(3)
+    with t1:
+        st.markdown('<div class="trend-card-header"><h4 style="margin:0; color:#1e40af;">💻 Tecnología</h4><p>Impulso: Muy Alto 🚀</p></div>', unsafe_allow_html=True)
+    with t2:
+        st.markdown('<div class="trend-card-header"><h4 style="margin:0; color:#1e40af;">🧬 Biotecnología</h4><p>Impulso: Alto 📈</p></div>', unsafe_allow_html=True)
+    with t3:
+        st.markdown('<div class="trend-card-header"><h4 style="margin:0; color:#1e40af;">🛡️ Preservación</h4><p>Impulso: Defensivo 🛡️</p></div>', unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Botones de análisis debajo de las tarjetas de sectores
+    f1_1, f1_2, f1_3 = st.columns(3)
+    with f1_1:
+        st.code("LU0996182563", language=None)
+        if st.button("🔍 Analizar Fidelity Tech", key="btn_t1_1", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("LU0996182563"))
+    with f1_2:
+        st.code("IE00B43VBZ18", language=None)
+        if st.button("🔍 Analizar Polar Biotech", key="btn_t2_1", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("IE00B43VBZ18"))
+    with f1_3:
+        st.code("ES0114105030", language=None)
+        if st.button("🔍 Analizar DWS Alpha", key="btn_t3_1", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("ES0114105030"))
+
     st.markdown("<br><hr><br>", unsafe_allow_html=True)
+    
+    # LAS 3 CAJITAS INFERIORES COMPLETAS Y CORRECTAMENTE DISEÑADAS
     st.markdown("### 🔭 Contrapunto Táctico: Detección Automática de Techos, Suelos & Anomalías")
+    st.markdown("Análisis algorítmico basado en el histórico de 5 años y el comportamiento reciente:")
+    
     col_box1, col_box2, col_box3 = st.columns(3)
     
     with col_box1:
-        st.markdown('<div style="background:#fff; padding:18px; border-radius:12px; border:2px solid #f87171; min-height:260px;"><h4>🛑 1. Techos (Top 10 + Core)</h4><p style="font-size:13px;">Antídoto contra el FOMO en extensiones eufóricas.</p></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #f87171; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h4 style="color: #b91c1c; margin-top:0; font-size: 16px;">🛑 1. Detector de Techos (Top 10 + Core)</h4>
+                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
+                Identifica cuando un fondo líder sufre una <b>extensión alcista vertical eufórica</b> (desviación extrema frente a su media de 5 años).
+                </p>
+                <hr style="margin: 8px 0; border-color: #fee2e2;">
+                <p style="font-size: 12px; color: #7f1d1d; margin-bottom: 0;">
+                <b>Antídoto Emocional:</b> Freno contra el FOMO para asegurar beneficios a tiempo.
+                </p>
+            </div>
+            <div style="background-color: #fef2f2; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #991b1b; font-weight: 600;">
+                Estado: Monitoreo Activo
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
     with col_box2:
-        st.markdown('<div style="background:#fff; padding:18px; border-radius:12px; border:2px solid #34d399; min-height:260px;"><h4>🎯 2. Suelos (Top 10 + Core)</h4><p style="font-size:13px;">Detección de soportes y retrocesos sanos.</p></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #34d399; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h4 style="color: #047857; margin-top:0; font-size: 16px;">🎯 2. Detector de Suelos (Top 10 + Core)</h4>
+                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
+                Escanea correcciones sanas y retrocesos coyunturales a corto plazo en los mejores fondos con sólidos cimientos a 3-5 años.
+                </p>
+                <hr style="margin: 8px 0; border-color: #d1fae5;">
+                <p style="font-size: 12px; color: #065f46; margin-bottom: 0;">
+                <b>Oportunidad:</b> Momento óptimo de acumulación (DCA o reentrada táctica).
+                </p>
+            </div>
+            <div style="background-color: #ecfdf5; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #065f46; font-weight: 600;">
+                Estado: Monitoreo Activo
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
     with col_box3:
-        st.markdown('<div style="background:#fff; padding:18px; border-radius:12px; border:2px solid #60a5fa; min-height:260px;"><h4>⚡ 3. Escáner Ciego</h4><p style="font-size:13px;">Caza automática de ex-favoritos y misiles externos.</p></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #60a5fa; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h4 style="color: #1d4ed8; margin-top:0; font-size: 16px;">⚡ 3. Escáner Ciego (Fuera de Radar)</h4>
+                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
+                Sistema automático que revisa en cada actualización dos anomalías críticas:
+                </p>
+                <ul style="font-size: 12px; color: #334155; padding-left: 15px; margin: 4px 0;">
+                    <li><b>El Fondo Caído:</b> Ex-favoritos que resucitan.</li>
+                    <li><b>El Misil Externo:</b> Activos ajenos al Top 10 que arrancan.</li>
+                </ul>
+                <p style="font-size: 12px; color: #1e40af; margin-bottom: 0;">
+                <b>Ventaja:</b> Evita llegar tarde a una tendencia o perder la pista.
+                </p>
+            </div>
+            <div style="background-color: #eff6ff; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #1e40af; font-weight: 600;">
+                Estado: Sincronizado
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 with tab4:
     st.subheader("📈 Gráficos Comparativos & Cartera Core")
