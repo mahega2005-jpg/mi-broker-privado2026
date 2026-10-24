@@ -225,7 +225,7 @@ def abrir_modal_detalle(info_reg):
     if st.button("✖️ Cerrar", use_container_width=True): st.rerun()
 
 # ==============================================================================
-# 7. BARRA LATERAL (CON SU HISTÓRICO RESTAURADO)
+# 7. BARRA LATERAL
 # ==============================================================================
 st.sidebar.header("🛡️ Panel Táctico")
 with st.sidebar.expander("🧪 Test de Alertas", expanded=False):
@@ -279,6 +279,7 @@ if st.session_state.historico_consultas:
         for idx, hist in enumerate(st.session_state.historico_consultas):
             if st.sidebar.button(f"📌 {hist['ISIN']} ({hist.get('FechaConsulta','')})", key=f"btn_hist_{idx}", use_container_width=True):
                 abrir_modal_detalle(hist)
+
 # ==============================================================================
 # 8. PESTAÑAS PRINCIPALES
 # ==============================================================================
@@ -321,97 +322,198 @@ with tab2:
 
 with tab3:
     st.subheader("🎯 Radar de Tendencias Globales & Simulación de Estrategias")
-    estrategia_sel = st.radio("Estrategia:", ["Conservadora", "Moderada", "Crecimiento"], horizontal=True, key="radio_estrategias")
+    st.markdown("Análisis táctico para anticiparse al mercado detectando las megatendencias de mayor impulso y cruzándolas con los 3 fondos líderes por sector:")
     
+    st.markdown("### 🧭 Modelo Táctico de Asignación por Estrategia")
+    estrategia_sel = st.radio(
+        "Selecciona una Estrategia Táctica de Mercado:",
+        options=[
+            "🛡️ Estrategia Conservadora / Defensiva (Preservación)",
+            "⚖️ Estrategia Moderada / Core Indexado (Equilibrada)",
+            "🚀 Estrategia Crecimiento & Megatendencias (Sintética Aportación)"
+        ],
+        horizontal=True,
+        key="radio_estrategias"
+    )
+    
+    if "Conservadora" in estrategia_sel:
+        st.info("""
+        **Perfil Táctico Defensivo:**
+        * **Asignación:** 70% Renta Fija Global Hedged + 20% Retorno Absoluto / Multi-Activo + 10% RV Global Core.
+        * **Fondos Vehículo:** `IE00BGCZOB53` (Vanguard Bond) + `ES0114105030` (DWS Alpha) + `IE00BFPM9N11` (Vanguard Global).
+        """)
+    elif "Moderada" in estrategia_sel:
+        st.success("""
+        **Perfil Táctico Core Equilibrado:**
+        * **Asignación:** 60% RV Global Indexada (MSCI World / S&P 500) + 20% Renta Fija Global + 20% Megatendencias Activas.
+        * **Fondos Vehículo:** `IE00BFPM9N11` (Vanguard Global) + `IE00B03HD191` (S&P 500) + `LU0503631872` (Pictet Security).
+        """)
+    else:
+        st.warning("""
+        **Perfil Táctico Dinámico & Megatendencias:**
+        * **Asignación:** 40% RV Global Core + 30% Tecnología & IA + 15% Ciberseguridad + 15% Biotecnología / Salud.
+        * **Fondos Vehículo:** `LU0996182563` (Fidelity Tech) + `LU0503631872` (Pictet Security) + `IE00B43VBZ18` (Polar Biotech).
+        """)
+
     st.markdown("---")
     st.markdown("### 🛰️ Radar Megatendencial: 3 Fondos de Referencia por Sector")
-    
+
     t1, t2, t3 = st.columns(3)
     with t1:
-        st.markdown('<div class="trend-card-header"><h4 style="margin:0; color:#1e40af;">💻 Tecnología</h4><p>Impulso: Muy Alto 🚀</p></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="trend-card-header">
+            <h4 style="margin:0; color: #1e40af;">💻 IA, Tecnología & Ciberseguridad</h4>
+            <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Digitalización masiva e infraestructuras de IA.</p>
+            <p style="font-size: 12px; color: #15803d; margin:0;"><b>Impulso:</b> Muy Alto 🚀</p>
+        </div>
+        """, unsafe_allow_html=True)
     with t2:
-        st.markdown('<div class="trend-card-header"><h4 style="margin:0; color:#1e40af;">🧬 Biotecnología</h4><p>Impulso: Alto 📈</p></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="trend-card-header">
+            <h4 style="margin:0; color: #1e40af;">🧬 Biotecnología, Salud & Longevidad</h4>
+            <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Envejecimiento de la población y patentes.</p>
+            <p style="font-size: 12px; color: #15803d; margin:0;"><b>Impulso:</b> Alto 📈</p>
+        </div>
+        """, unsafe_allow_html=True)
     with t3:
-        st.markdown('<div class="trend-card-header"><h4 style="margin:0; color:#1e40af;">🛡️ Preservación</h4><p>Impulso: Defensivo 🛡️</p></div>', unsafe_allow_html=True)
-    
+        st.markdown("""
+        <div class="trend-card-header">
+            <h4 style="margin:0; color: #1e40af;">🛡️ Retorno Absoluto & Preservación</h4>
+            <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Descorrelación y protección de capital.</p>
+            <p style="font-size: 12px; color: #b45309; margin:0;"><b>Impulso:</b> Moderado / Defensivo 🛡️</p>
+        </div>
+        """, unsafe_allow_html=True)
+
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Botones de análisis debajo de las tarjetas de sectores
+
+    # BLOQUE 1 DE FONDOS
     f1_1, f1_2, f1_3 = st.columns(3)
     with f1_1:
         st.code("LU0996182563", language=None)
+        st.caption("Fidelity Funds - Global Tech")
         if st.button("🔍 Analizar Fidelity Tech", key="btn_t1_1", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("LU0996182563"))
     with f1_2:
         st.code("IE00B43VBZ18", language=None)
-        if st.button("🔍 Analizar Polar Biotech", key="btn_t2_1", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("IE00B43VBZ18"))
+        st.caption("Polar Capital Biotech (Acc)")
+        if st.button("🔍 Analizar Polar Biotech R", key="btn_t2_1", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("IE00B43VBZ18"))
     with f1_3:
         st.code("ES0114105030", language=None)
+        st.caption("DWS Investments Alpha Opp")
         if st.button("🔍 Analizar DWS Alpha", key="btn_t3_1", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("ES0114105030"))
 
+    st.markdown("---")
+
+    # BLOQUE 2 DE FONDOS
+    f2_1, f2_2, f2_3 = st.columns(3)
+    with f2_1:
+        st.code("LU0503631872", language=None)
+        st.caption("Pictet - Security P EUR")
+        if st.button("🔍 Analizar Pictet Security", key="btn_t1_2", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("LU0503631872"))
+    with f2_2:
+        st.code("IE00B3WVRB16", language=None)
+        st.caption("Polar Capital Biotech (Dis)")
+        if st.button("🔍 Analizar Polar Biotech I", key="btn_t2_2", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("IE00B3WVRB16"))
+    with f2_3:
+        st.code("IE00BGCZOB53", language=None)
+        st.caption("Vanguard Global Bond Index")
+        if st.button("🔍 Analizar Vanguard Bond", key="btn_t3_2", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("IE00BGCZOB53"))
+
+    st.markdown("---")
+
+    # BLOQUE 3 DE FONDOS
+    f3_1, f3_2, f3_3 = st.columns(3)
+    with f3_1:
+        st.code("IE00B03HD191", language=None)
+        st.caption("Vanguard US 500 Index")
+        if st.button("🔍 Analizar Vanguard S&P500", key="btn_t1_3", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("IE00B03HD191"))
+    with f3_2:
+        st.code("IE00BFPM9N11", language=None)
+        st.caption("Vanguard Global Stock Core")
+        if st.button("🔍 Analizar Vanguard Global", key="btn_t2_3", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("IE00BFPM9N11"))
+    with f3_3:
+        st.code("LU1681048899", language=None)
+        st.caption("Amundi Index MSCI World")
+        if st.button("🔍 Analizar Amundi MSCI World", key="btn_t3_3", use_container_width=True): abrir_modal_detalle(consultar_catalogo_maestro("LU1681048899"))
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # REFLEXIÓN TÁCTICA
+    st.markdown("### 💡 Reflexión Táctica: Elección del Mejor Fondo por Sector")
+    st.markdown("""
+    <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; border: 2px solid #93c5fd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <h4 style="margin-top:0; color: #1e40af;">🏆 ¿Cuál es el Mejor Fondo para cada Estrategia y Por Qué?</h4>
+        <ul style="color: #334155; font-size: 14px; line-height: 1.6;">
+            <li><b>En IA & Tecnología (Mejor Opción: <code>LU0996182563</code> - Fidelity Global Tech):</b> Gestión activa diferencial capaz de rotar entre semiconductores y software.</li>
+            <li style="margin-top: 10px;"><b>En Biotecnología & Salud (Mejor Opción: <code>IE00B43VBZ18</code> - Polar Capital Biotech):</b> Especializado en patentes aprobadas con subidas de doble dígito.</li>
+            <li style="margin-top: 10px;"><b>En Preservación (Mejor Opción: <code>IE00BGCZOB53</code> - Vanguard Global Bond):</b> Cobertura en euros y mínima comisión TER (0.10%).</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("<br><hr><br>", unsafe_allow_html=True)
-    
-    # LAS 3 CAJITAS INFERIORES COMPLETAS Y CORRECTAMENTE DISEÑADAS
+
+    # LAS 3 CAJITAS INFERIORES DE CONTRAPUNTO TÁCTICO
     st.markdown("### 🔭 Contrapunto Táctico: Detección Automática de Techos, Suelos & Anomalías")
     st.markdown("Análisis algorítmico basado en el histórico de 5 años y el comportamiento reciente:")
-    
+
     col_box1, col_box2, col_box3 = st.columns(3)
-    
+
     with col_box1:
         st.markdown("""
         <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #f87171; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <h4 style="color: #b91c1c; margin-top:0; font-size: 16px;">🛑 1. Detector de Techos (Top 10 + Core)</h4>
+                <h4 style="color: #b91c1c; margin-top:0; font-size: 16px;">🛑 1. Techos (Top 10 + Core)</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                Identifica cuando un fondo líder sufre una <b>extensión alcista vertical eufórica</b> (desviación extrema frente a su media de 5 años).
+                Identifica extensiones alcistas verticales eufóricas frente a la media de 5 años.
                 </p>
                 <hr style="margin: 8px 0; border-color: #fee2e2;">
                 <p style="font-size: 12px; color: #7f1d1d; margin-bottom: 0;">
-                <b>Antídoto Emocional:</b> Freno contra el FOMO para asegurar beneficios a tiempo.
+                <b>Antídoto Emocional:</b> Freno contra el FOMO.
                 </p>
             </div>
             <div style="background-color: #fef2f2; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #991b1b; font-weight: 600;">
-                Estado: Monitoreo Activo
+                Monitoreo Activo
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
+
     with col_box2:
         st.markdown("""
         <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #34d399; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <h4 style="color: #047857; margin-top:0; font-size: 16px;">🎯 2. Detector de Suelos (Top 10 + Core)</h4>
+                <h4 style="color: #047857; margin-top:0; font-size: 16px;">🎯 2. Suelos (Top 10 + Core)</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                Escanea correcciones sanas y retrocesos coyunturales a corto plazo en los mejores fondos con sólidos cimientos a 3-5 años.
+                Escanea correcciones sanas y retrocesos coyunturales con sólidos cimientos a 3-5 años.
                 </p>
                 <hr style="margin: 8px 0; border-color: #d1fae5;">
                 <p style="font-size: 12px; color: #065f46; margin-bottom: 0;">
-                <b>Oportunidad:</b> Momento óptimo de acumulación (DCA o reentrada táctica).
+                <b>Oportunidad:</b> Momento óptimo de acumulación (DCA).
                 </p>
             </div>
             <div style="background-color: #ecfdf5; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #065f46; font-weight: 600;">
-                Estado: Monitoreo Activo
+                Monitoreo Activo
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
+
     with col_box3:
         st.markdown("""
         <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #60a5fa; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <h4 style="color: #1d4ed8; margin-top:0; font-size: 16px;">⚡ 3. Escáner Ciego (Fuera de Radar)</h4>
+                <h4 style="color: #1d4ed8; margin-top:0; font-size: 16px;">⚡ 3. Escáner Ciego</h4>
                 <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                Sistema automático que revisa en cada actualización dos anomalías críticas:
+                Revisa automáticamente anomalías críticas en cada actualización:
                 </p>
                 <ul style="font-size: 12px; color: #334155; padding-left: 15px; margin: 4px 0;">
-                    <li><b>El Fondo Caído:</b> Ex-favoritos que resucitan.</li>
-                    <li><b>El Misil Externo:</b> Activos ajenos al Top 10 que arrancan.</li>
+                    <li><b>Fondo Caído:</b> Ex-favoritos que resucitan.</li>
+                    <li><b>Misil Externo:</b> Activos ajenos al Top 10 que arrancan.</li>
                 </ul>
                 <p style="font-size: 12px; color: #1e40af; margin-bottom: 0;">
-                <b>Ventaja:</b> Evita llegar tarde a una tendencia o perder la pista.
+                <b>Ventaja:</b> Evita perder tendencias o fondos olvidados.
                 </p>
             </div>
             <div style="background-color: #eff6ff; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #1e40af; font-weight: 600;">
-                Estado: Sincronizado
+                Sincronizado
             </div>
         </div>
         """, unsafe_allow_html=True)
