@@ -183,28 +183,26 @@ def ejecutar_escanner_automatico_top10():
         f"• **Estado:** Ranking dinámico ordenado por eficiencia neta. Core blindado e independiente."
     )
 
-
 # ==============================================================================
-# 6. CABECERA TÁCTICA SUPERIOR (CON LA NUEVA CAJITA CREADA)
+# 6. CABECERA TÁCTICA SUPERIOR
 # ==============================================================================
-col_head1, col_head2 = st.columns([3, 1])
 h_actual = hora_real_espana()
 
-with col_head1:
-    st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 16px; border-radius: 12px; text-align: left; color: #1e3a8a; border: 2px solid #3b82f6;">
-        <div style="font-size: 22px; margin-bottom: 2px;">🛡️📈 <b style="font-size: 18px; color: #1e40af;">MI BROKER PRIVADO</b></div>
-        <p style="margin: 4px 0 0 0; font-size: 12px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial: {h_actual}</p>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown(f"""
+<div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 16px; border-radius: 12px; text-align: left; color: #1e3a8a; border: 2px solid #3b82f6; margin-bottom: 8px;">
+    <div style="font-size: 22px; margin-bottom: 2px;">🛡️📈 <b style="font-size: 18px; color: #1e40af;">MI BROKER PRIVADO</b></div>
+    <p style="margin: 4px 0 0 0; font-size: 12px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial: {h_actual}</p>
+</div>
+""", unsafe_allow_html=True)
 
-with col_head2:
-    st.markdown("<div style='height: 2px;'></div>", unsafe_allow_html=True)
+col_head1, col_head2 = st.columns([1, 1])
+with col_head1:
     if st.button("🔄 Actualizar Datos", use_container_width=True):
         ejecutar_escanner_automatico_top10()
         st.session_state.notificacion_actualizado = True
         st.rerun()
 
+with col_head2:
     st.link_button("🛠️ Editar App", "https://github.com/mahega2005-jpg/mi-broker-privado2026", use_container_width=True)
 
 if st.session_state.notificacion_actualizado:
@@ -212,6 +210,7 @@ if st.session_state.notificacion_actualizado:
     st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
+
 
 
 # ==============================================================================
