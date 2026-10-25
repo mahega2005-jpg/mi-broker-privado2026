@@ -42,9 +42,6 @@ def hora_real_espana():
     except Exception:
         return datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-# Inicialización de estados de sesión necesarios
-if 'notificacion_actualizado' not in st.session_state:
-    st.session_state.notificacion_actualizado = False
 if 'historico_consultas' not in st.session_state:
     st.session_state.historico_consultas = []
 if 'isin_preseleccionado' not in st.session_state:
@@ -74,9 +71,6 @@ def consultar_catalogo_maestro(isin):
         if f["isin"] == isin:
             return f
     return None
-
-def abrir_modal_detalle(fondo):
-    pass
 
 # ==============================================================================
 # 4. CABECERA TÁCTICA SUPERIOR
