@@ -79,7 +79,7 @@ def abrir_modal_detalle(fondo):
     pass
 
 # ==============================================================================
-# 4. CABECERA TÁCTICA SUPERIOR (Diseño limpio y unificado)
+# 4. CABECERA TÁCTICA SUPERIOR
 # ==============================================================================
 h_actual = hora_real_espana()
 
@@ -89,6 +89,7 @@ st.markdown(f"""
     <p style="margin: 4px 0 0 0; font-size: 12px; color: #1d4ed8; font-weight: 600;">Panel Táctico • Hora Oficial: {h_actual}</p>
 </div>
 """, unsafe_allow_html=True)
+
 # ==============================================================================
 # 5. BARRA LATERAL (PANEL TÁCTICO DE CONTROL)
 # ==============================================================================
@@ -117,8 +118,9 @@ with st.sidebar.expander("🔍 Lector Universal ISIN", expanded=True):
 if st.session_state.historico_consultas:
     with st.sidebar.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
         for idx, hist in enumerate(st.session_state.historico_consultas):
-            if st.sidebar.button(f"⭐ {hist['ISIN']} ({hist.get('FechaConsulta','')})", key=f"btn_hist_{idx}", use_container_width=True):
-                pass
+            if st.sidebar.button(f"⭐ {hist['ISIN']}", key=f"sidebar_hist_{idx}", use_container_width=True):
+                st.session_state.isin_preseleccionado = hist['ISIN']
+                st.rerun()
 
 # ==============================================================================
 # 6. PESTAÑAS PRINCIPALES DEL PANEL (4 TÁCTICAS + 1 DE AJUSTES)
