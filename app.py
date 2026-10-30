@@ -1052,22 +1052,38 @@ with tabs[4]:
       placeholder="Ej: perspectivas fondos globales, evolución tipos de interés...",
   )
 
+  # Buscador inteligente y visualización automática adaptativa
   if query_busqueda or tag_seleccionado or filtro_categoria:
-    st.markdown(f"#### Resultados de Inteligencia para tu consulta:")
+    st.markdown(f"#### 📊 Resultados de Inteligencia para tu selección:")
     st.success(
         f"Filtro activo -> Categoría: **{filtro_categoria}** | Etiqueta:"
-        f" **{tag_seleccionado or 'Ninguna'}** | Consulta:"
+        f" **{tag_seleccionado or 'Ninguna'}** | Búsqueda:"
         f" **{query_busqueda or 'General'}**"
     )
-    st.markdown(
-        """
-        - **[Análisis Vanguard]** Tendencias en la gestión indexada global y comportamiento de carteras conservadoras y dinámicas frente al entorno macroeconómico actual.
-        - **[Prensa Económica]** Actualización de políticas monetarias de los principales Bancos Centrales y su impacto directo en la renta fija y variable europea.
-        - **[Radar Sectorial]** Oportunidades de inversión a largo plazo en fondos especializados de innovación, biotecnología y transición alimentaria.
-        """
-    )
+
+    # Contenido dinámico adaptado según los filtros seleccionados
+    if tag_seleccionado == "Vanguard" or "Indexados" in filtro_categoria:
+      st.markdown("""
+            * **[Informe Global Vanguard]** Actualización de rentabilidades y flujos de entrada en fondos indexados globales de bajo coste (MSCI World y S&P 500).
+            * **[Eficiencia de Carteras]** Análisis de correlación entre los fondos Core de renta variable y los bonos globales cubiertos en divisa.
+            """)
+    elif (
+        "Sectores" in filtro_categoria
+        or tag_seleccionado == "BCE / FED"
+        or "Inflación" in str(tag_seleccionado)
+    ):
+      st.markdown("""
+            * **[Radar de Megatendencias]** Oportunidades en fondos de biotecnología (Polar Capital) y ciberseguridad (Pictet Security) ante los nuevos ciclos de patentes.
+            * **[Impacto Macroeconómico]** Evaluación de tipos de interés y su efecto directo en la valoración de activos de crecimiento y sectores estratégicos.
+            """)
+    else:
+      st.markdown("""
+            * **[Análisis de Mercado General]** Comportamiento táctico del Top 10 de referencia frente a las bandas de control de la cartera.
+            * **[Notas de Prensa Económica]** Boletines periódicos sobre diversificación eficiente y control de comisiones TER en España.
+            """)
   else:
     st.info(
-        "💡 Introduce un término en el buscador, selecciona una etiqueta o elige"
-        " una categoría para desplegar la información de prensa especializada."
+        "💡 Selecciona una categoría en el desplegable, haz clic en una etiqueta"
+        " de acceso rápido o introduce un término en el buscador para generar"
+        " el informe especializado."
     )
