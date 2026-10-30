@@ -1052,38 +1052,199 @@ with tabs[4]:
       placeholder="Ej: perspectivas fondos globales, evolución tipos de interés...",
   )
 
-  # Buscador inteligente y visualización automática adaptativa
-  if query_busqueda or tag_seleccionado or filtro_categoria:
-    st.markdown(f"#### 📊 Resultados de Inteligencia para tu selección:")
-    st.success(
-        f"Filtro activo -> Categoría: **{filtro_categoria}** | Etiqueta:"
-        f" **{tag_seleccionado or 'Ninguna'}** | Búsqueda:"
-        f" **{query_busqueda or 'General'}**"
+  # ------------------------------------------------------------------------------
+# PESTAÑA 5: PRENSA & INTELIGENCIA SECTORIAL Y GEOPOLÍTICA (RADAR TÁCTICO)
+# ------------------------------------------------------------------------------
+with tabs[4]:
+  st.markdown(
+      "### 📰 Radar de Inteligencia Táctica & Catalizadores de Mercado"
+  )
+  st.write(
+      "Filtro de asimetría para el gestor táctico: analiza cómo las grandes"
+      " decisiones geopolíticas, gubernamentales y macroeconómicas crean"
+      " ganadores y perdedores entre tus fondos."
+  )
+
+  col_caja1, col_caja2 = st.columns(2)
+
+  with col_caja1:
+    st.markdown(
+        """
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+            <h4 style="color: #2c3e50; margin-top: 0; font-size: 16px;">🌐 1. Catalizador o Escenario Geopolítico</h4>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    catalizador_sel = st.selectbox(
+        "Escenario Geopolítico / Macroeconómico",
+        [
+            (
+                "🇺🇸 EE. UU., Geopolítica & Tensión Energética / Ciberseguridad"
+                " (IA)"
+            ),
+            (
+                "🇪🇸 España & Europa: Inversión en Infraestructuras y"
+                " Presupuestos"
+            ),
+            "🤖 Revolución IA, Centros de Datos & semiconductores",
+            "🏦 Bancos Centrales (BCE/FED), Tipos e Inflación",
+            "📊 Gestión de Carteras en España & Cuota de Mercado (Indexa/Banca)",
+        ],
+        label_visibility="collapsed",
     )
 
-    # Contenido dinámico adaptado según los filtros seleccionados
-    if tag_seleccionado == "Vanguard" or "Indexados" in filtro_categoria:
-      st.markdown("""
-            * **[Informe Global Vanguard]** Actualización de rentabilidades y flujos de entrada en fondos indexados globales de bajo coste (MSCI World y S&P 500).
-            * **[Eficiencia de Carteras]** Análisis de correlación entre los fondos Core de renta variable y los bonos globales cubiertos en divisa.
-            """)
-    elif (
-        "Sectores" in filtro_categoria
-        or tag_seleccionado == "BCE / FED"
-        or "Inflación" in str(tag_seleccionado)
-    ):
-      st.markdown("""
-            * **[Radar de Megatendencias]** Oportunidades en fondos de biotecnología (Polar Capital) y ciberseguridad (Pictet Security) ante los nuevos ciclos de patentes.
-            * **[Impacto Macroeconómico]** Evaluación de tipos de interés y su efecto directo en la valoración de activos de crecimiento y sectores estratégicos.
-            """)
-    else:
-      st.markdown("""
-            * **[Análisis de Mercado General]** Comportamiento táctico del Top 10 de referencia frente a las bandas de control de la cartera.
-            * **[Notas de Prensa Económica]** Boletines periódicos sobre diversificación eficiente y control de comisiones TER en España.
-            """)
-  else:
-    st.info(
-        "💡 Selecciona una categoría en el desplegable, haz clic en una etiqueta"
-        " de acceso rápido o introduce un término en el buscador para generar"
-        " el informe especializado."
+  with col_caja2:
+    st.markdown(
+        """
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+            <h4 style="color: #2c3e50; margin-top: 0; font-size: 16px;">⚡ 2. Filtro Rápido por Megatendencia / Activo</h4>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
+    tag_seleccionado = st.pills(
+        "Etiquetas",
+        [
+            "Ciberseguridad",
+            "Biotecnología",
+            "Vanguard / Core",
+            "Indexa Capital",
+            "Renta Fija / Bonos",
+            "Renta Variable España",
+        ],
+        selection_mode="single",
+        label_visibility="collapsed",
+    )
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # ZONA DE ANÁLISIS DE ASIMETRÍA DE MERCADO (GANADORES VS PERDEDORES)
+  st.markdown(
+      """
+    <div style="background-color: #eef2f7; padding: 18px; border-radius: 8px; border: 1px solid #cbd5e1;">
+        <h4 style="color: #1e293b; margin-top: 0; margin-bottom: 5px;">🎯 Lectura Táctica: Ganadores, Perdedores e Impacto en Fondos</h4>
+        <p style="font-size: 13px; color: #475569; margin: 0;">Análisis de asimetría y oportunidades de rotación según el catalizador seleccionado:</p>
+    </div>
+    """,
+      unsafe_allow_html=True,
+  )
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # LÓGICA TÁCTICA AVANZADA
+  if (
+      "EE. UU." in catalizador_sel
+      or tag_seleccionado == "Ciberseguridad"
+      or tag_seleccionado == "Biotecnología"
+  ):
+    st.success("📌 **Catalizador Activo:** Geopolítica, Ciberseguridad & Defensa")
+    c1, c2 = st.columns(2)
+    with c1:
+      st.markdown("""
+            ##### 🟢 Sectores & Fondos Beneficiados (Viento a Favor)
+            * **Ciberseguridad & Infraestructura:** Incremento de gasto estatal y corporativo en protección digital. 
+              * *Fondo Clave:* **Pictet Security (`LU0503631872`)**.
+            * **Biotecnología & Patentes:** Defensivo frente a ciclo económico y con impulso en aprobaciones. 
+              * *Fondo Clave:* **Polar Capital Biotech (`IE00B43VBZ18`)**.
+            """)
+    with c2:
+      st.markdown("""
+            ##### 🔴 Sectores en Riesgo / Acción Táctica
+            * **Consumo Discrecional & Aerolíneas:** Presión por costes de combustible y tensión logística.
+            * **Acción Táctica:** Vigilar niveles de **Techo** en megatendencias e incorporar compras periódicas (DCA) en recortes de la biotecnología.
+            """)
+
+  elif (
+      "Infraestructuras" in catalizador_sel
+      or tag_seleccionado == "Renta Variable España"
+  ):
+    st.success(
+        "📌 **Catalizador Activo:** Infraestructuras & Presupuestos Europa/España"
+    )
+    c1, c2 = st.columns(2)
+    with c1:
+      st.markdown("""
+            ##### 🟢 Sectores & Fondos Beneficiados (Viento a Favor)
+            * **Ingeniería, Materiales & Renovables:** Planes de modernización de redes de transporte y energía en España/UE.
+              * *Fondo Clave:* **Abante Spanish Opportunities (`LU1121307729`)** / Renta Variable Ibérica.
+            * **Banca & Financiero:** Beneficiados por margen de intereses sostenido.
+            """)
+    with c2:
+      st.markdown("""
+            ##### 🔴 Sectores en Riesgo / Acción Táctica
+            * **Deuda Corporativa High Yield:** Riesgo de refinanciación si se alargan las obras o costes de materiales.
+            * **Acción Táctica:** Usar los retrocesos del mercado local para buscar **Suelos de entrada** en fondos de gestión activa con sesgo industrial.
+            """)
+
+  elif (
+      "Bancos Centrales" in catalizador_sel
+      or tag_seleccionado == "Renta Fija / Bonos"
+  ):
+    st.success(
+        "📌 **Catalizador Activo:** Política Monetaria BCE/FED e Inflación"
+    )
+    c1, c2 = st.columns(2)
+    with c1:
+      st.markdown("""
+            ##### 🟢 Sectores & Fondos Beneficiados (Viento a Favor)
+            * **Renta Fija Global Hedged:** Estabilización de tipos de interés que reactiva el cupón y protege capital.
+              * *Fondo Clave:* **Vanguard Global Bond (`IE00BGCZOB53`)**.
+            * **Fondos Multi-Activo Defensivos:** **DWS Alpha Opportunities (`ES0114105030`)**.
+            """)
+    with c2:
+      st.markdown("""
+            ##### 🔴 Sectores en Riesgo / Acción Táctica
+            * **Empresas Altamente Endeudadas (Small Caps):** Costes de deuda elevados por tipos persistentemente altos.
+            * **Acción Táctica:** Mantener la Renta Fija Global como ancla de liquidez para rebalancear hacia Renta Variable cuando haya pánico.
+            """)
+
+  else:
+    st.success(
+        "📌 **Catalizador Activo:** Gestión Pasiva, Flujos de Mercado & Core"
+    )
+    c1, c2 = st.columns(2)
+    with c1:
+      st.markdown("""
+            ##### 🟢 Sectores & Fondos Beneficiados (Viento a Favor)
+            * **Carteras Indexadas Globales (MSCI World / S&P 500):** Captura continua del crecimiento mundial a mínimo coste TER.
+              * *Fondos Core:* **Vanguard Global Stock (`IE00BFPM9N11`)** y **Amundi MSCI World (`LU1681048899`)**.
+            * **Gestoras Automatizadas en España:** Crecimiento constante de volumen en plataformas tipo Indexa Capital o MyInvestor.
+            """)
+    with c2:
+      st.markdown("""
+            ##### 🔴 Sectores en Riesgo / Acción Táctica
+            * **Fondos Bancarios Tradicionales de Alta Comisión:** Fuga de capital constante hacia productos indexados eficientes.
+            * **Acción Táctica:** Mantener el núcleo (Core) blindado y usar las megatendencias solo como satélites tácticos.
+            """)
+
+  st.markdown("---")
+
+  # SECCIÓN DE FUENTES DE PRENSA ESPECIALIZADA PARA PROFUNDIZAR
+  st.markdown("#### 🔗 Conexión Rápida con Fuentes de Prensa de Referencia")
+  st.markdown(
+      "Si salta un catalizador, abre la fuente especializada con un clic para"
+      " verificar la noticia completa:"
+  )
+
+  p1, p2, p3, p4 = st.columns(4)
+  with p1:
+    st.markdown(
+        "[📰 Expansión -"
+        " Fondos](https://www.expansion.com/mercados/fondos.html)"
+    )
+  with p2:
+    st.markdown(
+        "[📰 Cinco Días -"
+        " Inversión](https://cincodias.elpais.com/noticias/fondos-inversion/)"
+    )
+  with p3:
+    st.markdown(
+        "[📊 Morningstar España](https://www.morningstar.es/es/news/default.aspx)"
+    )
+  with p4:
+    st.markdown(
+        "[⚡ Bolsamanía"
+        " Funds](https://www.bolsamania.com/noticias/fondos-de-inversion)"
+    )
+
