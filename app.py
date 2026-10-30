@@ -1242,9 +1242,10 @@ with tabs[4]:
     st.markdown(
         "[📊 Morningstar España](https://www.morningstar.es/es/news/default.aspx)"
     )
-  with p4:
-    st.markdown(
-        "[⚡ Bolsamanía"
-        " Funds](https://www.bolsamania.com/noticias/fondos-de-inversion)"
+        with p4:
+      st.markdown(
+          "[⚡ El Economista -"
+          " Fondos](https://www.eleconomista.es/mercados-fondos)"
+      )
     )
 
