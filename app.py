@@ -126,12 +126,9 @@ st.markdown(
 # ==============================================================================
 # 2. SOPORTE Y HORARIO OFICIAL
 # ==============================================================================
-
-
 def hora_real_espana():
   tz = zoneinfo.ZoneInfo("Europe/Madrid")
   return datetime.now(tz).strftime("%d/%m/%Y %H:%M:%S")
-
 
 # ==============================================================================
 # 3. BASE DE DATOS MAESTRA (2 CORE + 10 TOP MERCADO)
@@ -207,78 +204,16 @@ data_12_fondos = {
         "MyInvestor / Renta 4",
         "Banco Tradicional",
     ],
-    "Traspasable": [
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-        "Sí",
-    ],
+    "Traspasable": ["Sí", "Sí", "Sí", "Sí", "Sí", "Sí", "Sí", "Sí", "Sí", "Sí", "Sí", "Sí"],
     "Min_Inversion": [
-        "Desde 10€",
-        "Desde 10€",
-        "Desde 10€",
-        "100€",
-        "1 Participación",
-        "1 Participación",
-        "100€",
-        "100€",
-        "1 Participación",
-        "1 Participación",
-        "1 Participación",
-        "Desde 500€",
+        "Desde 10€", "Desde 10€", "Desde 10€", "100€", "1 Participación", "1 Participación",
+        "100€", "100€", "1 Participación", "1 Participación", "1 Participación", "Desde 500€"
     ],
     "TER_%": [0.06, 0.10, 0.30, 0.10, 1.00, 1.25, 0.65, 0.12, 1.05, 1.35, 1.00, 1.85],
-    "YTD_2026_%": [
-        18.55,
-        -3.35,
-        17.90,
-        21.40,
-        14.20,
-        11.50,
-        6.80,
-        12.10,
-        24.50,
-        8.20,
-        10.90,
-        -2.10,
-    ],
+    "YTD_2026_%": [18.55, -3.35, 17.90, 21.40, 14.20, 11.50, 6.80, 12.10, 24.50, 8.20, 10.90, -2.10],
     "2025_%": [6.73, 2.89, 19.20, 23.50, 22.50, 14.00, 5.40, 11.20, 28.10, 9.10, 12.50, 4.20],
-    "2024_%": [
-        26.59,
-        0.88,
-        21.90,
-        26.80,
-        25.10,
-        8.50,
-        7.10,
-        15.80,
-        32.40,
-        11.40,
-        24.85,
-        5.00,
-    ],
-    "2023_%": [
-        19.63,
-        4.74,
-        14.80,
-        21.20,
-        18.00,
-        6.20,
-        4.20,
-        12.50,
-        36.10,
-        14.20,
-        14.89,
-        3.50,
-    ],
+    "2024_%": [26.59, 0.88, 21.90, 26.80, 25.10, 8.50, 7.10, 15.80, 32.40, 11.40, 24.85, 5.00],
+    "2023_%": [19.63, 4.74, 14.80, 21.20, 18.00, 6.20, 4.20, 12.50, 36.10, 14.20, 14.89, 3.50],
 }
 
 # ==============================================================================
@@ -322,27 +257,18 @@ if "notificacion_actualizado" not in st.session_state:
 if "isin_preseleccionado" not in st.session_state:
   st.session_state.isin_preseleccionado = ""
 
-
 # ==============================================================================
 # 5. MOTOR AUTÓNOMO DE ESCANEO Y ROTACIÓN DEL TOP 10
 # ==============================================================================
 def ejecutar_escanner_automatico_top10():
   df = st.session_state.df_master_app
-
   df_core = df[df["Origen"] == "📌 En Cartera (Core)"].copy()
   df_top = df[df["Origen"] == "⭐ Top Mercado"].copy()
 
-  df_top["Score_Eficiente"] = (
-      df_top["YTD_2026_%"] * 0.5
-  ) + (df_top["2025_%"] * 0.3) - (df_top["TER_%"] * 1.5)
-  df_top_ordenado = (
-      df_top.sort_values(by="Score_Eficiente", ascending=False)
-      .reset_index(drop=True)
-  )
+  df_top["Score_Eficiente"] = (df_top["YTD_2026_%"] * 0.5) + (df_top["2025_%"] * 0.3) - (df_top["TER_%"] * 1.5)
+  df_top_ordenado = df_top.sort_values(by="Score_Eficiente", ascending=False).reset_index(drop=True)
 
-  st.session_state.df_master_app = pd.concat(
-      [df_core, df_top_ordenado], ignore_index=True
-  )
+  st.session_state.df_master_app = pd.concat([df_core, df_top_ordenado], ignore_index=True)
 
   lider = df_top_ordenado.iloc[0]["Nombre del Fondo"]
   decimo = df_top_ordenado.iloc[-1]["Nombre del Fondo"]
@@ -351,10 +277,8 @@ def ejecutar_escanner_automatico_top10():
       f"⚡ **Auditoría de Mercado ({hora_real_espana()}):**<br>"
       f"• **Líder del Ranking (Puesto 1):** {lider}<br>"
       f"• **Umbral de Corte (Puesto 10):** {decimo}<br>"
-      f"• **Estado:** Ranking dinámico ordenado por eficiencia neta. Core"
-      " blindado e independiente."
+      f"• **Estado:** Ranking dinámico ordenado por eficiencia neta. Core blindado e independiente."
   )
-
 
 # ==============================================================================
 # 6. CABECERA TÁCTICA SUPERIOR
@@ -382,15 +306,10 @@ with col_head2:
     st.rerun()
 
 if st.session_state.notificacion_actualizado:
-  st.toast(
-      f"✅ ¡Escaneo autónomo completado! Hora oficial ({h_actual}) y Top 10"
-      " auditados.",
-      icon="🔄",
-  )
+  st.toast(f"✅ ¡Escaneo autónomo completado! Hora oficial ({h_actual}) y Top 10 auditados.", icon="🔄")
   st.session_state.notificacion_actualizado = False
 
 st.markdown("<br>", unsafe_allow_html=True)
-
 
 # ==============================================================================
 # 7. FUNCIONES MODALES Y CONSULTAS
@@ -430,7 +349,6 @@ def consultar_catalogo_maestro(isin):
       "EnMaestro": False,
   }
 
-
 @st.dialog("📋 Ficha Técnica & Análisis de Inversión")
 def abrir_modal_detalle(info_reg):
   st.markdown(f"### 🎯 **{info_reg['Nombre']}**")
@@ -456,20 +374,14 @@ def abrir_modal_detalle(info_reg):
   c1, c2, c3 = st.columns(3)
   isin_clean = info_reg["ISIN"].strip()
   with c1:
-    st.markdown(
-        f"[Morningstar](https://www.morningstar.es/es/search/quickrank.aspx?search={isin_clean})"
-    )
+    st.markdown(f"[Morningstar](https://www.morningstar.es/es/search/quickrank.aspx?search={isin_clean})")
   with c2:
-    st.markdown(
-        f"[Google"
-        f" Finance](https://www.google.com/finance/quote/{isin_clean})"
-    )
+    st.markdown(f"[Google Finance](https://www.google.com/finance/quote/{isin_clean})")
   with c3:
     st.markdown(f"[Citywire](https://citywire.com/es/search?q={isin_clean})")
   st.markdown("<br>", unsafe_allow_html=True)
   if st.button("✖️ Cerrar Ventana", use_container_width=True):
     st.rerun()
-
 
 # ==============================================================================
 # 8. BARRA LATERAL
@@ -482,20 +394,13 @@ with st.sidebar:
       st.success("Sistemas operativos y escáner autónomo activo.")
 
   with st.expander("➕ Añadir / 🗑️ Eliminar ISIN", expanded=False):
-    opcion_g = st.radio(
-        "Acción:",
-        ["Añadir Entrada", "Eliminar Salida"],
-        horizontal=True,
-        key="rad_gest",
-    )
+    opcion_g = st.radio("Acción:", ["Añadir Entrada", "Eliminar Salida"], horizontal=True, key="rad_gest")
     df_m_local = st.session_state.df_master_app
     if opcion_g == "Añadir Entrada":
       n_isin = st.text_input("Código ISIN", key="add_i").strip().upper()
       s_val = st.number_input("Suelo (%)", value=-10.0, step=1.0, key="add_s")
       t_val = st.number_input("Techo (%)", value=20.0, step=1.0, key="add_t")
-      r_val = st.number_input(
-          "Rentabilidad actual (%)", value=2.0, step=0.5, key="add_r"
-      )
+      r_val = st.number_input("Rentabilidad actual (%)", value=2.0, step=0.5, key="add_r")
       if st.button("Guardar en Vigilancia", use_container_width=True):
         if n_isin:
           df_c = st.session_state.cartera_vigilada
@@ -503,22 +408,12 @@ with st.sidebar:
             st.warning("El ISIN ya está registrado.")
           else:
             m = df_m_local[df_m_local["ISIN"] == n_isin]
-            nom = (
-                m.iloc[0]["Nombre del Fondo"]
-                if not m.empty
-                else f"Fondo ({n_isin})"
-            )
+            nom = m.iloc[0]["Nombre del Fondo"] if not m.empty else f"Fondo ({n_isin})"
             n_row = pd.DataFrame([{
-                "ISIN": n_isin,
-                "Nombre": nom,
-                "Suelo_%": s_val,
-                "Techo_%": t_val,
-                "Email": "mahega2005@gmail.com",
-                "Rentabilidad_Actual_%": r_val,
+                "ISIN": n_isin, "Nombre": nom, "Suelo_%": s_val, "Techo_%": t_val,
+                "Email": "mahega2005@gmail.com", "Rentabilidad_Actual_%": r_val,
             }])
-            st.session_state.cartera_vigilada = pd.concat(
-                [df_c, n_row], ignore_index=True
-            )
+            st.session_state.cartera_vigilada = pd.concat([df_c, n_row], ignore_index=True)
             st.success("Guardado en vigilancia.")
             st.rerun()
     else:
@@ -526,46 +421,25 @@ with st.sidebar:
       if not df_c.empty:
         sel = st.selectbox(
             "Dar de baja ISIN:",
-            [
-                f"{r['ISIN']} - {r['Nombre'][:12]}"
-                for _, r in df_c.iterrows()
-            ],
+            [f"{r['ISIN']} - {r['Nombre'][:12]}" for _, r in df_c.iterrows()],
             key="del_s",
         )
-        if st.button(
-            "🗑️ Confirmar Salida", type="primary", use_container_width=True
-        ):
+        if st.button("🗑️ Confirmar Salida", type="primary", use_container_width=True):
           target = sel.split(" - ")[0]
-          st.session_state.cartera_vigilada = df_c[
-              df_c["ISIN"] != target
-          ].reset_index(drop=True)
+          st.session_state.cartera_vigilada = df_c[df_c["ISIN"] != target].reset_index(drop=True)
           st.success("ISIN eliminado.")
           st.rerun()
 
   with st.expander("🔍 Lector Universal ISIN", expanded=True):
     val_defecto = st.session_state.isin_preseleccionado
     with st.form(key="form_lector_isin_limpio", clear_on_submit=True):
-      consulta_isin_input = (
-          st.text_input(
-              "Introduce ISIN",
-              value=val_defecto,
-              key="txt_input_isin_field",
-          )
-          .strip()
-          .upper()
-      )
-      btn_submit = st.form_submit_button(
-          "✅ Consultar e Incorporar", use_container_width=True
-      )
+      consulta_isin_input = st.text_input("Introduce ISIN", value=val_defecto, key="txt_input_isin_field").strip().upper()
+      btn_submit = st.form_submit_button("✅ Consultar e Incorporar", use_container_width=True)
     if btn_submit and consulta_isin_input:
       st.session_state.isin_preseleccionado = ""
       res = consultar_catalogo_maestro(consulta_isin_input)
       res["FechaConsulta"] = hora_real_espana()
-      st.session_state.historico_consultas = [
-          i
-          for i in st.session_state.historico_consultas
-          if i["ISIN"] != consulta_isin_input
-      ]
+      st.session_state.historico_consultas = [i for i in st.session_state.historico_consultas if i["ISIN"] != consulta_isin_input]
       st.session_state.historico_consultas.insert(0, res)
       if len(st.session_state.historico_consultas) > 5:
         st.session_state.historico_consultas.pop()
@@ -574,11 +448,7 @@ with st.sidebar:
   if st.session_state.historico_consultas:
     with st.expander("🕒 Histórico Reciente (Últimas 5)", expanded=False):
       for idx, hist in enumerate(st.session_state.historico_consultas):
-        if st.button(
-            f"📌 {hist['ISIN']} ({hist.get('FechaConsulta','')})",
-            key=f"btn_hist_{idx}",
-            use_container_width=True,
-        ):
+        if st.button(f"📌 {hist['ISIN']} ({hist.get('FechaConsulta','')})", key=f"btn_hist_{idx}", use_container_width=True):
           abrir_modal_detalle(hist)
 
 # ==============================================================================
@@ -599,19 +469,14 @@ with tabs[0]:
   st.subheader("🛡️ Supervisión 24h de Bandas (Suelos y Techos)")
   st.markdown("Edita las bandas de control de tus posiciones activas:")
   st.session_state.cartera_vigilada = st.data_editor(
-      st.session_state.cartera_vigilada,
-      num_rows="dynamic",
-      use_container_width=True,
-      key="ed_cartera",
+      st.session_state.cartera_vigilada, num_rows="dynamic", use_container_width=True, key="ed_cartera"
   )
 
 # ------------------------------------------------------------------------------
 # PESTAÑA 2: BUSCADOR MAESTRO
 # ------------------------------------------------------------------------------
 with tabs[1]:
-  st.subheader(
-      "📊 Buscador Maestro: Top 10 Dinámico de Referencia + Cartera Core"
-  )
+  st.subheader("📊 Buscador Maestro: Top 10 Dinámico de Referencia + Cartera Core")
   df_master_actual = st.session_state.df_master_app
 
   col_sel1, col_sel2 = st.columns([3, 1])
@@ -619,8 +484,7 @@ with tabs[1]:
     isin_elegido = st.selectbox(
         "Selecciona fondo:",
         options=df_master_actual["ISIN"].tolist(),
-        format_func=lambda x: f"{x} -"
-        f" {df_master_actual[df_master_actual['ISIN'] == x]['Nombre del Fondo'].values[0]}",
+        format_func=lambda x: f"{x} - {df_master_actual[df_master_actual['ISIN'] == x]['Nombre del Fondo'].values[0]}",
         key="sel_directo_tablet",
     )
   with col_sel2:
@@ -630,17 +494,13 @@ with tabs[1]:
       abrir_modal_detalle(consultar_catalogo_maestro(isin_elegido))
 
   st.dataframe(df_master_actual, use_container_width=True, height=380)
-
   st.markdown("---")
-
   st.markdown("### ⚡ Escáner Autónomo & Informe de Rotación del Top 10")
   st.markdown(
       """
     <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
         <div style="font-size: 14px; color: #1e3a8a; line-height: 1.6;">
-    """
-      + st.session_state.mensaje_escaner_ciego
-      + """
+    """ + st.session_state.mensaje_escaner_ciego + """
         </div>
     </div>
     """,
@@ -649,39 +509,25 @@ with tabs[1]:
 
   st.markdown("---")
   st.subheader("📢 Avisos de Oportunidad y Retroceso Táctico")
-  df_top10 = df_master_actual[
-      df_master_actual["Origen"] == "⭐ Top Mercado"
-  ].copy()
+  df_top10 = df_master_actual[df_master_actual["Origen"] == "⭐ Top Mercado"].copy()
   df_top10["Suma_Rendimiento"] = df_top10["2025_%"] + df_top10["YTD_2026_%"]
 
-  for _, row in (
-      df_top10.sort_values(by="Suma_Rendimiento", ascending=False)
-      .head(2)
-      .iterrows()
-  ):
+  for _, row in df_top10.sort_values(by="Suma_Rendimiento", ascending=False).head(2).iterrows():
     c1, c2, c3 = st.columns([1.5, 3.5, 1])
     with c1:
       st.code(row["ISIN"], language=None)
     with c2:
       st.markdown(f"**{row['Nombre del Fondo']}**")
     with c3:
-      if st.button(
-          "🔍 Analizar", key=f"top_m_{row['ISIN']}", use_container_width=True
-      ):
+      if st.button("🔍 Analizar", key=f"top_m_{row['ISIN']}", use_container_width=True):
         abrir_modal_detalle(consultar_catalogo_maestro(row["ISIN"]))
 
 # ------------------------------------------------------------------------------
 # PESTAÑA 3: RADAR DE TENDENCIAS & ESTRATEGIAS
 # ------------------------------------------------------------------------------
 with tabs[2]:
-  st.subheader(
-      "🎯 Radar de Tendencias Globales & Simulación de Estrategias"
-  )
-  st.markdown(
-      "Análisis táctico para anticiparse al mercado detectando las"
-      " megatendencias de mayor impulso y cruzándolas con los 3 fondos líderes"
-      " por sector:"
-  )
+  st.subheader("🎯 Radar de Tendencias Globales & Simulación de Estrategias")
+  st.markdown("Análisis táctico para anticiparse al mercado detectando las megatendencias de mayor impulso y cruzándolas con los 3 fondos líderes por sector:")
 
   st.markdown("### 🧭 Modelo Táctico de Asignación por Estrategia")
   estrategia_sel = st.radio(
@@ -689,10 +535,7 @@ with tabs[2]:
       options=[
           "🛡️ Estrategia Conservadora / Defensiva (Preservación)",
           "⚖️ Estrategia Moderada / Core Indexado (Equilibrada)",
-          (
-              "🚀 Estrategia Crecimiento & Megatendencias (Sintética"
-              " Aportación)"
-          ),
+          "🚀 Estrategia Crecimiento & Megatendencias (Sintética Aportación)",
       ],
       horizontal=True,
       key="radio_estrategias",
@@ -718,131 +561,95 @@ with tabs[2]:
         """)
 
   st.markdown("---")
-  st.markdown(
-      "### 🛰️ Radar Megatendencial: 3 Fondos de Referencia por Sector"
-  )
+  st.markdown("### 🛰️ Radar Megatendencial: 3 Fondos de Referencia por Sector")
 
   t1, t2, t3 = st.columns(3)
   with t1:
-    st.markdown(
-        """
+    st.markdown("""
         <div class="trend-card-header">
             <h4 style="margin:0; color: #1e40af;">💻 IA, Tecnología & Ciberseguridad</h4>
             <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Digitalización masiva e infraestructuras de IA.</p>
             <p style="font-size: 12px; color: #15803d; margin:0;"><b>Impulso:</b> Muy Alto 🚀</p>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        """, unsafe_allow_html=True)
   with t2:
-    st.markdown(
-        """
+    st.markdown("""
         <div class="trend-card-header">
             <h4 style="margin:0; color: #1e40af;">🧬 Biotecnología, Salud & Longevidad</h4>
             <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Envejecimiento de la población y patentes.</p>
             <p style="font-size: 12px; color: #15803d; margin:0;"><b>Impulso:</b> Alto 📈</p>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        """, unsafe_allow_html=True)
   with t3:
-    st.markdown(
-        """
+    st.markdown("""
         <div class="trend-card-header">
             <h4 style="margin:0; color: #1e40af;">🛡️ Retorno Absoluto & Preservación</h4>
             <p style="font-size: 13px; color: #475569; margin: 8px 0;"><b>Tendencia:</b> Descorrelación y protección de capital.</p>
             <p style="font-size: 12px; color: #b45309; margin:0;"><b>Impulso:</b> Moderado / Defensivo 🛡️</p>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        """, unsafe_allow_html=True)
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # BLOQUE 1 DE FONDOS
   f1_1, f1_2, f1_3 = st.columns(3)
   with f1_1:
     st.code("LU0996182563", language=None)
     st.caption("Fidelity Funds - Global Tech")
-    if st.button(
-        "🔍 Analizar Fidelity Tech", key="btn_t1_1", use_container_width=True
-    ):
+    if st.button("🔍 Analizar Fidelity Tech", key="btn_t1_1", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("LU0996182563"))
   with f1_2:
     st.code("IE00B43VBZ18", language=None)
     st.caption("Polar Capital Biotech (Acc)")
-    if st.button(
-        "🔍 Analizar Polar Biotech R", key="btn_t2_1", use_container_width=True
-    ):
+    if st.button("🔍 Analizar Polar Biotech R", key="btn_t2_1", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("IE00B43VBZ18"))
   with f1_3:
     st.code("ES0114105030", language=None)
     st.caption("DWS Investments Alpha Opp")
-    if st.button(
-        "🔍 Analizar DWS Alpha", key="btn_t3_1", use_container_width=True
-    ):
+    if st.button("🔍 Analizar DWS Alpha", key="btn_t3_1", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("ES0114105030"))
 
   st.markdown("---")
 
-  # BLOQUE 2 DE FONDOS
   f2_1, f2_2, f2_3 = st.columns(3)
   with f2_1:
     st.code("LU0503631872", language=None)
     st.caption("Pictet - Security P EUR")
-    if st.button(
-        "🔍 Analizar Pictet Security", key="btn_t1_2", use_container_width=True
-    ):
+    if st.button("🔍 Analizar Pictet Security", key="btn_t1_2", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("LU0503631872"))
   with f2_2:
     st.code("IE00B3WVRB16", language=None)
     st.caption("Polar Capital Biotech (Dis)")
-    if st.button(
-        "🔍 Analizar Polar Biotech I", key="btn_t2_2", use_container_width=True
-    ):
+    if st.button("🔍 Analizar Polar Biotech I", key="btn_t2_2", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("IE00B3WVRB16"))
   with f2_3:
     st.code("IE00BGCZOB53", language=None)
     st.caption("Vanguard Global Bond Index")
-    if st.button(
-        "🔍 Analizar Vanguard Bond", key="btn_t3_2", use_container_width=True
-    ):
+    if st.button("🔍 Analizar Vanguard Bond", key="btn_t3_2", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("IE00BGCZOB53"))
 
   st.markdown("---")
 
-  # BLOQUE 3 DE FONDOS
   f3_1, f3_2, f3_3 = st.columns(3)
   with f3_1:
     st.code("IE00B03HD191", language=None)
     st.caption("Vanguard US 500 Index")
-    if st.button(
-        "🔍 Analizar Vanguard S&P500", key="btn_t1_3", use_container_width=True
-    ):
+    if st.button("🔍 Analizar Vanguard S&P500", key="btn_t1_3", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("IE00B03HD191"))
   with f3_2:
     st.code("IE00BFPM9N11", language=None)
     st.caption("Vanguard Global Stock Core")
-    if st.button(
-        "🔍 Analizar Vanguard Global", key="btn_t2_3", use_container_width=True
-    ):
+    if st.button("🔍 Analizar Vanguard Global", key="btn_t2_3", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("IE00BFPM9N11"))
   with f3_3:
     st.code("LU1681048899", language=None)
     st.caption("Amundi Index MSCI World")
-    if st.button(
-        "🔍 Analizar Amundi MSCI World", key="btn_t3_3", use_container_width=True
-    ):
+    if st.button("🔍 Analizar Amundi MSCI World", key="btn_t3_3", use_container_width=True):
       abrir_modal_detalle(consultar_catalogo_maestro("LU1681048899"))
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # REFLEXIÓN TÁCTICA
-  st.markdown(
-      "### 💡 Reflexión Táctica: Elección del Mejor Fondo por Sector"
-  )
-  st.markdown(
-      """
+  st.markdown("### 💡 Reflexión Táctica: Elección del Mejor Fondo por Sector")
+  st.markdown("""
     <div style="background-color: #ffffff; padding: 20px; border-radius: 12px; border: 2px solid #93c5fd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
         <h4 style="margin-top:0; color: #1e40af;">🏆 ¿Cuál es el Mejor Fondo para cada Estrategia y Por Qué?</h4>
         <ul style="color: #334155; font-size: 14px; line-height: 1.6;">
@@ -851,242 +658,138 @@ with tabs[2]:
             <li style="margin-top: 10px;"><b>En Preservación (Mejor Opción: <code>IE00BGCZOB53</code> - Vanguard Global Bond):</b> Cobertura en euros y mínima comisión TER (0.10%).</li>
         </ul>
     </div>
-    """,
-      unsafe_allow_html=True,
-  )
+    """, unsafe_allow_html=True)
 
   st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
-  # LAS 3 CAJITAS INFERIORES DE CONTRAPUNTO TÁCTICO
-  st.markdown(
-      "### 🔭 Contrapunto Táctico: Detección Automática de Techos, Suelos &"
-      " Anomalías"
-  )
-  st.markdown(
-      "Análisis algorítmico basado en el histórico de 5 años y el comportamiento"
-      " reciente:"
-  )
+  # ==========================================
+  # LAS 3 CAJITAS INTERACTIVAS DE CONTRAPUNTO TÁCTICO & WATCHLIST
+  # ==========================================
+  st.markdown("### 🔭 Contrapunto Táctico: Detección Automática de Techos, Suelos & Anomalías")
+  st.markdown("Análisis algorítmico interconectado exclusivamente con el Top 10 Dinámico y la Sala de Espera (Core blindado e independiente).")
 
-  col_box1, col_box2, col_box3 = st.columns(3)
+  col1, col2, col3 = st.columns(3)
 
-  with col_box1:
-    st.markdown(
-        """
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #f87171; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <h4 style="color: #b91c1c; margin-top:0; font-size: 16px;">🛑 1. Techos (Top 10 + Core)</h4>
-                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                Identifica extensiones alcistas verticales eufóricas frente a la media de 5 años.
-                </p>
-                <hr style="margin: 8px 0; border-color: #fee2e2;">
-                <p style="font-size: 12px; color: #7f1d1d; margin-bottom: 0;">
-                <b>Antídoto Emocional:</b> Freno contra el FOMO.
-                </p>
-            </div>
-            <div style="background-color: #fef2f2; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #991b1b; font-weight: 600;">
-                Monitoreo Activo
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+  # === CAJITA 1: TECHOS ===
+  with col1:
+      st.markdown("""
+          <div style="border: 2px solid #FF4B4B; border-radius: 10px; padding: 15px; background-color: #FFF5F5;">
+              <h4 style="color: #D32F2F; margin-top:0;">🔴 1. Techos (Top 10)</h4>
+              <p style="font-size: 0.85em; color: #555;"><strong>Antídoto Emocional:</strong> Alerta en el líder (Puesto 1) por extensión eufórica. Freno contra el FOMO.</p>
+          </div>
+      """, unsafe_allow_html=True)
+      
+      st.write("")
+      techos_ejemplo = [
+          {"ISIN": "LU0996182563", "Nombre": "Fidelity Funds - Global Tech", "Detalle": "Puesto 1: +18.2% sobre media 5A"}
+      ]
+      
+      if techos_ejemplo:
+          for item in techos_ejemplo:
+              with st.expander(f"⚠️ {item['Nombre']}", expanded=True):
+                  st.caption(f"**ISIN:** `{item['ISIN']}`")
+                  st.caption(f"**Alerta:** {item['Detalle']}")
+                  st.info("💡 **Acción recomendada:** No sobreponderar. Valora traspaso sin coste fiscal hacia la zona baja.")
+                  if st.button(f"🔍 Analizar {item['ISIN']}", key="btn_techo_dinamico"):
+                      st.session_state['isin_preseleccionado'] = item['ISIN']
+                      st.rerun()
+      else:
+          st.success("✅ Ningún fondo del Top 10 presenta señales de sobreextensión.")
 
-  with col_box2:
-    st.markdown(
-        """
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #34d399; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <h4 style="color: #047857; margin-top:0; font-size: 16px;">🎯 2. Suelos (Top 10 + Core)</h4>
-                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                Escanea correcciones sanas y retrocesos coyunturales con sólidos cimientos a 3-5 años.
-                </p>
-                <hr style="margin: 8px 0; border-color: #d1fae5;">
-                <p style="font-size: 12px; color: #065f46; margin-bottom: 0;">
-                <b>Oportunidad:</b> Momento óptimo de acumulación (DCA).
-                </p>
-            </div>
-            <div style="background-color: #ecfdf5; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #065f46; font-weight: 600;">
-                Monitoreo Activo
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+  # === CAJITA 2: SUELOS ===
+  with col2:
+      st.markdown("""
+          <div style="border: 2px solid #24A148; border-radius: 10px; padding: 15px; background-color: #F2FAF4;">
+              <h4 style="color: #198038; margin-top:0;">🎯 2. Suelos (Top 10 - Zona Baja)</h4>
+              <p style="font-size: 0.85em; color: #555;"><strong>Oportunidad de Compra:</strong> Correcciones sanas en los puestos de entrada (ej. Puesto 10).</p>
+          </div>
+      """, unsafe_allow_html=True)
+      
+      st.write("")
+      suelos_ejemplo = [
+          {"ISIN": "IE00B03HD191", "Nombre": "Vanguard US 500 Stock Index", "Detalle": "Puesto 10: Recorte oportuno (-8.5% sobre media)"}
+      ]
+      
+      if suelos_ejemplo:
+          for item in suelos_ejemplo:
+              with st.expander(f"🟢 {item['Nombre']}", expanded=True):
+                  st.caption(f"**ISIN:** `{item['ISIN']}`")
+                  st.caption(f"**Alerta:** {item['Detalle']}")
+                  st.success("💡 **Acción recomendada:** Zona óptima para aportaciones periódicas (DCA) o recibir traspasos.")
+                  if st.button(f"🔍 Analizar {item['ISIN']}", key="btn_suelo_dinamico"):
+                      st.session_state['isin_preseleccionado'] = item['ISIN']
+                      st.rerun()
+      else:
+          st.info("ℹ️ Sin señales de suelo marcadas en el Top 10.")
 
-  with col_box3:
-    st.markdown(
-        """
-        <div style="background-color: #ffffff; padding: 18px; border-radius: 12px; border: 2px solid #60a5fa; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <h4 style="color: #1d4ed8; margin-top:0; font-size: 16px;">⚡ 3. Escáner Ciego</h4>
-                <p style="font-size: 13px; color: #334155; line-height: 1.4;">
-                Revisa automáticamente anomalías críticas en cada actualización:
-                </p>
-                <ul style="font-size: 12px; color: #334155; padding-left: 15px; margin: 4px 0;">
-                    <li><b>Fondo Caído:</b> Ex-favoritos que resucitan.</li>
-                    <li><b>Misil Externo:</b> Activos ajenos al Top 10 que arrancan.</li>
-                </ul>
-                <p style="font-size: 12px; color: #1e40af; margin-bottom: 0;">
-                <b>Ventaja:</b> Evita perder tendencias o fondos olvidados.
-                </p>
-            </div>
-            <div style="background-color: #eff6ff; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; color: #1e40af; font-weight: 600;">
-                Sincronizado
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
+  # === CAJITA 3: ESCÁNER CIEGO ===
+  with col3:
+      st.markdown("""
+          <div style="border: 2px solid #0F62FE; border-radius: 10px; padding: 15px; background-color: #EDF5FF;">
+              <h4 style="color: #0043CE; margin-top:0;">⚡ 3. Escáner Ciego (Watchlist)</h4>
+              <p style="font-size: 0.85em; color: #555;"><strong>Sala de Espera:</strong> Vigila ex-favoritos caídos que tocan suelo para no perder el rebote.</p>
+          </div>
+      """, unsafe_allow_html=True)
+      
+      st.write("")
+      watchlist_ejemplo = [
+          {"ISIN": "LU1681048899", "Nombre": "Amundi Index MSCI World", "Detalle": "Puesto 12: Tocando suelo fuera del Top 10"}
+      ]
+      
+      if watchlist_ejemplo:
+          for item in watchlist_ejemplo:
+              with st.expander(f"👀 {item['Nombre']}", expanded=True):
+                  st.caption(f"**ISIN:** `{item['ISIN']}`")
+                  st.caption(f"**Alerta:** {item['Detalle']}")
+                  st.warning("💡 **Acción recomendada:** Oportunidad previa al reingreso en el Top 10. Monitoreo activo.")
+                  if st.button(f"🔍 Analizar {item['ISIN']}", key="btn_watch_dinamico"):
+                      st.session_state['isin_preseleccionado'] = item['ISIN']
+                      st.rerun()
+      else:
+          st.info("ℹ️ No hay anomalías ni rebotes fuera del radar principal.")
 # ------------------------------------------------------------------------------
 # PESTAÑA 4: GRÁFICOS & CARTERA CORE
 # ------------------------------------------------------------------------------
 with tabs[3]:
   st.subheader("📈 Gráficos Comparativos & Cartera Core")
-  st.markdown(
-      "🔴 **Tu Cartera Core** está identificada con la etiqueta **`🔴 [CORE]`**"
-      " para contrastar tu núcleo con el Top 10:"
-  )
+  st.markdown("🔴 **Tu Cartera Core** está identificada con la etiqueta **`🔴 [CORE]`** para contrastar tu núcleo con el Top 10:")
 
   df_master_graf = st.session_state.df_master_app
   todos_fondos = df_master_graf["Nombre del Fondo"].tolist()
 
-  activos = st.multiselect(
-      "Comparar fondos:", options=todos_fondos, default=todos_fondos, key="graf_sel"
-  )
+  activos = st.multiselect("Comparar fondos:", options=todos_fondos, default=todos_fondos, key="graf_sel")
   if activos:
-    df_sub = df_master_graf[
-        df_master_graf["Nombre del Fondo"].isin(activos)
-    ].copy()
+    df_sub = df_master_graf[df_master_graf["Nombre del Fondo"].isin(activos)].copy()
     df_sub["Etiqueta"] = df_sub.apply(
-        lambda r: (
-            f"🔴 [CORE] {r['Nombre del Fondo'][:20]}"
-            if r["Origen"] == "📌 En Cartera (Core)"
-            else f"🔵 {r['Nombre del Fondo'][:20]}"
-        ),
+        lambda r: f"🔴 [CORE] {r['Nombre del Fondo'][:20]}" if r["Origen"] == "📌 En Cartera (Core)" else f"🔵 {r['Nombre del Fondo'][:20]}",
         axis=1,
     )
     g1, g2 = st.columns(2)
     with g1:
-      st.bar_chart(
-          df_sub.set_index("Etiqueta")["YTD_2026_%"], use_container_width=True
-      )
+      st.bar_chart(df_sub.set_index("Etiqueta")["YTD_2026_%"], use_container_width=True)
     with g2:
-      st.bar_chart(
-          df_sub.set_index("Etiqueta")["2025_%"], use_container_width=True
-      )
+      st.bar_chart(df_sub.set_index("Etiqueta")["2025_%"], use_container_width=True)
 
 # ------------------------------------------------------------------------------
-# PESTAÑA 5: PRENSA & INTELIGENCIA SECTORIAL (NUEVA)
-# ------------------------------------------------------------------------------
-with tabs[4]:
-  st.markdown(
-      "### 📰 Prensa Especializada & Buscador Inteligente de Inversión"
-  )
-  st.write(
-      "Consulta noticias, boletines y análisis que afectan directamente a tus"
-      " fondos y carteras a través de nuestras cajitas de filtrado inteligente."
-  )
-
-  col_caja1, col_caja2 = st.columns(2)
-
-  with col_caja1:
-    st.markdown(
-        """
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; height: 100%;">
-            <h4 style="color: #2c3e50; margin-top: 0;">🗂️ 1. Filtro Temático Sectorial</h4>
-            <p style="font-size: 14px; color: #6c757d;">Selecciona el área de interés para acotar la información económica:</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    filtro_categoria = st.selectbox(
-        "Categoría de Prensa",
-        [
-            "Todos los ámbitos",
-            "Fondos de Inversión & Indexados",
-            "Bancos Centrales & Tipos de Interés",
-            "Mercados Globales & Bolsas",
-            "Sectores Estratégicos (Agrifood, Biotech, Seguridad)",
-        ],
-        label_visibility="collapsed",
-    )
-
-  with col_caja2:
-    st.markdown(
-        """
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; height: 100%;">
-            <h4 style="color: #2c3e50; margin-top: 0;">⚡ 2. Etiquetas de Acceso Rápido</h4>
-            <p style="font-size: 14px; color: #6c757d;">Haz clic o busca por términos clave recurrentes en tu estrategia:</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    tag_seleccionado = st.pills(
-        "Etiquetas",
-        [
-            "Vanguard",
-            "Indexa Capital",
-            "Inflación",
-            "BCE / FED",
-            "Renta Variable",
-            "Renta Fija",
-        ],
-        selection_mode="single",
-        label_visibility="collapsed",
-    )
-
-  st.markdown("<br>", unsafe_allow_html=True)
-
-  st.markdown(
-      """
-    <div style="background-color: #eef2f7; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1;">
-        <h4 style="color: #1e293b; margin-top: 0;">🔎 3. Buscador Inteligente de Artículos y Noticias</h4>
-    </div>
-    """,
-      unsafe_allow_html=True,
-  )
-
-  query_busqueda = st.text_input(
-      "Buscar en prensa especializada...",
-      placeholder="Ej: perspectivas fondos globales, evolución tipos de interés...",
-  )
-
-  # ------------------------------------------------------------------------------
 # PESTAÑA 5: PRENSA & INTELIGENCIA SECTORIAL Y GEOPOLÍTICA (RADAR TÁCTICO)
 # ------------------------------------------------------------------------------
 with tabs[4]:
-  st.markdown(
-      "### 📰 Radar de Inteligencia Táctica & Catalizadores de Mercado"
-  )
-  st.write(
-      "Filtro de asimetría para el gestor táctico: analiza cómo las grandes"
-      " decisiones geopolíticas, gubernamentales y macroeconómicas crean"
-      " ganadores y perdedores entre tus fondos."
-  )
+  st.markdown("### 📰 Radar de Inteligencia Táctica & Catalizadores de Mercado")
+  st.write("Filtro de asimetría para el gestor táctico: analiza cómo las grandes decisiones geopolíticas, gubernamentales y macroeconómicas crean ganadores y perdedores entre tus fondos.")
 
   col_caja1, col_caja2 = st.columns(2)
 
   with col_caja1:
-    st.markdown(
-        """
+    st.markdown("""
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
             <h4 style="color: #2c3e50; margin-top: 0; font-size: 16px;">🌐 1. Catalizador o Escenario Geopolítico</h4>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        """, unsafe_allow_html=True)
     catalizador_sel = st.selectbox(
         "Escenario Geopolítico / Macroeconómico",
         [
-            (
-                "🇺🇸 EE. UU., Geopolítica & Tensión Energética / Ciberseguridad"
-                " (IA)"
-            ),
-            (
-                "🇪🇸 España & Europa: Inversión en Infraestructuras y"
-                " Presupuestos"
-            ),
+            "🇺🇸 EE. UU., Geopolítica & Tensión Energética / Ciberseguridad (IA)",
+            "🇪🇸 España & Europa: Inversión en Infraestructuras y Presupuestos",
             "🤖 Revolución IA, Centros de Datos & semiconductores",
             "🏦 Bancos Centrales (BCE/FED), Tipos e Inflación",
             "📊 Gestión de Carteras en España & Cuota de Mercado (Indexa/Banca)",
@@ -1095,49 +798,30 @@ with tabs[4]:
     )
 
   with col_caja2:
-    st.markdown(
-        """
+    st.markdown("""
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
             <h4 style="color: #2c3e50; margin-top: 0; font-size: 16px;">⚡ 2. Filtro Rápido por Megatendencia / Activo</h4>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        """, unsafe_allow_html=True)
     tag_seleccionado = st.pills(
         "Etiquetas",
-        [
-            "Ciberseguridad",
-            "Biotecnología",
-            "Vanguard / Core",
-            "Indexa Capital",
-            "Renta Fija / Bonos",
-            "Renta Variable España",
-        ],
+        ["Ciberseguridad", "Biotecnología", "Vanguard / Core", "Indexa Capital", "Renta Fija / Bonos", "Renta Variable España"],
         selection_mode="single",
         label_visibility="collapsed",
     )
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # ZONA DE ANÁLISIS DE ASIMETRÍA DE MERCADO (GANADORES VS PERDEDORES)
-  st.markdown(
-      """
+  st.markdown("""
     <div style="background-color: #eef2f7; padding: 18px; border-radius: 8px; border: 1px solid #cbd5e1;">
         <h4 style="color: #1e293b; margin-top: 0; margin-bottom: 5px;">🎯 Lectura Táctica: Ganadores, Perdedores e Impacto en Fondos</h4>
         <p style="font-size: 13px; color: #475569; margin: 0;">Análisis de asimetría y oportunidades de rotación según el catalizador seleccionado:</p>
     </div>
-    """,
-      unsafe_allow_html=True,
-  )
+    """, unsafe_allow_html=True)
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # LÓGICA TÁCTICA AVANZADA
-  if (
-      "EE. UU." in catalizador_sel
-      or tag_seleccionado == "Ciberseguridad"
-      or tag_seleccionado == "Biotecnología"
-  ):
+  if "EE. UU." in catalizador_sel or tag_seleccionado == "Ciberseguridad" or tag_seleccionado == "Biotecnología":
     st.success("📌 **Catalizador Activo:** Geopolítica, Ciberseguridad & Defensa")
     c1, c2 = st.columns(2)
     with c1:
@@ -1155,13 +839,8 @@ with tabs[4]:
             * **Acción Táctica:** Vigilar niveles de **Techo** en megatendencias e incorporar compras periódicas (DCA) en recortes de la biotecnología.
             """)
 
-  elif (
-      "Infraestructuras" in catalizador_sel
-      or tag_seleccionado == "Renta Variable España"
-  ):
-    st.success(
-        "📌 **Catalizador Activo:** Infraestructuras & Presupuestos Europa/España"
-    )
+  elif "Infraestructuras" in catalizador_sel or tag_seleccionado == "Renta Variable España":
+    st.success("📌 **Catalizador Activo:** Infraestructuras & Presupuestos Europa/España")
     c1, c2 = st.columns(2)
     with c1:
       st.markdown("""
@@ -1177,13 +856,8 @@ with tabs[4]:
             * **Acción Táctica:** Usar los retrocesos del mercado local para buscar **Suelos de entrada** en fondos de gestión activa con sesgo industrial.
             """)
 
-  elif (
-      "Bancos Centrales" in catalizador_sel
-      or tag_seleccionado == "Renta Fija / Bonos"
-  ):
-    st.success(
-        "📌 **Catalizador Activo:** Política Monetaria BCE/FED e Inflación"
-    )
+  elif "Bancos Centrales" in catalizador_sel or tag_seleccionado == "Renta Fija / Bonos":
+    st.success("📌 **Catalizador Activo:** Política Monetaria BCE/FED e Inflación")
     c1, c2 = st.columns(2)
     with c1:
       st.markdown("""
@@ -1200,9 +874,7 @@ with tabs[4]:
             """)
 
   else:
-    st.success(
-        "📌 **Catalizador Activo:** Gestión Pasiva, Flujos de Mercado & Core"
-    )
+    st.success("📌 **Catalizador Activo:** Gestión Pasiva, Flujos de Mercado & Core")
     c1, c2 = st.columns(2)
     with c1:
       st.markdown("""
@@ -1219,31 +891,15 @@ with tabs[4]:
             """)
 
   st.markdown("---")
-
-  # SECCIÓN DE FUENTES DE PRENSA ESPECIALIZADA PARA PROFUNDIZAR
   st.markdown("#### 🔗 Conexión Rápida con Fuentes de Prensa de Referencia")
-  st.markdown(
-      "Si salta un catalizador, abre la fuente especializada con un clic para"
-      " verificar la noticia completa:"
-  )
+  st.markdown("Si salta un catalizador, abre la fuente especializada con un clic para verificar la noticia completa:")
 
   p1, p2, p3, p4 = st.columns(4)
   with p1:
-    st.markdown(
-        "[📰 Expansión -"
-        " Fondos](https://www.expansion.com/mercados/fondos.html)"
-    )
+    st.markdown("[📰 Expansión - Fondos](https://www.expansion.com/mercados/fondos.html)")
   with p2:
-    st.markdown(
-        "[📰 Cinco Días -"
-        " Inversión](https://cincodias.elpais.com/noticias/fondos-inversion/)"
-    )
+    st.markdown("[📰 Cinco Días - Inversión](https://cincodias.elpais.com/noticias/fondos-inversion/)")
   with p3:
-    st.markdown(
-        "[📊 Morningstar España](https://www.morningstar.es/es/news/default.aspx)"
-    )
+    st.markdown("[📊 Morningstar España](https://www.morningstar.es/es/news/default.aspx)")
   with p4:
-      st.markdown(
-          "[⚡ El Economista -"
-          " Mercados](https://www.eleconomista.es/mercados/)"
-      )
+    st.markdown("[⚡ El Economista - Mercados](https://www.eleconomista.es/mercados/)")
